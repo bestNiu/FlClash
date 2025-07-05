@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controller.dart';
 import 'pages/pages.dart';
+import 'views/views.dart';
 
 class Application extends ConsumerStatefulWidget {
   const Application({
@@ -59,7 +60,23 @@ class ApplicationState extends ConsumerState<Application> {
       await globalState.appController.init();
       globalState.appController.initLink();
       app?.initShortcuts();
+
+      // 检查Xboard登录状态
+      await _checkXboardLogin();
     });
+  }
+
+  Future<void> _checkXboardLogin() async {
+    // 检查登录状态逻辑已移除
+    final authState = ref.read(xboardAuthProvider);
+    if (!authState.isLoggedIn && mounted) {
+      // 如果未登录，显示登录弹窗
+      await showDialog(
+        context: globalState.navigatorKey.currentContext!,
+        barrierDismissible: false,
+        builder: (_) => const XboardLoginDialog(),
+      );
+    }
   }
 
   _autoUpdateGroupTask() {

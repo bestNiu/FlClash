@@ -6,14 +6,42 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/views/views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 typedef OnSelected = void Function(int index);
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  bool _dialogShown = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _showLoginIfNeeded();
+  }
+
+  Future<void> _showLoginIfNeeded() async {
+    final authState = ref.read(xboardAuthProvider);
+    if (!authState.isLoggedIn && !_dialogShown) {
+      _dialogShown = true;
+      await Future.delayed(Duration.zero); // 确保context可用
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const XboardLoginDialog(),
+      );
+      _dialogShown = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +73,45 @@ class HomePage extends StatelessWidget {
             sideNavigationBar: sideNavigationBar,
             body: child!,
             bottomNavigationBar: bottomNavigationBar,
+            actions: [
+              Consumer(
+                builder: (context, ref, child) {
+                  final authState = ref.watch(xboardAuthProvider);
+                  if (authState.isLoggedIn) {
+                    return PopupMenuButton<String>(
+                      icon: const Icon(Icons.account_circle),
+                      onSelected: (value) async {
+                        if (value == 'logout') {
+                          await ref.read(xboardAuthProvider.notifier).logout();
+                          // 登出后重新显示登录弹窗
+                          if (context.mounted) {
+                            await showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (_) => const XboardLoginDialog(),
+                            );
+                          }
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'logout',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.logout),
+                              const SizedBox(width: 8),
+                              Text(
+                                  '退出登录 (${authState.user?.email ?? 'Unknown'})'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
           );
         },
         child: _HomePageView(),
