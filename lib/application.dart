@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controller.dart';
 import 'pages/pages.dart';
-import 'views/views.dart';
+// import 'views/views.dart'; // 移除未使用的导入
 
 class Application extends ConsumerStatefulWidget {
   const Application({
@@ -61,23 +61,23 @@ class ApplicationState extends ConsumerState<Application> {
       globalState.appController.initLink();
       app?.initShortcuts();
 
-      // 检查Xboard登录状态
-      await _checkXboardLogin();
+      // 移除自动检查Xboard登录状态
+      // await _checkXboardLogin();
     });
   }
 
-  Future<void> _checkXboardLogin() async {
-    // 检查登录状态逻辑已移除
-    final authState = ref.read(xboardAuthProvider);
-    if (!authState.isLoggedIn && mounted) {
-      // 如果未登录，显示登录弹窗
-      await showDialog(
-        context: globalState.navigatorKey.currentContext!,
-        barrierDismissible: false,
-        builder: (_) => const XboardLoginDialog(),
-      );
-    }
-  }
+  // 移除自动检查Xboard登录状态方法
+  // Future<void> _checkXboardLogin() async {
+  //   final authState = ref.read(xboardAuthProvider);
+  //   if (!authState.isLoggedIn && mounted) {
+  //     // 如果未登录，显示登录弹窗
+  //     await showDialog(
+  //       context: globalState.navigatorKey.currentContext!,
+  //       barrierDismissible: false,
+  //       builder: (_) => const XboardLoginDialog(),
+  //     );
+  //   }
+  // }
 
   _autoUpdateGroupTask() {
     _autoUpdateGroupTaskTimer = Timer(const Duration(milliseconds: 20000), () {
@@ -156,6 +156,7 @@ class ApplicationState extends ConsumerState<Application> {
       _buildState(
         Consumer(
           builder: (_, ref, child) {
+            print('[Application] Consumer build called!');
             final locale =
                 ref.watch(appSettingProvider.select((state) => state.locale));
             final themeProps = ref.watch(themeSettingProvider);
@@ -196,7 +197,7 @@ class ApplicationState extends ConsumerState<Application> {
                   primaryColor: themeProps.primaryColor,
                 ).toPureBlack(themeProps.pureBlack),
               ),
-              home: child,
+              home: const HomePage(),
             );
           },
           child: const HomePage(),

@@ -144,7 +144,10 @@ class _ProfilesViewState extends State<ProfilesView> with PageMixin {
           fireImmediately: true,
         );
         final profilesSelectorState = ref.watch(profilesSelectorStateProvider);
+        print(
+            '[ProfilesView] profilesSelectorState: profiles.length=${profilesSelectorState.profiles.length}, currentProfileId=${profilesSelectorState.currentProfileId}');
         if (profilesSelectorState.profiles.isEmpty) {
+          print('[ProfilesView] profilesSelectorState.profiles is empty!');
           return NullStatus(
             label: appLocalizations.nullProfileDesc,
           );
@@ -170,6 +173,8 @@ class _ProfilesViewState extends State<ProfilesView> with PageMixin {
                       profile: profilesSelectorState.profiles[i],
                       groupValue: profilesSelectorState.currentProfileId,
                       onChanged: (profileId) {
+                        print(
+                            '[ProfilesView] ProfileItem onChanged: $profileId');
                         ref.read(currentProfileIdProvider.notifier).value =
                             profileId;
                       },
@@ -318,106 +323,117 @@ class ProfileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CommonCard(
-      isSelected: profile.id == groupValue,
-      onPressed: () {
-        onChanged(profile.id);
-      },
-      child: ListItem(
-        key: Key(profile.id),
-        horizontalTitleGap: 16,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        trailing: SizedBox(
-          height: 40,
-          width: 40,
-          child: FadeThroughBox(
-            child: profile.isUpdating
-                ? const Padding(
-                    padding: EdgeInsets.all(8),
-                    child: CircularProgressIndicator(),
-                  )
-                : CommonPopupBox(
-                    popup: CommonPopupMenu(
-                      items: [
-                        PopupMenuItemData(
-                          icon: Icons.edit_outlined,
-                          label: appLocalizations.edit,
-                          onPressed: () {
-                            _handleShowEditExtendPage(context);
-                          },
-                        ),
-                        if (profile.type == ProfileType.url) ...[
+    try {
+      print(
+          '[ProfileItem] build: id=${profile.id}, url=${profile.url}, groupValue=$groupValue');
+      return CommonCard(
+        isSelected: profile.id == groupValue,
+        onPressed: () {
+          print('[ProfileItem] onPressed: id=${profile.id}');
+          onChanged(profile.id);
+        },
+        child: ListItem(
+          key: Key(profile.id),
+          horizontalTitleGap: 16,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          trailing: SizedBox(
+            height: 40,
+            width: 40,
+            child: FadeThroughBox(
+              child: profile.isUpdating
+                  ? const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: CircularProgressIndicator(),
+                    )
+                  : CommonPopupBox(
+                      popup: CommonPopupMenu(
+                        items: [
                           PopupMenuItemData(
-                            icon: Icons.sync_alt_sharp,
-                            label: appLocalizations.sync,
+                            icon: Icons.edit_outlined,
+                            label: appLocalizations.edit,
                             onPressed: () {
-                              updateProfile();
+                              _handleShowEditExtendPage(context);
+                            },
+                          ),
+                          if (profile.type == ProfileType.url) ...[
+                            PopupMenuItemData(
+                              icon: Icons.sync_alt_sharp,
+                              label: appLocalizations.sync,
+                              onPressed: () {
+                                updateProfile();
+                              },
+                            ),
+                          ],
+                          PopupMenuItemData(
+                            icon: Icons.extension_outlined,
+                            label: appLocalizations.override,
+                            onPressed: () {
+                              _handlePushGenProfilePage(context, profile.id);
+                            },
+                          ),
+                          PopupMenuItemData(
+                            icon: Icons.file_copy_outlined,
+                            label: appLocalizations.exportFile,
+                            onPressed: () {
+                              _handleExportFile(context);
+                            },
+                          ),
+                          PopupMenuItemData(
+                            icon: Icons.delete_outlined,
+                            label: appLocalizations.delete,
+                            onPressed: () {
+                              _handleDeleteProfile(context);
                             },
                           ),
                         ],
-                        PopupMenuItemData(
-                          icon: Icons.extension_outlined,
-                          label: appLocalizations.override,
+                      ),
+                      targetBuilder: (open) {
+                        return IconButton(
                           onPressed: () {
-                            _handlePushGenProfilePage(context, profile.id);
+                            open();
                           },
-                        ),
-                        PopupMenuItemData(
-                          icon: Icons.file_copy_outlined,
-                          label: appLocalizations.exportFile,
-                          onPressed: () {
-                            _handleExportFile(context);
-                          },
-                        ),
-                        PopupMenuItemData(
-                          icon: Icons.delete_outlined,
-                          label: appLocalizations.delete,
-                          onPressed: () {
-                            _handleDeleteProfile(context);
-                          },
-                        ),
-                      ],
+                          icon: Icon(Icons.more_vert),
+                        );
+                      },
                     ),
-                    targetBuilder: (open) {
-                      return IconButton(
-                        onPressed: () {
-                          open();
-                        },
-                        icon: Icon(Icons.more_vert),
-                      );
+            ),
+          ),
+          title: Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  profile.label ?? profile.id,
+                  style: context.textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ...switch (profile.type) {
+                      ProfileType.file => _buildFileProfileInfo(context),
+                      ProfileType.url => _buildUrlProfileInfo(context),
                     },
-                  ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        title: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                profile.label ?? profile.id,
-                style: context.textTheme.titleMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...switch (profile.type) {
-                    ProfileType.file => _buildFileProfileInfo(context),
-                    ProfileType.url => _buildUrlProfileInfo(context),
-                  },
-                ],
-              ),
-            ],
-          ),
-        ),
-        tileTitleAlignment: ListTileTitleAlignment.titleHeight,
-      ),
-    );
+      );
+    } catch (e, stack) {
+      print('[ProfileItem] build error: $e\n$stack');
+      return Container(
+        color: Colors.red,
+        child: Text('ProfileItem error: $e',
+            style: TextStyle(color: Colors.white)),
+      );
+    }
   }
 }
 

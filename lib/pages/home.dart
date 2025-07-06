@@ -6,7 +6,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:fl_clash/views/views.dart';
+// import 'package:fl_clash/views/views.dart'; // 移除未使用的导入
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -21,33 +21,36 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  bool _dialogShown = false;
+  // bool _dialogShown = false; // 移除未使用的字段
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _showLoginIfNeeded();
-  }
+  // 移除自动登录弹窗逻辑
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   _showLoginIfNeeded();
+  // }
 
-  Future<void> _showLoginIfNeeded() async {
-    final authState = ref.read(xboardAuthProvider);
-    if (!authState.isLoggedIn && !_dialogShown) {
-      _dialogShown = true;
-      await Future.delayed(Duration.zero); // 确保context可用
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const XboardLoginDialog(),
-      );
-      _dialogShown = false;
-    }
-  }
+  // Future<void> _showLoginIfNeeded() async {
+  //   final authState = ref.read(xboardAuthProvider);
+  //   if (!authState.isLoggedIn && !_dialogShown) {
+  //     _dialogShown = true;
+  //     await Future.delayed(Duration.zero); // 确保context可用
+  //     await showDialog(
+  //       context: context,
+  //       barrierDismissible: false,
+  //       builder: (_) => const XboardLoginDialog(),
+  //     );
+  //     _dialogShown = false;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
+    print('[HomePage] build called!');
     return HomeBackScope(
       child: Consumer(
         builder: (_, ref, child) {
+          print('[HomePage] Consumer build called!');
           final state = ref.watch(homeStateProvider);
           final viewMode = state.viewMode;
           final navigationItems = state.navigationItems;
@@ -83,14 +86,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       onSelected: (value) async {
                         if (value == 'logout') {
                           await ref.read(xboardAuthProvider.notifier).logout();
-                          // 登出后重新显示登录弹窗
-                          if (context.mounted) {
-                            await showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (_) => const XboardLoginDialog(),
-                            );
-                          }
+                          // 登出后不再自动显示登录弹窗
                         }
                       },
                       itemBuilder: (context) => [
@@ -191,6 +187,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
 
   @override
   Widget build(BuildContext context) {
+    print('[_HomePageView] build called!');
     final navigationItems = ref.watch(currentNavigationsStateProvider).value;
     return PageView.builder(
       controller: _pageController,

@@ -2,9 +2,12 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/pages/scan.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/views/views.dart';
+import 'package:fl_clash/providers/providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AddProfileView extends StatelessWidget {
+class AddProfileView extends ConsumerWidget {
   final BuildContext context;
 
   const AddProfileView({
@@ -12,15 +15,41 @@ class AddProfileView extends StatelessWidget {
     required this.context,
   });
 
-  _handleAddProfileFormFile() async {
+  _handleAddProfileFormFile(WidgetRef ref) async {
+    // 检查登录状态
+    final authState = ref.read(xboardAuthProvider);
+    if (!authState.isLoggedIn) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const XboardLoginDialog(),
+      );
+      // 如果登录失败或取消，则不继续
+      if (!ref.read(xboardAuthProvider).isLoggedIn) {
+        return;
+      }
+    }
     globalState.appController.addProfileFormFile();
   }
 
-  _handleAddProfileFormURL(String url) async {
+  _handleAddProfileFormURL(String url, WidgetRef ref) async {
+    // 检查登录状态
+    final authState = ref.read(xboardAuthProvider);
+    if (!authState.isLoggedIn) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const XboardLoginDialog(),
+      );
+      // 如果登录失败或取消，则不继续
+      if (!ref.read(xboardAuthProvider).isLoggedIn) {
+        return;
+      }
+    }
     globalState.appController.addProfileFormURL(url);
   }
 
-  _toScan() async {
+  _toScan(WidgetRef ref) async {
     if (system.isDesktop) {
       globalState.appController.addProfileFormQrCode();
       return;
@@ -31,12 +60,12 @@ class AddProfileView extends StatelessWidget {
     );
     if (url != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _handleAddProfileFormURL(url);
+        _handleAddProfileFormURL(url, ref);
       });
     }
   }
 
-  _toAdd() async {
+  _toAdd(WidgetRef ref) async {
     final url = await globalState.showCommonDialog<String>(
       child: InputDialog(
         autovalidateMode: AutovalidateMode.onUnfocus,
@@ -55,31 +84,31 @@ class AddProfileView extends StatelessWidget {
       ),
     );
     if (url != null) {
-      _handleAddProfileFormURL(url);
+      _handleAddProfileFormURL(url, ref);
     }
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
       children: [
         ListItem(
           leading: const Icon(Icons.qr_code_sharp),
           title: Text(appLocalizations.qrcode),
           subtitle: Text(appLocalizations.qrcodeDesc),
-          onTap: _toScan,
+          onTap: () => _toScan(ref),
         ),
         ListItem(
           leading: const Icon(Icons.upload_file_sharp),
           title: Text(appLocalizations.file),
           subtitle: Text(appLocalizations.fileDesc),
-          onTap: _handleAddProfileFormFile,
+          onTap: () => _handleAddProfileFormFile(ref),
         ),
         ListItem(
           leading: const Icon(Icons.cloud_download_sharp),
           title: Text(appLocalizations.url),
           subtitle: Text(appLocalizations.urlDesc),
-          onTap: _toAdd,
+          onTap: () => _toAdd(ref),
         )
       ],
     );

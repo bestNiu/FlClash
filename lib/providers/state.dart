@@ -249,6 +249,21 @@ StartButtonSelectorState startButtonSelectorState(Ref ref) {
 }
 
 @riverpod
+Profile? currentProfile(Ref ref) {
+  final profileId = ref.watch(currentProfileIdProvider);
+  final profiles = ref.watch(profilesProvider);
+  print('[Provider] currentProfileId: '
+      '[33m$profileId[0m');
+  print('[Provider] profiles: '
+      '[36m${profiles.map((e) => 'id=${e.id},url=${e.url}').toList()}[0m');
+  final profile = ref
+      .watch(profilesProvider.select((state) => state.getProfile(profileId)));
+  print('[Provider] currentProfile: '
+      '[32m${profile?.id ?? "null"}[0m');
+  return profile;
+}
+
+@riverpod
 ProfilesSelectorState profilesSelectorState(Ref ref) {
   final currentProfileId = ref.watch(currentProfileIdProvider);
   final profiles = ref.watch(profilesProvider);
@@ -257,6 +272,8 @@ ProfilesSelectorState profilesSelectorState(Ref ref) {
       (state) => utils.getProfilesColumns(state),
     ),
   );
+  print(
+      '[Provider] profilesSelectorState: currentProfileId=$currentProfileId, profiles.length=${profiles.length}');
   return ProfilesSelectorState(
     profiles: profiles,
     currentProfileId: currentProfileId,
@@ -455,13 +472,6 @@ HotKeyAction getHotKeyAction(Ref ref, HotAction hotAction) {
       },
     ),
   );
-}
-
-@riverpod
-Profile? currentProfile(Ref ref) {
-  final profileId = ref.watch(currentProfileIdProvider);
-  return ref
-      .watch(profilesProvider.select((state) => state.getProfile(profileId)));
 }
 
 @riverpod

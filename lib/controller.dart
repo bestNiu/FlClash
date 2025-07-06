@@ -129,9 +129,16 @@ class AppController {
   }
 
   addProfile(Profile profile) async {
+    print(
+        '[AppController] addProfile called: id=${profile.id}, url=${profile.url}');
     _ref.read(profilesProvider.notifier).setProfile(profile);
-    if (_ref.read(currentProfileIdProvider) != null) return;
+    if (_ref.read(currentProfileIdProvider) != null) {
+      print(
+          '[AppController] currentProfileId already set: ${_ref.read(currentProfileIdProvider)}');
+      return;
+    }
     _ref.read(currentProfileIdProvider.notifier).value = profile.id;
+    print('[AppController] currentProfileId set to: ${profile.id}');
   }
 
   deleteProfile(String id) async {
@@ -664,6 +671,7 @@ class AppController {
   }
 
   addProfileFormURL(String url) async {
+    print('[AppController] addProfileFormURL called with url: $url');
     if (globalState.navigatorKey.currentState?.canPop() ?? false) {
       globalState.navigatorKey.currentState?.popUntil((route) => route.isFirst);
     }
@@ -672,6 +680,7 @@ class AppController {
     if (commonScaffoldState?.mounted != true) return;
     final profile = await commonScaffoldState?.loadingRun<Profile>(
       () async {
+        print('[AppController] Creating Profile.normal for url: $url');
         return await Profile.normal(
           url: url,
         ).update();
@@ -679,7 +688,11 @@ class AppController {
       title: "${appLocalizations.add}${appLocalizations.profile}",
     );
     if (profile != null) {
+      print(
+          '[AppController] Profile created: id=${profile.id}, url=${profile.url}');
       await addProfile(profile);
+    } else {
+      print('[AppController] Profile creation failed for url: $url');
     }
   }
 
