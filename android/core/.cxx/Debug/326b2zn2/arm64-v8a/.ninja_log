@@ -1,0 +1,4 @@
+# ninja log v5
+2	119	1752912742579706078	CMakeFiles/core.dir/core.cpp.o	b3e4e95417846af7
+1	309	1752912742769058811	CMakeFiles/core.dir/jni_helper.cpp.o	22906a52cb1ccb83
+310	517	1752912742975235288	/Users/pikaqiu/AndroidStudioProjects/FlClash/build/core/intermediates/cxx/Debug/326b2zn2/obj/arm64-v8a/libcore.so	60e99b9b13085c45

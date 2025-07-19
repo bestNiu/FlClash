@@ -1,0 +1,3 @@
+/Users/pikaqiu/AndroidStudioProjects/FlClash/android/core/.cxx/Debug/326b2zn2/x86_64/CMakeFiles/core.dir
+/Users/pikaqiu/AndroidStudioProjects/FlClash/android/core/.cxx/Debug/326b2zn2/x86_64/CMakeFiles/edit_cache.dir
+/Users/pikaqiu/AndroidStudioProjects/FlClash/android/core/.cxx/Debug/326b2zn2/x86_64/CMakeFiles/rebuild_cache.dir

@@ -96,6 +96,16 @@ class Navigation {
         ),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
       ),
+      const NavigationItem(
+        icon: Icon(Icons.cloud),
+        label: PageLabel.xboard,
+        view: XboardView(
+          key: GlobalObjectKey(
+            PageLabel.xboard,
+          ),
+        ),
+        modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
+      ),
     ];
   }
 
