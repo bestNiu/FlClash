@@ -88,16 +88,37 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
       final subscriptionUrl = await _subscriptionService.getSubscriptionUrl();
 
       if (subscriptionUrl != null && subscriptionUrl.isNotEmpty) {
-        // 使用FlClash的原生方法导入配置
-        globalState.appController.addProfileFormURL(subscriptionUrl);
+        // 检查是否已经存在相同的Xboard配置
+        final profiles = globalState.config.profiles;
+        final existingProfile = profiles
+            .where((p) =>
+                p.url == subscriptionUrl || p.label?.contains('Xboard') == true)
+            .firstOrNull;
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('正在导入配置，请稍候...'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+        if (existingProfile != null) {
+          // 如果配置已存在，只更新配置
+          await globalState.appController.updateProfile(existingProfile);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Xboard配置已更新'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        } else {
+          // 如果配置不存在，才添加新配置 - 使用自定义方法避免导航问题
+          await _addProfileWithoutNavigation(subscriptionUrl);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Xboard配置已添加'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
         }
       } else {
         if (mounted) {
@@ -109,7 +130,7 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导入配置失败: $e')),
+          SnackBar(content: Text('操作失败: $e')),
         );
       }
     } finally {
@@ -132,7 +153,22 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
       // 刷新订阅信息
       _subscriptionInfo = await _subscriptionService.getSubscriptionInfo();
 
-      // 刷新FlClash中的所有配置
+      // 只更新现有的Xboard配置，不添加新配置
+      if (_subscriptionInfo?.subscribeUrl != null) {
+        final profiles = globalState.config.profiles;
+        final xboardProfile = profiles
+            .where((p) =>
+                p.url == _subscriptionInfo!.subscribeUrl ||
+                p.label?.contains('Xboard') == true)
+            .firstOrNull;
+
+        if (xboardProfile != null) {
+          // 只更新现有的Xboard配置
+          await globalState.appController.updateProfile(xboardProfile);
+        }
+      }
+
+      // 刷新FlClash中的其他配置（不包括重复的Xboard配置）
       await globalState.appController.updateProfiles();
 
       if (mounted) {
@@ -172,6 +208,22 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
         total > 0 ? ((used / total) * 100).toStringAsFixed(1) : '0.0';
 
     return '$usedGB GB / $totalGB GB ($percentage%)';
+  }
+
+  // 添加配置文件但不影响当前导航
+  Future<void> _addProfileWithoutNavigation(String url) async {
+    try {
+      // 直接创建并更新配置文件，不使用FlClash的导航逻辑
+      final profile = await Profile.normal(
+        url: url,
+        label: 'Xboard - ${_authService.currentUser?.email ?? "订阅"}',
+      ).update();
+
+      // 直接添加到配置列表中
+      await globalState.appController.addProfile(profile);
+    } catch (e) {
+      throw '添加配置失败: $e';
+    }
   }
 
   // 显示登出确认对话框
@@ -586,7 +638,7 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
                   child: ElevatedButton.icon(
                     onPressed: _importConfig,
                     icon: const Icon(Icons.download),
-                    label: const Text('导入配置'),
+                    label: const Text('添加/更新配置'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -594,7 +646,7 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
                   child: ElevatedButton.icon(
                     onPressed: _refreshAll,
                     icon: const Icon(Icons.sync),
-                    label: const Text('刷新全部'),
+                    label: const Text('刷新数据'),
                   ),
                 ),
               ],
