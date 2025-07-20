@@ -304,7 +304,7 @@ class _XboardDashboardPageState extends State<XboardDashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Xboard 仪表板'),
+        title: const Text('账户信息'),
         actions: [
           IconButton(
             onPressed: _refreshAll,
