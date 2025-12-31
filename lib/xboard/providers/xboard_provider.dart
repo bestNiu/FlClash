@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -6,6 +8,8 @@ import 'package:fl_clash/xboard/models/xboard_models.dart';
 import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+export 'package:fl_clash/xboard/models/xboard_models.dart' show XboardConstants;
 
 part 'generated/xboard_provider.g.dart';
 
@@ -56,9 +60,30 @@ class XboardStateNotifier extends _$XboardStateNotifier {
 
   void _initAuth() {
     final config = ref.read(xboardConfigProvider);
+
+    // 恢复高可用缓存
+    if (config.haResolvedUrl != null && config.haResolvedTime != null) {
+      xboardApi.setHACache(config.haResolvedUrl, config.haResolvedTime);
+    }
+
+    // 恢复缓存的 UI 配置
+    if (config.cachedUiConfig != null) {
+      try {
+        final uiConfigJson =
+            Map<String, dynamic>.from(json.decode(config.cachedUiConfig!));
+        final uiConfig = XboardUIConfig.fromJson(uiConfigJson);
+        xboardApi.setCachedUiConfig(uiConfig, config.haConfigVersion);
+      } catch (_) {
+        // 解析失败，忽略
+      }
+    }
+
     if (config.baseUrl != null && config.authData != null) {
       xboardApi.setBaseUrl(config.baseUrl!);
       xboardApi.setAuth(config.authData);
+    } else if (config.baseUrl == null) {
+      // 没有配置过面板地址，使用默认地址
+      xboardApi.setBaseUrl(XboardConstants.defaultBaseUrl);
     }
   }
 

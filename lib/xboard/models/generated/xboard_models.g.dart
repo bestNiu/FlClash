@@ -174,6 +174,11 @@ _XboardConfig _$XboardConfigFromJson(Map<String, dynamic> json) =>
       authData: json['authData'] as String?,
       loginTime: (json['loginTime'] as num?)?.toInt(),
       autoSyncSubscribe: json['autoSyncSubscribe'] as bool? ?? true,
+      enableHA: json['enableHA'] as bool? ?? true,
+      haResolvedUrl: json['haResolvedUrl'] as String?,
+      haResolvedTime: (json['haResolvedTime'] as num?)?.toInt(),
+      haConfigVersion: (json['haConfigVersion'] as num?)?.toInt(),
+      cachedUiConfig: json['cachedUiConfig'] as String?,
     );
 
 Map<String, dynamic> _$XboardConfigToJson(_XboardConfig instance) =>
@@ -183,6 +188,11 @@ Map<String, dynamic> _$XboardConfigToJson(_XboardConfig instance) =>
       'authData': instance.authData,
       'loginTime': instance.loginTime,
       'autoSyncSubscribe': instance.autoSyncSubscribe,
+      'enableHA': instance.enableHA,
+      'haResolvedUrl': instance.haResolvedUrl,
+      'haResolvedTime': instance.haResolvedTime,
+      'haConfigVersion': instance.haConfigVersion,
+      'cachedUiConfig': instance.cachedUiConfig,
     };
 
 _XboardState _$XboardStateFromJson(Map<String, dynamic> json) => _XboardState(

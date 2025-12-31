@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/xboard/models/xboard_models.dart';
 import 'package:fl_clash/xboard/providers/xboard_provider.dart';
+import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,16 +33,56 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
+  bool _isResolvingHA = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    // 恢复上次的面板地址
+    // 先使用默认地址作为占位
+    _baseUrlController.text = XboardConstants.defaultBaseUrl;
+
+    // 如果启用了高可用模式，总是尝试解析真实地址（强制刷新）
     final config = ref.read(xboardConfigProvider);
-    if (config.baseUrl != null) {
+    if (config.enableHA) {
+      // 启动时强制刷新，确保获取最新配置
+      _resolveHAAddress(forceRefresh: true);
+    } else if (config.baseUrl != null && config.baseUrl!.isNotEmpty) {
+      // 未启用高可用时，使用缓存的地址
       _baseUrlController.text = config.baseUrl!;
     }
+  }
+
+  /// 通过高可用服务解析真实面板地址
+  /// [forceRefresh] 是否强制刷新（忽略缓存）
+  Future<void> _resolveHAAddress({bool forceRefresh = false}) async {
+    setState(() => _isResolvingHA = true);
+
+    // 强制刷新时忽略缓存
+    final result = await xboardApi.resolveAndSetBaseUrl(
+      forceRefresh: forceRefresh,
+    );
+    if (result.isSuccess && result.data != null) {
+      // 更新输入框
+      _baseUrlController.text = result.data!;
+
+      // 保存配置（包括 UI 配置和版本号）
+      final uiConfigJson = json.encode(xboardApi.uiConfig.toJson());
+      ref
+          .read(xboardConfigProvider.notifier)
+          .updateConfig(
+            (config) => config.copyWith(
+              baseUrl: result.data,
+              haResolvedUrl: xboardApi.haResolvedUrl,
+              haResolvedTime: xboardApi.haResolvedTime,
+              haConfigVersion: xboardApi.configVersion,
+              cachedUiConfig: uiConfigJson,
+            ),
+          );
+    }
+
+    setState(() => _isResolvingHA = false);
   }
 
   @override
@@ -57,7 +101,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
 
     setState(() => _isLoading = true);
 
-    final result = await ref.read(xboardStateProvider.notifier).login(
+    final result = await ref
+        .read(xboardStateProvider.notifier)
+        .login(
           _baseUrlController.text.trim(),
           _emailController.text.trim(),
           _passwordController.text,
@@ -66,7 +112,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
     setState(() => _isLoading = false);
 
     if (result.isError) {
-      globalState.showNotifier(result.message.isNotEmpty ? result.message : '登录失败');
+      globalState.showNotifier(
+        result.message.isNotEmpty ? result.message : '登录失败',
+      );
     } else {
       globalState.showNotifier('登录成功');
     }
@@ -82,20 +130,23 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
 
     setState(() => _isLoading = true);
 
-    final result =
-        await ref.read(xboardStateProvider.notifier).register(
-              baseUrl: _baseUrlController.text.trim(),
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-              inviteCode: _inviteCodeController.text.trim().isNotEmpty
-                  ? _inviteCodeController.text.trim()
-                  : null,
-            );
+    final result = await ref
+        .read(xboardStateProvider.notifier)
+        .register(
+          baseUrl: _baseUrlController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          inviteCode: _inviteCodeController.text.trim().isNotEmpty
+              ? _inviteCodeController.text.trim()
+              : null,
+        );
 
     setState(() => _isLoading = false);
 
     if (result.isError) {
-      globalState.showNotifier(result.message.isNotEmpty ? result.message : '注册失败');
+      globalState.showNotifier(
+        result.message.isNotEmpty ? result.message : '注册失败',
+      );
     } else {
       globalState.showNotifier('注册成功');
     }
@@ -187,15 +238,34 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                 // 面板地址
                                 TextFormField(
                                   controller: _baseUrlController,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: '面板地址',
-                                    hintText: 'https://example.com',
-                                    prefixIcon: Icon(Icons.link),
-                                    border: OutlineInputBorder(),
+                                    hintText: XboardConstants.defaultBaseUrl,
+                                    prefixIcon: const Icon(Icons.link),
+                                    border: const OutlineInputBorder(),
+                                    suffixIcon: _isResolvingHA
+                                        ? const Padding(
+                                            padding: EdgeInsets.all(12),
+                                            child: SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          )
+                                        : IconButton(
+                                            icon: const Icon(Icons.refresh),
+                                            tooltip: '刷新高可用地址',
+                                            onPressed: () => _resolveHAAddress(
+                                              forceRefresh: true,
+                                            ),
+                                          ),
                                   ),
                                   keyboardType: TextInputType.url,
                                   validator: _validateUrl,
                                   textInputAction: TextInputAction.next,
+                                  enabled: !_isResolvingHA,
                                 ),
                                 const SizedBox(height: 16),
 
@@ -252,8 +322,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                     controller: _confirmPasswordController,
                                     decoration: InputDecoration(
                                       labelText: '确认密码',
-                                      prefixIcon:
-                                          const Icon(Icons.lock_outline),
+                                      prefixIcon: const Icon(
+                                        Icons.lock_outline,
+                                      ),
                                       border: const OutlineInputBorder(),
                                       suffixIcon: IconButton(
                                         icon: Icon(
@@ -297,8 +368,8 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                     onPressed: _isLoading
                                         ? null
                                         : (_tabController.index == 0
-                                            ? _handleLogin
-                                            : _handleRegister),
+                                              ? _handleLogin
+                                              : _handleRegister),
                                     child: _isLoading
                                         ? const SizedBox(
                                             width: 24,
@@ -326,9 +397,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
 
               const SizedBox(height: 16),
 
-              // 提示文字
+              // 底部提示文字
               Text(
-                '登录后可自动同步订阅到 FlClash',
+                xboardApi.uiConfig.footerText,
                 style: context.textTheme.bodySmall?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -341,31 +412,37 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
   }
 
   Widget _buildHeader(BuildContext context) {
+    final uiConfig = xboardApi.uiConfig;
+
     return Column(
       children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            color: context.colorScheme.primaryContainer,
+        // 面板图标
+        if (uiConfig.iconUrl != null && uiConfig.iconUrl!.isNotEmpty)
+          ClipRRect(
             borderRadius: BorderRadius.circular(20),
-          ),
-          child: Icon(
-            Icons.cloud_sync,
-            size: 48,
-            color: context.colorScheme.onPrimaryContainer,
-          ),
-        ),
+            child: Image.network(
+              uiConfig.iconUrl!,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  _buildDefaultIcon(context),
+            ),
+          )
+        else
+          _buildDefaultIcon(context),
         const SizedBox(height: 16),
+        // 面板名称
         Text(
-          'Xboard 面板',
+          uiConfig.panelName,
           style: context.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
+        // 欢迎语
         Text(
-          '连接您的订阅服务',
+          uiConfig.welcomeText,
           style: context.textTheme.bodyMedium?.copyWith(
             color: context.colorScheme.onSurfaceVariant,
           ),
@@ -373,5 +450,20 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
       ],
     );
   }
-}
 
+  Widget _buildDefaultIcon(BuildContext context) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        color: context.colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Icon(
+        Icons.cloud_sync,
+        size: 48,
+        color: context.colorScheme.onPrimaryContainer,
+      ),
+    );
+  }
+}

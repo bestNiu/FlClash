@@ -4,6 +4,7 @@ import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:fl_clash/xboard/models/xboard_models.dart';
 import 'package:fl_clash/xboard/providers/xboard_provider.dart';
+import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:fl_clash/xboard/views/xboard_login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,9 +61,10 @@ class _XboardViewState extends ConsumerState<XboardView> {
   @override
   Widget build(BuildContext context) {
     final xboardState = ref.watch(xboardStateProvider);
+    final uiConfig = xboardApi.uiConfig;
 
     return CommonScaffold(
-      title: 'Xboard',
+      title: uiConfig.title,
       actions: xboardState.isLoggedIn
           ? [
               IconButton(
