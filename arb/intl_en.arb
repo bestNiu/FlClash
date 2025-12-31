@@ -467,5 +467,5 @@
   "restart": "Restart",
   "speedStatistics": "Speed statistics",
   "resetPageChangesTip": "The current page has changes. Are you sure you want to reset?",
-  "xboard": "Xboard"
+  "login": "Login"
 }

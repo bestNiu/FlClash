@@ -467,5 +467,6 @@
   "vpnConfigChangeDetected": "VPN設定の変更が検出されました",
   "restart": "再起動",
   "speedStatistics": "速度統計",
-  "resetPageChangesTip": "現在のページに変更があります。リセットしてもよろしいですか？"
+  "resetPageChangesTip": "現在のページに変更があります。リセットしてもよろしいですか？",
+  "login": "ログイン"
 }

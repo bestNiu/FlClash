@@ -36,9 +36,9 @@ class Navigation {
       ),
       NavigationItem(
         icon: Icon(Icons.cloud_sync),
-        label: PageLabel.xboard,
+        label: PageLabel.login,
         builder: (_) =>
-            const XboardView(key: GlobalObjectKey(PageLabel.xboard)),
+            const XboardView(key: GlobalObjectKey(PageLabel.login)),
         modes: [NavigationItemMode.mobile, NavigationItemMode.desktop],
       ),
       NavigationItem(

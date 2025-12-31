@@ -468,5 +468,5 @@
   "restart": "重启",
   "speedStatistics": "网速统计",
   "resetPageChangesTip": "当前页面存在更改，确定重置吗？",
-  "xboard": "Xboard"
+  "login": "登录"
 }
