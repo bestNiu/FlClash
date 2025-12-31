@@ -195,273 +195,306 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    // 判断是否为手机端（窄屏）
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final horizontalPadding = isMobile ? 16.0 : 24.0;
+    final topPadding = isMobile ? 24.0 : 48.0;
+
+    return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo 和标题
-              _buildHeader(context),
-              const SizedBox(height: 32),
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: topPadding,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                // Logo 和标题
+                _buildHeader(context, isMobile),
+                SizedBox(height: isMobile ? 20 : 32),
 
-              // 登录/注册卡片
-              CommonCard(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      // Tab 切换
-                      TabBar(
-                        controller: _tabController,
-                        tabs: const [
-                          Tab(text: '登录'),
-                          Tab(text: '注册'),
-                        ],
-                        onTap: (_) {
-                          // 清除表单验证状态
-                          _formKey.currentState?.reset();
-                        },
-                      ),
-                      const SizedBox(height: 24),
+                // 登录/注册卡片
+                CommonCard(
+                  child: Padding(
+                    padding: EdgeInsets.all(isMobile ? 16 : 20),
+                    child: Column(
+                      children: [
+                        // Tab 切换
+                        TabBar(
+                          controller: _tabController,
+                          tabs: const [
+                            Tab(text: '登录'),
+                            Tab(text: '注册'),
+                          ],
+                          onTap: (_) {
+                            // 清除表单验证状态
+                            _formKey.currentState?.reset();
+                          },
+                        ),
+                        SizedBox(height: isMobile ? 16 : 24),
 
-                      // 表单内容
-                      Form(
-                        key: _formKey,
-                        child: AnimatedBuilder(
-                          animation: _tabController,
-                          builder: (context, _) {
-                            return Column(
-                              children: [
-                                // 面板地址
-                                TextFormField(
-                                  controller: _baseUrlController,
-                                  decoration: InputDecoration(
-                                    labelText: '面板地址',
-                                    hintText: XboardConstants.defaultBaseUrl,
-                                    prefixIcon: const Icon(Icons.link),
-                                    border: const OutlineInputBorder(),
-                                    suffixIcon: _isResolvingHA
-                                        ? const Padding(
-                                            padding: EdgeInsets.all(12),
-                                            child: SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
+                        // 表单内容
+                        Form(
+                          key: _formKey,
+                          child: AnimatedBuilder(
+                            animation: _tabController,
+                            builder: (context, _) {
+                              return Column(
+                                children: [
+                                  // 面板地址
+                                  TextFormField(
+                                    controller: _baseUrlController,
+                                    decoration: InputDecoration(
+                                      labelText: '面板地址',
+                                      hintText: XboardConstants.defaultBaseUrl,
+                                      prefixIcon: const Icon(Icons.link),
+                                      border: const OutlineInputBorder(),
+                                      isDense: isMobile,
+                                      suffixIcon: _isResolvingHA
+                                          ? const Padding(
+                                              padding: EdgeInsets.all(12),
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                ),
+                                              ),
+                                            )
+                                          : IconButton(
+                                              icon: const Icon(Icons.refresh),
+                                              tooltip: '刷新高可用地址',
+                                              onPressed: () => _resolveHAAddress(
+                                                forceRefresh: true,
                                               ),
                                             ),
-                                          )
-                                        : IconButton(
-                                            icon: const Icon(Icons.refresh),
-                                            tooltip: '刷新高可用地址',
-                                            onPressed: () => _resolveHAAddress(
-                                              forceRefresh: true,
-                                            ),
-                                          ),
-                                  ),
-                                  keyboardType: TextInputType.url,
-                                  validator: _validateUrl,
-                                  textInputAction: TextInputAction.next,
-                                  enabled: !_isResolvingHA,
-                                ),
-                                const SizedBox(height: 16),
-
-                                // 邮箱
-                                TextFormField(
-                                  controller: _emailController,
-                                  decoration: const InputDecoration(
-                                    labelText: '邮箱',
-                                    hintText: 'user@example.com',
-                                    prefixIcon: Icon(Icons.email_outlined),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  keyboardType: TextInputType.emailAddress,
-                                  validator: _validateEmail,
-                                  textInputAction: TextInputAction.next,
-                                ),
-                                const SizedBox(height: 16),
-
-                                // 密码
-                                TextFormField(
-                                  controller: _passwordController,
-                                  decoration: InputDecoration(
-                                    labelText: '密码',
-                                    prefixIcon: const Icon(Icons.lock_outline),
-                                    border: const OutlineInputBorder(),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _obscurePassword
-                                            ? Icons.visibility_off
-                                            : Icons.visibility,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _obscurePassword = !_obscurePassword;
-                                        });
-                                      },
                                     ),
+                                    keyboardType: TextInputType.url,
+                                    validator: _validateUrl,
+                                    textInputAction: TextInputAction.next,
+                                    enabled: !_isResolvingHA,
                                   ),
-                                  obscureText: _obscurePassword,
-                                  validator: _validatePassword,
-                                  textInputAction: _tabController.index == 0
-                                      ? TextInputAction.done
-                                      : TextInputAction.next,
-                                  onFieldSubmitted: _tabController.index == 0
-                                      ? (_) => _handleLogin()
-                                      : null,
-                                ),
+                                  SizedBox(height: isMobile ? 12 : 16),
 
-                                // 注册时的额外字段
-                                if (_tabController.index == 1) ...[
-                                  const SizedBox(height: 16),
-                                  // 确认密码
+                                  // 邮箱
                                   TextFormField(
-                                    controller: _confirmPasswordController,
+                                    controller: _emailController,
                                     decoration: InputDecoration(
-                                      labelText: '确认密码',
-                                      prefixIcon: const Icon(
-                                        Icons.lock_outline,
-                                      ),
+                                      labelText: '邮箱',
+                                      hintText: 'user@example.com',
+                                      prefixIcon:
+                                          const Icon(Icons.email_outlined),
                                       border: const OutlineInputBorder(),
+                                      isDense: isMobile,
+                                    ),
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: _validateEmail,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                  SizedBox(height: isMobile ? 12 : 16),
+
+                                  // 密码
+                                  TextFormField(
+                                    controller: _passwordController,
+                                    decoration: InputDecoration(
+                                      labelText: '密码',
+                                      prefixIcon:
+                                          const Icon(Icons.lock_outline),
+                                      border: const OutlineInputBorder(),
+                                      isDense: isMobile,
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _obscureConfirmPassword
+                                          _obscurePassword
                                               ? Icons.visibility_off
                                               : Icons.visibility,
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _obscureConfirmPassword =
-                                                !_obscureConfirmPassword;
+                                            _obscurePassword =
+                                                !_obscurePassword;
                                           });
                                         },
                                       ),
                                     ),
-                                    obscureText: _obscureConfirmPassword,
-                                    validator: _validateConfirmPassword,
-                                    textInputAction: TextInputAction.next,
+                                    obscureText: _obscurePassword,
+                                    validator: _validatePassword,
+                                    textInputAction: _tabController.index == 0
+                                        ? TextInputAction.done
+                                        : TextInputAction.next,
+                                    onFieldSubmitted: _tabController.index == 0
+                                        ? (_) => _handleLogin()
+                                        : null,
                                   ),
-                                  const SizedBox(height: 16),
-                                  // 邀请码
-                                  TextFormField(
-                                    controller: _inviteCodeController,
-                                    decoration: const InputDecoration(
-                                      labelText: '邀请码 (可选)',
-                                      prefixIcon: Icon(Icons.card_giftcard),
-                                      border: OutlineInputBorder(),
+
+                                  // 注册时的额外字段
+                                  if (_tabController.index == 1) ...[
+                                    SizedBox(height: isMobile ? 12 : 16),
+                                    // 确认密码
+                                    TextFormField(
+                                      controller: _confirmPasswordController,
+                                      decoration: InputDecoration(
+                                        labelText: '确认密码',
+                                        prefixIcon: const Icon(
+                                          Icons.lock_outline,
+                                        ),
+                                        border: const OutlineInputBorder(),
+                                        isDense: isMobile,
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                            _obscureConfirmPassword
+                                                ? Icons.visibility_off
+                                                : Icons.visibility,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _obscureConfirmPassword =
+                                                  !_obscureConfirmPassword;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      obscureText: _obscureConfirmPassword,
+                                      validator: _validateConfirmPassword,
+                                      textInputAction: TextInputAction.next,
                                     ),
-                                    textInputAction: TextInputAction.done,
-                                    onFieldSubmitted: (_) => _handleRegister(),
+                                    SizedBox(height: isMobile ? 12 : 16),
+                                    // 邀请码
+                                    TextFormField(
+                                      controller: _inviteCodeController,
+                                      decoration: InputDecoration(
+                                        labelText: '邀请码 (可选)',
+                                        prefixIcon:
+                                            const Icon(Icons.card_giftcard),
+                                        border: const OutlineInputBorder(),
+                                        isDense: isMobile,
+                                      ),
+                                      textInputAction: TextInputAction.done,
+                                      onFieldSubmitted: (_) =>
+                                          _handleRegister(),
+                                    ),
+                                  ],
+
+                                  SizedBox(height: isMobile ? 16 : 24),
+
+                                  // 提交按钮
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: isMobile ? 44 : 48,
+                                    child: FilledButton(
+                                      onPressed: _isLoading
+                                          ? null
+                                          : (_tabController.index == 0
+                                                ? _handleLogin
+                                                : _handleRegister),
+                                      child: _isLoading
+                                          ? const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : Text(
+                                              _tabController.index == 0
+                                                  ? '登录'
+                                                  : '注册',
+                                            ),
+                                    ),
                                   ),
                                 ],
-
-                                const SizedBox(height: 24),
-
-                                // 提交按钮
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 48,
-                                  child: FilledButton(
-                                    onPressed: _isLoading
-                                        ? null
-                                        : (_tabController.index == 0
-                                              ? _handleLogin
-                                              : _handleRegister),
-                                    child: _isLoading
-                                        ? const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : Text(
-                                            _tabController.index == 0
-                                                ? '登录'
-                                                : '注册',
-                                          ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                SizedBox(height: isMobile ? 12 : 16),
 
-              // 底部提示文字
-              Text(
-                xboardApi.uiConfig.footerText,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
+                // 底部提示文字
+                Text(
+                  xboardApi.uiConfig.footerText,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, bool isMobile) {
     final uiConfig = xboardApi.uiConfig;
+    final iconSize = isMobile ? 64.0 : 80.0;
+    final borderRadius = isMobile ? 16.0 : 20.0;
 
     return Column(
       children: [
         // 面板图标
         if (uiConfig.iconUrl != null && uiConfig.iconUrl!.isNotEmpty)
           ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(borderRadius),
             child: Image.network(
               uiConfig.iconUrl!,
-              width: 80,
-              height: 80,
+              width: iconSize,
+              height: iconSize,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) =>
-                  _buildDefaultIcon(context),
+                  _buildDefaultIcon(context, isMobile),
             ),
           )
         else
-          _buildDefaultIcon(context),
-        const SizedBox(height: 16),
+          _buildDefaultIcon(context, isMobile),
+        SizedBox(height: isMobile ? 12 : 16),
         // 面板名称
         Text(
           uiConfig.panelName,
-          style: context.textTheme.headlineSmall?.copyWith(
+          style: (isMobile
+                  ? context.textTheme.titleLarge
+                  : context.textTheme.headlineSmall)
+              ?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isMobile ? 4 : 8),
         // 欢迎语
         Text(
           uiConfig.welcomeText,
           style: context.textTheme.bodyMedium?.copyWith(
             color: context.colorScheme.onSurfaceVariant,
           ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
-  Widget _buildDefaultIcon(BuildContext context) {
+  Widget _buildDefaultIcon(BuildContext context, bool isMobile) {
+    final iconSize = isMobile ? 64.0 : 80.0;
+    final borderRadius = isMobile ? 16.0 : 20.0;
+    final innerIconSize = isMobile ? 36.0 : 48.0;
+
     return Container(
-      width: 80,
-      height: 80,
+      width: iconSize,
+      height: iconSize,
       decoration: BoxDecoration(
         color: context.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: Icon(
         Icons.cloud_sync,
-        size: 48,
+        size: innerIconSize,
         color: context.colorScheme.onPrimaryContainer,
       ),
     );

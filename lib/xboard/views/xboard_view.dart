@@ -63,19 +63,20 @@ class _XboardViewState extends ConsumerState<XboardView> {
     final xboardState = ref.watch(xboardStateProvider);
     final uiConfig = xboardApi.uiConfig;
 
+    // 未登录时不显示 AppBar，登录后显示带标题的 AppBar
+    if (!xboardState.isLoggedIn) {
+      return const XboardLoginView();
+    }
+
     return CommonScaffold(
       title: uiConfig.title,
-      actions: xboardState.isLoggedIn
-          ? [
-              IconButton(
-                onPressed: xboardState.isLoading ? null : _handleRefresh,
-                icon: const Icon(Icons.refresh),
-              ),
-            ]
-          : null,
-      body: xboardState.isLoggedIn
-          ? _buildLoggedInView(context, xboardState)
-          : const XboardLoginView(),
+      actions: [
+        IconButton(
+          onPressed: xboardState.isLoading ? null : _handleRefresh,
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+      body: _buildLoggedInView(context, xboardState),
     );
   }
 
