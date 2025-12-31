@@ -366,6 +366,9 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
           ?.map((e) => Rule.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  xboardConfig: json['xboardConfig'] == null
+      ? null
+      : XboardConfig.fromJson(json['xboardConfig'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
@@ -383,4 +386,5 @@ Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
   'patchClashConfig': instance.patchClashConfig,
   'scripts': instance.scripts,
   'rules': instance.rules,
+  'xboardConfig': instance.xboardConfig,
 };

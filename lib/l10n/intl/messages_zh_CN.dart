@@ -573,6 +573,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
     "years": MessageLookupByLibrary.simpleMessage("年"),
     "yearsAgo": m14,
+    "xboard": MessageLookupByLibrary.simpleMessage("Xboard"),
     "zh_CN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }

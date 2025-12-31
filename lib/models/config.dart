@@ -1,5 +1,6 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/xboard/models/xboard_models.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -253,6 +254,7 @@ abstract class Config with _$Config {
     @Default(defaultClashConfig) ClashConfig patchClashConfig,
     @Default([]) List<Script> scripts,
     @Default([]) List<Rule> rules,
+    XboardConfig? xboardConfig,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);

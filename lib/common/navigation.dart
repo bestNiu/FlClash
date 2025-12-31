@@ -1,6 +1,7 @@
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/views/views.dart';
+import 'package:fl_clash/xboard/xboard.dart';
 import 'package:flutter/material.dart';
 
 class Navigation {
@@ -32,6 +33,13 @@ class Navigation {
         label: PageLabel.profiles,
         builder: (_) =>
             const ProfilesView(key: GlobalObjectKey(PageLabel.profiles)),
+      ),
+      NavigationItem(
+        icon: Icon(Icons.cloud_sync),
+        label: PageLabel.xboard,
+        builder: (_) =>
+            const XboardView(key: GlobalObjectKey(PageLabel.xboard)),
+        modes: [NavigationItemMode.mobile, NavigationItemMode.desktop],
       ),
       NavigationItem(
         icon: Icon(Icons.view_timeline),

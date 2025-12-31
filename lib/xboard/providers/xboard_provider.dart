@@ -1,0 +1,312 @@
+import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/state.dart';
+import 'package:fl_clash/xboard/models/xboard_models.dart';
+import 'package:fl_clash/xboard/services/xboard_api.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+part 'generated/xboard_provider.g.dart';
+
+/// Xboard 配置 Provider（持久化）
+@riverpod
+class XboardConfigNotifier extends _$XboardConfigNotifier
+    with AutoDisposeNotifierMixin {
+  @override
+  XboardConfig build() {
+    return globalState.config.xboardConfig ?? const XboardConfig();
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(xboardConfig: value);
+  }
+
+  void updateConfig(XboardConfig Function(XboardConfig config) updater) {
+    value = updater(state);
+  }
+
+  void setBaseUrl(String url) {
+    value = state.copyWith(baseUrl: url);
+  }
+
+  void setAuth(String? token, String? authData) {
+    value = state.copyWith(
+      authToken: token,
+      authData: authData,
+      loginTime: token != null ? DateTime.now().millisecondsSinceEpoch : null,
+    );
+  }
+
+  void clear() {
+    value = const XboardConfig();
+  }
+}
+
+/// Xboard 状态 Provider（运行时）
+@riverpod
+class XboardStateNotifier extends _$XboardStateNotifier {
+  @override
+  XboardState build() {
+    // 初始化时检查登录状态
+    _initAuth();
+    return const XboardState();
+  }
+
+  void _initAuth() {
+    final config = ref.read(xboardConfigProvider);
+    if (config.baseUrl != null && config.authData != null) {
+      xboardApi.setBaseUrl(config.baseUrl!);
+      xboardApi.setAuth(config.authData);
+    }
+  }
+
+  /// 登录
+  Future<Result<bool>> login(
+    String baseUrl,
+    String email,
+    String password,
+  ) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    // 设置面板地址
+    xboardApi.setBaseUrl(baseUrl);
+    ref.read(xboardConfigProvider.notifier).setBaseUrl(baseUrl);
+
+    // 调用登录接口
+    final result = await xboardApi.login(email, password);
+
+    if (result.isError) {
+      state = state.copyWith(isLoading: false, error: result.message);
+      return Result.error(result.message.isNotEmpty ? result.message : '登录失败');
+    }
+
+    final auth = result.data!;
+    // 保存认证信息
+    ref
+        .read(xboardConfigProvider.notifier)
+        .setAuth(auth.token, auth.authData);
+
+    // 获取用户信息和订阅信息
+    await refresh();
+
+    state = state.copyWith(isLoggedIn: true, isLoading: false, error: null);
+    return Result.success(true);
+  }
+
+  /// 注册
+  Future<Result<bool>> register({
+    required String baseUrl,
+    required String email,
+    required String password,
+    String? inviteCode,
+    String? emailCode,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    xboardApi.setBaseUrl(baseUrl);
+    ref.read(xboardConfigProvider.notifier).setBaseUrl(baseUrl);
+
+    final result = await xboardApi.register(
+      email: email,
+      password: password,
+      inviteCode: inviteCode,
+      emailCode: emailCode,
+    );
+
+    if (result.isError) {
+      state = state.copyWith(isLoading: false, error: result.message);
+      return Result.error(result.message.isNotEmpty ? result.message : '注册失败');
+    }
+
+    final auth = result.data!;
+    ref
+        .read(xboardConfigProvider.notifier)
+        .setAuth(auth.token, auth.authData);
+
+    await refresh();
+
+    state = state.copyWith(isLoggedIn: true, isLoading: false, error: null);
+    return Result.success(true);
+  }
+
+  /// 登出
+  Future<void> logout() async {
+    xboardApi.logout();
+    ref.read(xboardConfigProvider.notifier).clear();
+    state = const XboardState();
+  }
+
+  /// 刷新用户数据
+  Future<void> refresh() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    // 确保已认证
+    final config = ref.read(xboardConfigProvider);
+    if (config.authData == null) {
+      state = state.copyWith(isLoading: false, isLoggedIn: false);
+      return;
+    }
+
+    if (!xboardApi.isAuthenticated) {
+      xboardApi.setBaseUrl(config.baseUrl ?? '');
+      xboardApi.setAuth(config.authData);
+    }
+
+    try {
+      // 并行获取用户信息、订阅信息和公告
+      final results = await Future.wait([
+        xboardApi.getUserInfo(),
+        xboardApi.getSubscribe(),
+        xboardApi.getNotices(),
+      ]);
+
+      final userResult = results[0] as Result<XboardUser>;
+      final subscribeResult = results[1] as Result<XboardSubscribe>;
+      final noticesResult = results[2] as Result<List<XboardNotice>>;
+
+      if (userResult.isError) {
+        // 认证可能已失效
+        if (userResult.message.contains('401') ||
+            userResult.message.contains('认证')) {
+          await logout();
+          state = state.copyWith(
+            isLoading: false,
+            error: '登录已过期，请重新登录',
+          );
+          return;
+        }
+      }
+
+      state = state.copyWith(
+        isLoggedIn: userResult.isSuccess,
+        isLoading: false,
+        user: userResult.data,
+        subscribe: subscribeResult.data,
+        notices: noticesResult.data ?? [],
+        error: userResult.isError ? userResult.message : null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  /// 检查登录状态
+  Future<void> checkAuthStatus() async {
+    final config = ref.read(xboardConfigProvider);
+    if (config.authData == null || config.baseUrl == null) {
+      state = state.copyWith(isLoggedIn: false);
+      return;
+    }
+
+    xboardApi.setBaseUrl(config.baseUrl!);
+    xboardApi.setAuth(config.authData);
+
+    await refresh();
+  }
+
+  /// 同步订阅到 FlClash
+  Future<Result<bool>> syncSubscribeToFlClash() async {
+    final subscribe = state.subscribe;
+    if (subscribe == null) {
+      return Result.error('未获取到订阅信息');
+    }
+
+    if (!subscribe.hasValidSubscribe) {
+      return Result.error('没有有效的订阅');
+    }
+
+    final subscribeUrl = subscribe.subscribeUrl!;
+    final planName = subscribe.plan?.name ?? 'Xboard 订阅';
+
+    try {
+      // 检查是否已存在相同订阅
+      final profiles = ref.read(profilesProvider);
+      final existingProfile = profiles.where((p) => p.url == subscribeUrl);
+
+      if (existingProfile.isNotEmpty) {
+        // 已存在，触发更新并设为当前配置
+        final profile = existingProfile.first;
+        await globalState.appController.updateProfile(profile);
+        ref.read(currentProfileIdProvider.notifier).value = profile.id;
+        return Result.success(true);
+      }
+
+      // 创建新 Profile
+      await globalState.appController.addProfileFormURL(subscribeUrl);
+
+      // 更新标签为套餐名
+      final newProfiles = ref.read(profilesProvider);
+      final newProfile = newProfiles.where((p) => p.url == subscribeUrl);
+      if (newProfile.isNotEmpty) {
+        ref.read(profilesProvider.notifier).setProfile(
+              newProfile.first.copyWith(label: planName),
+            );
+      }
+
+      return Result.success(true);
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  /// 打开购买页面
+  Future<void> openPurchasePage() async {
+    final config = ref.read(xboardConfigProvider);
+    if (config.baseUrl == null) return;
+
+    final url = '${config.baseUrl}/#/plan';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  /// 打开用户中心
+  Future<void> openUserCenter() async {
+    final config = ref.read(xboardConfigProvider);
+    if (config.baseUrl == null) return;
+
+    final url = '${config.baseUrl}/#/dashboard';
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  /// 设置错误信息
+  void setError(String? error) {
+    state = state.copyWith(error: error);
+  }
+
+  /// 清除错误
+  void clearError() {
+    state = state.copyWith(error: null);
+  }
+}
+
+/// 是否已登录 Xboard
+@riverpod
+bool isXboardLoggedIn(ref) {
+  final state = ref.watch(xboardStateProvider);
+  return state.isLoggedIn;
+}
+
+/// Xboard 用户信息
+@riverpod
+XboardUser? xboardUser(ref) {
+  final state = ref.watch(xboardStateProvider);
+  return state.user;
+}
+
+/// Xboard 订阅信息
+@riverpod
+XboardSubscribe? xboardSubscribe(ref) {
+  final state = ref.watch(xboardStateProvider);
+  return state.subscribe;
+}
+
+/// 是否有有效订阅
+@riverpod
+bool hasValidXboardSubscribe(ref) {
+  final subscribe = ref.watch(xboardSubscribeProvider);
+  return subscribe?.hasValidSubscribe ?? false;
+}

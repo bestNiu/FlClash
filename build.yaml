@@ -6,7 +6,10 @@ targets:
           build_extensions:
             '^lib/models/{{}}.dart': 'lib/models/generated/{{}}.g.dart'
             '^lib/providers/{{}}.dart': 'lib/providers/generated/{{}}.g.dart'
+            '^lib/xboard/models/{{}}.dart': 'lib/xboard/models/generated/{{}}.g.dart'
+            '^lib/xboard/providers/{{}}.dart': 'lib/xboard/providers/generated/{{}}.g.dart'
       freezed:
         options:
           build_extensions:
             '^lib/models/{{}}.dart': 'lib/models/generated/{{}}.freezed.dart'
+            '^lib/xboard/models/{{}}.dart': 'lib/xboard/models/generated/{{}}.freezed.dart'
