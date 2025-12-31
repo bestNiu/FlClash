@@ -1,0 +1,91 @@
+name: build-lite
+
+on:
+  # 推送 tag v* 时自动触发（例如 v0.9.0、v1.0.0）
+  push:
+    tags:
+      - 'v*'
+
+  # 允许在 Actions 页面手动触发
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          # ✅ 只保留非 Android 平台
+          - platform: windows
+            os: windows-2022
+            arch: amd64
+
+          - platform: linux
+            os: ubuntu-22.04
+            arch: amd64
+
+          - platform: macos
+            os: macos-15-intel
+            arch: amd64
+
+          - platform: macos
+            os: macos-latest
+            arch: arm64
+
+          - platform: linux
+            os: ubuntu-24.04-arm
+            arch: arm64
+
+    steps:
+      # 1. 拉代码 + 子模块
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # 2. 安装 Go（和上游保持一致）
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.0'
+          cache-dependency-path: |
+            core/go.sum
+
+      # 3. 安装 Flutter（非 Linux ARM）
+      - name: Setup Flutter (stable)
+        if: ${{ !startsWith(matrix.os, 'ubuntu-24.04-arm') }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.35.7'
+          cache: true
+
+      # 4. 安装 Flutter（Linux ARM 用 master 分支，保持和上游一致）
+      - name: Setup Flutter (arm64 / master)
+        if: ${{ startsWith(matrix.os, 'ubuntu-24.04-arm') }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          flutter-version: '3.35.7'
+          cache: true
+
+      # 5. 拉取 Flutter 依赖
+      - name: Get Flutter dependencies
+        run: |
+          flutter --version
+          flutter pub get
+
+      # 6. 调用项目自带构建脚本
+      #    上游就是通过 setup.dart 来做平台编译的 :contentReference[oaicite:1]{index=1}
+      - name: Build
+        run: |
+          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }}
+
+      # 7. 上传构建产物，后面可以在 Actions 的 Artifacts 里下载
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: flclash-${{ matrix.platform }}-${{ matrix.arch }}
+          path: ./dist
+          overwrite: true
