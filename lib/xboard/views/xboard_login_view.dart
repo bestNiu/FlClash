@@ -262,16 +262,17 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                                 height: 20,
                                                 child:
                                                     CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
+                                                      strokeWidth: 2,
+                                                    ),
                                               ),
                                             )
                                           : IconButton(
                                               icon: const Icon(Icons.refresh),
                                               tooltip: '刷新高可用地址',
-                                              onPressed: () => _resolveHAAddress(
-                                                forceRefresh: true,
-                                              ),
+                                              onPressed: () =>
+                                                  _resolveHAAddress(
+                                                    forceRefresh: true,
+                                                  ),
                                             ),
                                     ),
                                     keyboardType: TextInputType.url,
@@ -287,8 +288,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                     decoration: InputDecoration(
                                       labelText: '邮箱',
                                       hintText: 'user@example.com',
-                                      prefixIcon:
-                                          const Icon(Icons.email_outlined),
+                                      prefixIcon: const Icon(
+                                        Icons.email_outlined,
+                                      ),
                                       border: const OutlineInputBorder(),
                                       isDense: isMobile,
                                     ),
@@ -303,8 +305,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                     controller: _passwordController,
                                     decoration: InputDecoration(
                                       labelText: '密码',
-                                      prefixIcon:
-                                          const Icon(Icons.lock_outline),
+                                      prefixIcon: const Icon(
+                                        Icons.lock_outline,
+                                      ),
                                       border: const OutlineInputBorder(),
                                       isDense: isMobile,
                                       suffixIcon: IconButton(
@@ -368,8 +371,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                                       controller: _inviteCodeController,
                                       decoration: InputDecoration(
                                         labelText: '邀请码 (可选)',
-                                        prefixIcon:
-                                            const Icon(Icons.card_giftcard),
+                                        prefixIcon: const Icon(
+                                          Icons.card_giftcard,
+                                        ),
                                         border: const OutlineInputBorder(),
                                         isDense: isMobile,
                                       ),
@@ -460,12 +464,11 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
         // 面板名称
         Text(
           uiConfig.panelName,
-          style: (isMobile
-                  ? context.textTheme.titleLarge
-                  : context.textTheme.headlineSmall)
-              ?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style:
+              (isMobile
+                      ? context.textTheme.titleLarge
+                      : context.textTheme.headlineSmall)
+                  ?.copyWith(fontWeight: FontWeight.bold),
         ),
         SizedBox(height: isMobile ? 4 : 8),
         // 欢迎语
