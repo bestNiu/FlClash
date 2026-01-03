@@ -8,6 +8,7 @@ import 'package:dio/io.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:flutter/cupertino.dart';
 
 class Request {
@@ -57,18 +58,37 @@ class Request {
   }
 
   Future<Map<String, dynamic>?> checkForUpdate() async {
-    final response = await dio.get(
-      'https://api.github.com/repos/$repository/releases/latest',
-      options: Options(responseType: ResponseType.json),
-    );
-    if (response.statusCode != 200) return null;
-    final data = response.data as Map<String, dynamic>;
-    final remoteVersion = data['tag_name'];
-    final version = globalState.packageInfo.version;
-    final hasUpdate =
-        utils.compareVersions(remoteVersion.replaceAll('v', ''), version) > 0;
+    // 从 xboardApi 获取最新的配置（会自动解析 config.yaml）
+    final haService = xboardApi.haService;
+    
+    // 强制刷新配置
+    await xboardApi.resolveAndSetBaseUrl(forceRefresh: true);
+    
+    // 获取配置中的 app 版本信息
+    final config = haService.lastConfig;
+    if (config == null || config.appVersion == null) {
+      return null;
+    }
+    
+    final appVersionInfo = config.appVersion!;
+    final remoteVersion = appVersionInfo.version;
+    final localVersion = globalState.packageInfo.version;
+    
+    // 比较版本号
+    final hasUpdate = utils.compareVersions(remoteVersion, localVersion) > 0;
     if (!hasUpdate) return null;
-    return data;
+    
+    // 返回更新信息
+    return {
+      'version': remoteVersion,
+      'changelog': appVersionInfo.changelog,
+      'force_update': appVersionInfo.forceUpdate,
+      'windows_url': appVersionInfo.windowsUrl,
+      'macos_url': appVersionInfo.macosUrl,
+      'android_url': appVersionInfo.androidUrl,
+      'ios_url': appVersionInfo.iosUrl,
+      'linux_url': appVersionInfo.linuxUrl,
+    };
   }
 
   final Map<String, IpInfo Function(Map<String, dynamic>)> _ipInfoSources = {

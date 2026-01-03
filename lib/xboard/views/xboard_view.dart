@@ -122,8 +122,9 @@ class _XboardViewState extends ConsumerState<XboardView> {
             CircleAvatar(
               radius: 30,
               backgroundColor: context.colorScheme.primaryContainer,
-              backgroundImage:
-                  user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
+              backgroundImage: user.avatarUrl != null
+                  ? NetworkImage(user.avatarUrl!)
+                  : null,
               child: user.avatarUrl == null
                   ? Icon(
                       Icons.person,
@@ -180,10 +181,7 @@ class _XboardViewState extends ConsumerState<XboardView> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '订阅信息',
-                  style: context.textTheme.titleMedium,
-                ),
+                Text('订阅信息', style: context.textTheme.titleMedium),
                 if (hasValidSubscribe)
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -251,11 +249,7 @@ class _XboardViewState extends ConsumerState<XboardView> {
 
               // 设备限制
               if (subscribe.deviceLimit != null) ...[
-                _buildInfoRow(
-                  context,
-                  '设备限制',
-                  '${subscribe.deviceLimit} 台',
-                ),
+                _buildInfoRow(context, '设备限制', '${subscribe.deviceLimit} 台'),
               ],
 
               // 下次重置
@@ -302,13 +296,15 @@ class _XboardViewState extends ConsumerState<XboardView> {
   }
 
   Widget _buildTrafficProgress(
-      BuildContext context, XboardSubscribe subscribe) {
+    BuildContext context,
+    XboardSubscribe subscribe,
+  ) {
     final progress = subscribe.trafficProgress.clamp(0.0, 1.0);
     final progressColor = progress > 0.9
         ? context.colorScheme.error
         : progress > 0.7
-            ? Colors.orange
-            : context.colorScheme.primary;
+        ? Colors.orange
+        : context.colorScheme.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,10 +351,7 @@ class _XboardViewState extends ConsumerState<XboardView> {
               color: context.colorScheme.onSurfaceVariant,
             ),
           ),
-          Text(
-            value,
-            style: context.textTheme.bodyMedium,
-          ),
+          Text(value, style: context.textTheme.bodyMedium),
         ],
       ),
     );
@@ -376,7 +369,7 @@ class _XboardViewState extends ConsumerState<XboardView> {
             child: FilledButton.icon(
               onPressed: state.isLoading ? null : _handleSyncSubscribe,
               icon: const Icon(Icons.sync),
-              label: const Text('同步订阅到 FlClash'),
+              label: const Text('同步订阅'),
             ),
           ),
           const SizedBox(height: 12),
@@ -413,14 +406,13 @@ class _XboardViewState extends ConsumerState<XboardView> {
   }
 
   Widget _buildNoticesSection(
-      BuildContext context, List<XboardNotice> notices) {
+    BuildContext context,
+    List<XboardNotice> notices,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '公告',
-          style: context.textTheme.titleMedium,
-        ),
+        Text('公告', style: context.textTheme.titleMedium),
         const SizedBox(height: 12),
         ...notices.map((notice) => _buildNoticeItem(context, notice)),
       ],
@@ -501,4 +493,3 @@ class _XboardViewState extends ConsumerState<XboardView> {
     return '${date.month}/${date.day}';
   }
 }
-

@@ -24,12 +24,82 @@ class XboardConstants {
   static const String configPath = '/fly/config.yaml';
 }
 
+/// 软件版本信息模型
+class AppVersionInfo {
+  /// 最新版本号（如 "1.2.3"）
+  final String version;
+
+  /// 更新日志/描述
+  final String? changelog;
+
+  /// 是否强制更新
+  final bool forceUpdate;
+
+  /// Windows 下载地址
+  final String? windowsUrl;
+
+  /// macOS 下载地址
+  final String? macosUrl;
+
+  /// Android 下载地址
+  final String? androidUrl;
+
+  /// iOS 下载地址（可能是 App Store 链接）
+  final String? iosUrl;
+
+  /// Linux 下载地址
+  final String? linuxUrl;
+
+  const AppVersionInfo({
+    required this.version,
+    this.changelog,
+    this.forceUpdate = false,
+    this.windowsUrl,
+    this.macosUrl,
+    this.androidUrl,
+    this.iosUrl,
+    this.linuxUrl,
+  });
+
+  /// 从 YAML Map 解析
+  factory AppVersionInfo.fromYaml(Map<String, dynamic> yaml) {
+    return AppVersionInfo(
+      version: yaml['version']?.toString() ?? '0.0.0',
+      changelog: yaml['changelog']?.toString(),
+      forceUpdate: yaml['force_update'] == true,
+      windowsUrl: yaml['windows_url']?.toString(),
+      macosUrl: yaml['macos_url']?.toString(),
+      androidUrl: yaml['android_url']?.toString(),
+      iosUrl: yaml['ios_url']?.toString(),
+      linuxUrl: yaml['linux_url']?.toString(),
+    );
+  }
+
+  /// 根据当前平台获取下载地址
+  String? getDownloadUrlForPlatform(String platform) {
+    switch (platform.toLowerCase()) {
+      case 'windows':
+        return windowsUrl;
+      case 'macos':
+        return macosUrl;
+      case 'android':
+        return androidUrl;
+      case 'ios':
+        return iosUrl;
+      case 'linux':
+        return linuxUrl;
+      default:
+        return null;
+    }
+  }
+}
+
 /// 高可用配置文件模型
 ///
 /// config.yaml 文件格式示例:
 /// ```yaml
 /// # Xboard 高可用配置文件
-/// # 版本号（必填）
+/// # 版本号（必填）- 配置文件版本
 /// version: 1
 ///
 /// # 面板真实地址（必填）
@@ -51,6 +121,24 @@ class XboardConstants {
 ///   # 面板图标 URL（可选）
 ///   icon_url: https://example.com/icon.png
 ///
+/// # 软件版本信息（可选）- 用于检查更新
+/// app:
+///   # 最新版本号
+///   version: "1.2.3"
+///   # 更新日志
+///   changelog: |
+///     - 新增功能 A
+///     - 修复 Bug B
+///     - 优化性能 C
+///   # 是否强制更新
+///   force_update: false
+///   # 各平台下载地址
+///   windows_url: https://example.com/app-windows.exe
+///   macos_url: https://example.com/app-macos.dmg
+///   android_url: https://example.com/app-android.apk
+///   ios_url: https://apps.apple.com/app/xxx
+///   linux_url: https://example.com/app-linux.deb
+///
 /// # 公告信息（可选）
 /// announcement: "欢迎使用 Fly 服务"
 ///
@@ -70,6 +158,9 @@ class XboardHAConfig {
   /// UI 配置
   final XboardUIConfig ui;
 
+  /// 软件版本信息
+  final AppVersionInfo? appVersion;
+
   /// 公告信息
   final String? announcement;
 
@@ -81,6 +172,7 @@ class XboardHAConfig {
     required this.panelUrl,
     this.backupUrls = const [],
     XboardUIConfig? ui,
+    this.appVersion,
     this.announcement,
     this.updatedAt,
   }) : ui = ui ?? const XboardUIConfig();
@@ -103,6 +195,15 @@ class XboardHAConfig {
       uiConfig = XboardUIConfig.fromYaml(Map<String, dynamic>.from(uiValue));
     }
 
+    // 解析 app 版本配置
+    AppVersionInfo? appVersionInfo;
+    final appValue = yaml['app'];
+    if (appValue is Map) {
+      appVersionInfo = AppVersionInfo.fromYaml(
+        Map<String, dynamic>.from(appValue),
+      );
+    }
+
     return XboardHAConfig(
       version: version,
       panelUrl: yaml['panel_url']?.toString() ?? XboardConstants.defaultBaseUrl,
@@ -112,6 +213,7 @@ class XboardHAConfig {
               .toList() ??
           [],
       ui: uiConfig,
+      appVersion: appVersionInfo,
       announcement: yaml['announcement']?.toString(),
       updatedAt: yaml['updated_at']?.toString(),
     );

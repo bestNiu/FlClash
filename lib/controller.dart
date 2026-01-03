@@ -484,27 +484,38 @@ class AppController {
     bool isUser = false,
   }) async {
     if (data != null) {
-      final tagName = data['tag_name'];
-      final body = data['body'];
-      final submits = utils.parseReleaseBody(body);
+      final version = data['version'] as String?;
+      final changelog = data['changelog'] as String?;
+      final forceUpdate = data['force_update'] as bool? ?? false;
+      
+      // 解析更新日志为列表
+      final changelogLines = changelog?.split('\n')
+          .map((line) => line.trim())
+          .where((line) => line.isNotEmpty)
+          .toList() ?? [];
+      
       final textTheme = context.textTheme;
       final res = await globalState.showMessage(
         title: appLocalizations.discoverNewVersion,
         message: TextSpan(
-          text: '$tagName \n',
+          text: 'v$version \n',
           style: textTheme.headlineSmall,
           children: [
             TextSpan(text: '\n', style: textTheme.bodyMedium),
-            for (final submit in submits)
-              TextSpan(text: '- $submit \n', style: textTheme.bodyMedium),
+            for (final line in changelogLines)
+              TextSpan(text: '$line \n', style: textTheme.bodyMedium),
           ],
         ),
         confirmText: appLocalizations.goDownload,
-        cancelText: isUser ? null : appLocalizations.noLongerRemind,
+        cancelText: forceUpdate ? null : (isUser ? null : appLocalizations.noLongerRemind),
       );
       if (res == true) {
-        launchUrl(Uri.parse('https://github.com/$repository/releases/latest'));
-      } else if (!isUser && res == false) {
+        // 根据平台获取对应的下载地址
+        final downloadUrl = _getDownloadUrlForPlatform(data);
+        if (downloadUrl != null && downloadUrl.isNotEmpty) {
+          launchUrl(Uri.parse(downloadUrl));
+        }
+      } else if (!isUser && res == false && !forceUpdate) {
         _ref
             .read(appSettingProvider.notifier)
             .update((state) => state.copyWith(autoCheckUpdate: false));
@@ -515,6 +526,21 @@ class AppController {
         message: TextSpan(text: appLocalizations.checkUpdateError),
       );
     }
+  }
+  
+  /// 根据当前平台获取下载地址
+  String? _getDownloadUrlForPlatform(Map<String, dynamic> data) {
+    if (system.isWindows) {
+      return data['windows_url'] as String?;
+    } else if (system.isMacOS) {
+      return data['macos_url'] as String?;
+    } else if (system.isAndroid) {
+      return data['android_url'] as String?;
+    } else if (system.isLinux) {
+      return data['linux_url'] as String?;
+    }
+    // iOS 或其他平台
+    return data['ios_url'] as String?;
   }
 
   Future<void> _handlePreference() async {
