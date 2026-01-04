@@ -7,8 +7,10 @@ import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/hotkey_manager.dart';
 import 'package:fl_clash/manager/manager.dart';
 import 'package:fl_clash/plugins/app.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/xboard/providers/xboard_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,6 +57,9 @@ class ApplicationState extends ConsumerState<Application> {
       await globalState.appController.init();
       globalState.appController.initLink();
       app?.initShortcuts();
+      
+      // 检测 Xboard 登录状态，未登录则跳转到登录页
+      _checkXboardLoginStatus();
     });
   }
 
@@ -63,6 +68,15 @@ class ApplicationState extends ConsumerState<Application> {
       await globalState.appController.autoUpdateProfiles();
       _autoUpdateProfilesTask();
     });
+  }
+
+  /// 检测 Xboard 登录状态，未登录则跳转到登录页
+  void _checkXboardLoginStatus() {
+    final xboardConfig = ref.read(xboardConfigProvider);
+    // 如果没有保存的认证信息，跳转到登录页
+    if (xboardConfig.authData == null || xboardConfig.baseUrl == null) {
+      globalState.appController.toPage(PageLabel.login);
+    }
   }
 
   Widget _buildPlatformState({required Widget child}) {

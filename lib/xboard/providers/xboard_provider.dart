@@ -43,6 +43,16 @@ class XboardConfigNotifier extends _$XboardConfigNotifier
     );
   }
 
+  /// 清除认证信息（保留面板地址和 UI 配置）
+  void clearAuth() {
+    value = state.copyWith(
+      authToken: null,
+      authData: null,
+      loginTime: null,
+    );
+  }
+
+  /// 完全清除所有配置
   void clear() {
     value = const XboardConfig();
   }
@@ -159,7 +169,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
   /// 登出
   Future<void> logout() async {
     xboardApi.logout();
-    ref.read(xboardConfigProvider.notifier).clear();
+    ref.read(xboardConfigProvider.notifier).clearAuth();
     state = const XboardState();
   }
 

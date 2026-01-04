@@ -478,6 +478,9 @@ class XboardApi {
   /// 登出
   void logout() {
     setAuth(null);
+    // 清除高可用缓存
+    _haResolvedUrl = null;
+    _haResolvedTime = null;
   }
 
   /// 处理 Dio 错误
