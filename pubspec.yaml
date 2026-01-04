@@ -75,6 +75,7 @@ dev_dependencies:
   freezed: ^3.2.0
   riverpod_generator: ^3.0.0
   riverpod_lint: ^3.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -100,3 +101,10 @@ flutter_intl:
   class_name: AppLocalizations
   arb_dir: arb
   output_dir: lib/l10n
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "android/app/src/main/ic_launcher-playstore.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "android/app/src/main/ic_launcher-playstore.png"
