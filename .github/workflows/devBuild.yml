@@ -49,6 +49,10 @@ jobs:
           cache-dependency-path: |
             core/go.sum
 
+      - name: Setup Rust (Windows only)
+        if: matrix.platform == 'windows'
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Setup Flutter (stable)
         if: ${{ !startsWith(matrix.os, 'ubuntu-24.04-arm') }}
         uses: subosito/flutter-action@v2
@@ -95,19 +99,9 @@ jobs:
           mkdir -p dist
           cp -f build/app/outputs/flutter-apk/app-release.apk dist/
 
-      # ✅ Windows：改用 flutter build 并显式产出 dist（只改 Windows）
-      - name: Build (windows release)
-        if: matrix.platform == 'windows'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-          flutter build windows --release
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item -Recurse -Force "build\windows\x64\runner\Release\*" "dist\"
-      
-      # ✅ 其他平台（非 Android 且非 Windows）：继续走 setup.dart（保持不变）
-      - name: Build (non-android non-windows)
-        if: matrix.platform != 'android' && matrix.platform != 'windows'
+      # ✅ 其他平台（非 Android）：走 setup.dart 完整构建
+      - name: Build (non-android)
+        if: matrix.platform != 'android'
         run: |
           dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }}
       
