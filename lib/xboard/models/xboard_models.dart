@@ -8,13 +8,13 @@ class XboardConstants {
   XboardConstants._();
 
   /// 默认面板地址
-  static const String defaultBaseUrl = 'https://www.fly2025.com';
+  static const String defaultBaseUrl = 'https://sub.skugo.com/web';
 
   /// 高可用配置文件 URL 列表（YAML 格式）
   /// 按优先级排序，优先使用第一个成功的配置
   static const List<String> haConfigUrls = [
-    'https://www.fly2026.com/fly/config.yaml',
-    'https://www.fly2025.com/fly/config.yaml',
+    'https://sub.flygo.top/fly/config.yaml',
+    'https://sub.airgo.top/fly/config.yaml',
   ];
 
   /// 高可用请求超时时间
