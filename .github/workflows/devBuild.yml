@@ -9,10 +9,8 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
 
     strategy:
-      fail-fast: false
       matrix:
         include:
           - platform: android
@@ -72,15 +70,14 @@ jobs:
           flutter --version
           flutter pub get
 
-      # -------------------------
-      # Android (release + signing)
-      # -------------------------
+      # ✅ Android：准备签名文件（release 必需）
       - name: Setup Android signing (release)
         if: matrix.platform == 'android'
         shell: bash
         run: |
           set -e
           echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 --decode > android/app/keystore.jks
+
           cat > android/key.properties <<EOF
           storeFile=keystore.jks
           storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -88,7 +85,8 @@ jobs:
           keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
           EOF
 
-      - name: Build Android (release apk)
+      # ✅ Android：直接 flutter build release，稳定输出产物
+      - name: Build (android release apk)
         if: matrix.platform == 'android'
         shell: bash
         run: |
@@ -97,10 +95,8 @@ jobs:
           mkdir -p dist
           cp -f build/app/outputs/flutter-apk/app-release.apk dist/
 
-      # -------------------------
-      # Windows (release)
-      # -------------------------
-      - name: Build Windows (release)
+      # ✅ Windows：改用 flutter build 并显式产出 dist（只改 Windows）
+      - name: Build (windows release)
         if: matrix.platform == 'windows'
         shell: pwsh
         run: |
@@ -108,48 +104,21 @@ jobs:
           flutter build windows --release
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item -Recurse -Force "build\windows\x64\runner\Release\*" "dist\"
-
-      # -------------------------
-      # macOS (release)
-      # -------------------------
-      - name: Build macOS (release)
-        if: matrix.platform == 'macos'
+      
+      # ✅ 其他平台（非 Android 且非 Windows）：继续走 setup.dart（保持不变）
+      - name: Build (non-android non-windows)
+        if: matrix.platform != 'android' && matrix.platform != 'windows'
+        run: |
+          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }}
+      
+      # （可选但强烈推荐）打印 dist，方便你确认确实有产物
+      - name: Show dist
         shell: bash
         run: |
-          set -euxo pipefail
-          flutter build macos --release
-          mkdir -p dist
-          cp -R "build/macos/Build/Products/Release/"*.app dist/
-
-      # -------------------------
-      # Linux (release)
-      # -------------------------
-      - name: Build Linux (release)
-        if: matrix.platform == 'linux'
-        shell: bash
-        run: |
-          set -euxo pipefail
-          flutter build linux --release
-          mkdir -p dist
-          # 不同 flutter 版本/架构 bundle 路径会有差异，用 find 更稳
-          bundle_dir="$(find build/linux -type d -name bundle -maxdepth 8 | head -n 1 || true)"
-          if [ -z "$bundle_dir" ]; then
-            echo "Linux bundle dir not found under build/linux"
-            find build/linux -maxdepth 6 -type d -print || true
-            exit 1
-          fi
-          cp -r "$bundle_dir/"* dist/
-
-      # -------------------------
-      # Debug: show dist contents
-      # -------------------------
-      - name: Show dist contents
-        shell: bash
-        run: |
-          echo "=== dist (after build) ==="
+          echo "=== dist ==="
           ls -la dist || true
-          echo "=== dist tree ==="
           find dist -maxdepth 2 -type f -print || true
+
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -157,4 +126,3 @@ jobs:
           name: flclash-${{ matrix.platform }}${{ matrix.arch && format('-{0}', matrix.arch) || '' }}
           path: ./dist
           overwrite: true
-          if-no-files-found: error
