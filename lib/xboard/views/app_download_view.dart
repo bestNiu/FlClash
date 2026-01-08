@@ -1,20 +1,22 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:fl_clash/xboard/models/xboard_models.dart';
+import 'package:fl_clash/xboard/providers/xboard_provider.dart';
 import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 软件下载页面
-class AppDownloadView extends StatefulWidget {
+class AppDownloadView extends ConsumerStatefulWidget {
   const AppDownloadView({super.key});
 
   @override
-  State<AppDownloadView> createState() => _AppDownloadViewState();
+  ConsumerState<AppDownloadView> createState() => _AppDownloadViewState();
 }
 
-class _AppDownloadViewState extends State<AppDownloadView> {
+class _AppDownloadViewState extends ConsumerState<AppDownloadView> {
   bool _isLoading = true;
   bool _isRefreshing = false; // 刷新按钮的加载状态
   AppVersionInfo? _appVersion;
@@ -203,7 +205,7 @@ class _AppDownloadViewState extends State<AppDownloadView> {
         ],
 
         // iOS 特殊说明卡片
-        _buildIOSCard(context, isMobile),
+        _buildIOSCard(context, isMobile, ref),
 
         const SizedBox(height: 24),
       ],
@@ -360,10 +362,19 @@ class _AppDownloadViewState extends State<AppDownloadView> {
     );
   }
 
-  Widget _buildIOSCard(BuildContext context, bool isMobile) {
+  Widget _buildIOSCard(BuildContext context, bool isMobile, WidgetRef ref) {
     final app = _appVersion;
     final appName = app?.iosAppName ?? 'Shadowrocket';
     final hasAccount = app?.hasIOSAccount ?? false;
+
+    // 获取登录状态和订阅状态
+    final xboardState = ref.watch(xboardStateProvider);
+    final isLoggedIn = xboardState.isLoggedIn;
+    final hasValidSubscribe = xboardState.subscribe?.hasValidSubscribe ?? false;
+
+    // 刷新按钮是否可用：已登录且有有效订阅
+    final canRefresh =
+        isLoggedIn && hasValidSubscribe && !_isLoading && !_isRefreshing;
 
     return CommonCard(
       child: Container(
@@ -418,23 +429,28 @@ class _AppDownloadViewState extends State<AppDownloadView> {
                     ],
                   ),
                 ),
-                // 刷新按钮 - 用于刷新 config.yaml 获取最新的 iOS 账号信息
-                IconButton(
-                  onPressed: (_isLoading || _isRefreshing)
-                      ? null
-                      : _refreshConfig,
-                  icon: _isRefreshing
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: context.colorScheme.primary,
+                // 刷新按钮 - 只有登录成功后才显示
+                if (isLoggedIn)
+                  IconButton(
+                    onPressed: canRefresh ? _refreshConfig : null,
+                    icon: _isRefreshing
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: context.colorScheme.primary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh,
+                            color: canRefresh
+                                ? context.colorScheme.primary
+                                : context.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.5),
                           ),
-                        )
-                      : Icon(Icons.refresh, color: context.colorScheme.primary),
-                  tooltip: '刷新配置',
-                ),
+                    tooltip: hasValidSubscribe ? '刷新配置' : '需要有效订阅才能刷新',
+                  ),
               ],
             ),
             const SizedBox(height: 16),
@@ -487,7 +503,7 @@ class _AppDownloadViewState extends State<AppDownloadView> {
             // 海外账号信息（如果配置了）
             if (hasAccount) ...[
               const SizedBox(height: 14),
-              _buildAccountCard(context, app!),
+              _buildAccountCard(context, app!, isLoggedIn),
             ],
 
             const SizedBox(height: 14),
@@ -523,7 +539,11 @@ class _AppDownloadViewState extends State<AppDownloadView> {
     );
   }
 
-  Widget _buildAccountCard(BuildContext context, AppVersionInfo app) {
+  Widget _buildAccountCard(
+    BuildContext context,
+    AppVersionInfo app,
+    bool isLoggedIn,
+  ) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -553,7 +573,7 @@ class _AppDownloadViewState extends State<AppDownloadView> {
               ),
               const Spacer(),
               Text(
-                '仅供下载使用',
+                isLoggedIn ? '仅供下载使用' : '登录后可查看',
                 style: context.textTheme.labelSmall?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                 ),
@@ -561,15 +581,35 @@ class _AppDownloadViewState extends State<AppDownloadView> {
             ],
           ),
           const SizedBox(height: 12),
-          _buildAccountRow(context, '账号', app.iosAccount!),
+          _buildAccountRow(context, '账号', app.iosAccount!, isLoggedIn),
           if (app.iosPassword != null && app.iosPassword!.isNotEmpty)
-            _buildAccountRow(context, '密码', app.iosPassword!),
+            _buildAccountRow(context, '密码', app.iosPassword!, isLoggedIn),
         ],
       ),
     );
   }
 
-  Widget _buildAccountRow(BuildContext context, String label, String value) {
+  /// 将字符串转为星号（保留首尾字符）
+  String _maskString(String value) {
+    if (value.length <= 4) {
+      return '****';
+    }
+    // 保留前2位和后2位，中间用星号代替
+    final prefix = value.substring(0, 2);
+    final suffix = value.substring(value.length - 2);
+    final maskLength = value.length - 4;
+    return '$prefix${'*' * maskLength}$suffix';
+  }
+
+  Widget _buildAccountRow(
+    BuildContext context,
+    String label,
+    String value,
+    bool isLoggedIn,
+  ) {
+    // 未登录时显示星号
+    final displayValue = isLoggedIn ? value : _maskString(value);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -585,19 +625,23 @@ class _AppDownloadViewState extends State<AppDownloadView> {
           ),
           Expanded(
             child: Text(
-              value,
+              displayValue,
               style: context.textTheme.bodyMedium?.copyWith(
                 fontFamily: 'monospace',
               ),
             ),
           ),
-          IconButton(
-            onPressed: () => _copyToClipboard(context, value, '$label已复制'),
-            icon: const Icon(Icons.copy, size: 16),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            tooltip: '复制$label',
-          ),
+          // 只有登录后才显示复制按钮
+          if (isLoggedIn)
+            IconButton(
+              onPressed: () => _copyToClipboard(context, value, '$label已复制'),
+              icon: const Icon(Icons.copy, size: 16),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              tooltip: '复制$label',
+            )
+          else
+            const SizedBox(width: 32), // 占位，保持布局一致
         ],
       ),
     );
