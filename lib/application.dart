@@ -58,8 +58,8 @@ class ApplicationState extends ConsumerState<Application> {
       globalState.appController.initLink();
       app?.initShortcuts();
       
-      // 检测 Xboard 登录状态，未登录则跳转到登录页
-      _checkXboardLoginStatus();
+      // 检测 Xboard 登录状态
+      await _checkXboardLoginStatus();
     });
   }
 
@@ -70,13 +70,32 @@ class ApplicationState extends ConsumerState<Application> {
     });
   }
 
-  /// 检测 Xboard 登录状态，未登录则跳转到登录页
-  void _checkXboardLoginStatus() {
+  /// 检测 Xboard 登录状态
+  /// 
+  /// 启动流程：
+  /// 1. 检查本地是否存在有效登录 Token
+  /// 2. 有 Token → 进入主界面 → 后台校验 Token（失效则跳转登录）
+  /// 3. 无 Token → 跳转登录页
+  Future<void> _checkXboardLoginStatus() async {
     final xboardConfig = ref.read(xboardConfigProvider);
+    
     // 如果没有保存的认证信息，跳转到登录页
     if (xboardConfig.authData == null || xboardConfig.baseUrl == null) {
       globalState.appController.toPage(PageLabel.login);
+      return;
     }
+    
+    // 有 Token，后台校验登录状态（不阻塞主界面）
+    // 校验失败会自动登出并跳转到登录页
+    ref.read(xboardStateProvider.notifier).checkAuthStatus().then((_) {
+      final xboardState = ref.read(xboardStateProvider);
+      
+      // 如果校验后未登录（Token 失效），跳转到登录页
+      if (!xboardState.isLoggedIn && xboardState.error != null) {
+        globalState.appController.toPage(PageLabel.login);
+        globalState.showNotifier(xboardState.error ?? '登录已过期，请重新登录');
+      }
+    });
   }
 
   Widget _buildPlatformState({required Widget child}) {

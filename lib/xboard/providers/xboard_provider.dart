@@ -98,6 +98,12 @@ class XboardStateNotifier extends _$XboardStateNotifier {
   }
 
   /// 登录
+  /// 登录成功后会自动执行以下流程：
+  /// 1. 保存登录态
+  /// 2. 自动拉取订阅地址
+  /// 3. 解析 & 校验订阅
+  /// 4. 无感更新配置
+  /// 5. 提示成功状态
   Future<Result<bool>> login(
     String baseUrl,
     String email,
@@ -118,19 +124,34 @@ class XboardStateNotifier extends _$XboardStateNotifier {
     }
 
     final auth = result.data!;
-    // 保存认证信息
+    // 1. 保存登录态（认证信息）
     ref
         .read(xboardConfigProvider.notifier)
         .setAuth(auth.token, auth.authData);
 
-    // 获取用户信息和订阅信息
+    // 2. 获取用户信息和订阅信息（自动拉取订阅地址）
     await refresh();
 
     state = state.copyWith(isLoggedIn: true, isLoading: false, error: null);
+    
+    // 3-5. 自动同步订阅到 FlClash（解析 & 校验 & 无感更新配置）
+    final config = ref.read(xboardConfigProvider);
+    if (config.autoSyncSubscribe && state.subscribe?.hasValidSubscribe == true) {
+      // 延迟执行，确保状态已更新
+      Future.microtask(() async {
+        final syncResult = await syncSubscribeToFlClash();
+        if (syncResult.isSuccess) {
+          // 自动应用配置
+          globalState.appController.applyProfileDebounce(silence: true);
+        }
+      });
+    }
+    
     return Result.success(true);
   }
 
   /// 注册
+  /// 注册成功后会自动执行与登录相同的流程
   Future<Result<bool>> register({
     required String baseUrl,
     required String email,
@@ -156,21 +177,58 @@ class XboardStateNotifier extends _$XboardStateNotifier {
     }
 
     final auth = result.data!;
+    // 1. 保存登录态
     ref
         .read(xboardConfigProvider.notifier)
         .setAuth(auth.token, auth.authData);
 
+    // 2. 获取用户信息和订阅信息
     await refresh();
 
     state = state.copyWith(isLoggedIn: true, isLoading: false, error: null);
+    
+    // 3-5. 自动同步订阅（如果有有效订阅）
+    final config = ref.read(xboardConfigProvider);
+    if (config.autoSyncSubscribe && state.subscribe?.hasValidSubscribe == true) {
+      Future.microtask(() async {
+        final syncResult = await syncSubscribeToFlClash();
+        if (syncResult.isSuccess) {
+          globalState.appController.applyProfileDebounce(silence: true);
+        }
+      });
+    }
+    
     return Result.success(true);
   }
 
   /// 登出
-  Future<void> logout() async {
+  /// [clearSubscribe] 是否清除订阅配置，默认为 true
+  Future<void> logout({bool clearSubscribe = true}) async {
+    // 如果需要清除订阅，先清除关联的订阅配置
+    if (clearSubscribe) {
+      await _clearXboardSubscribe();
+    }
+    
     xboardApi.logout();
     ref.read(xboardConfigProvider.notifier).clearAuth();
     state = const XboardState();
+  }
+  
+  /// 清除 Xboard 关联的订阅配置
+  Future<void> _clearXboardSubscribe() async {
+    final subscribe = state.subscribe;
+    if (subscribe == null || subscribe.subscribeUrl == null) return;
+    
+    final subscribeUrl = subscribe.subscribeUrl!;
+    final profiles = ref.read(profilesProvider);
+    
+    // 查找并删除匹配的订阅
+    final matchingProfile = profiles.where((p) => p.url == subscribeUrl);
+    if (matchingProfile.isNotEmpty) {
+      final profile = matchingProfile.first;
+      // 删除配置文件
+      await globalState.appController.deleteProfile(profile.id);
+    }
   }
 
   /// 刷新用户数据

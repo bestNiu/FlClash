@@ -42,11 +42,29 @@ class _XboardViewState extends ConsumerState<XboardView> {
 
   Future<void> _handleLogout() async {
     final confirm = await globalState.showMessage(
-      title: '确认登出',
-      message: const TextSpan(text: '确定要退出登录吗？'),
+      title: '退出账号',
+      message: TextSpan(
+        children: [
+          TextSpan(
+            text: '退出账号将清除当前账号的订阅配置，是否继续？\n\n',
+            style: TextStyle(
+              color: context.colorScheme.onSurface,
+            ),
+          ),
+          TextSpan(
+            text: '提示：退出软件不会清除登录状态和订阅配置。',
+            style: TextStyle(
+              fontSize: 12,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+      confirmText: '退出账号',
     );
     if (confirm == true) {
-      await ref.read(xboardStateProvider.notifier).logout();
+      await ref.read(xboardStateProvider.notifier).logout(clearSubscribe: true);
+      globalState.showNotifier('已退出账号');
     }
   }
 
