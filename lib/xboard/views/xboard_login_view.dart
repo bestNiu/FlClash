@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -124,6 +125,8 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
       );
     } else {
       globalState.showNotifier('登录成功');
+      // 登录成功后跳转到仪表盘页面
+      globalState.appController.toPage(PageLabel.dashboard);
     }
   }
 
@@ -156,6 +159,8 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
       );
     } else {
       globalState.showNotifier('注册成功');
+      // 注册成功后跳转到仪表盘页面
+      globalState.appController.toPage(PageLabel.dashboard);
     }
   }
 

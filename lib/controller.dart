@@ -487,13 +487,16 @@ class AppController {
       final version = data['version'] as String?;
       final changelog = data['changelog'] as String?;
       final forceUpdate = data['force_update'] as bool? ?? false;
-      
+
       // 解析更新日志为列表
-      final changelogLines = changelog?.split('\n')
-          .map((line) => line.trim())
-          .where((line) => line.isNotEmpty)
-          .toList() ?? [];
-      
+      final changelogLines =
+          changelog
+              ?.split('\n')
+              .map((line) => line.trim())
+              .where((line) => line.isNotEmpty)
+              .toList() ??
+          [];
+
       final textTheme = context.textTheme;
       final res = await globalState.showMessage(
         title: appLocalizations.discoverNewVersion,
@@ -507,7 +510,9 @@ class AppController {
           ],
         ),
         confirmText: appLocalizations.goDownload,
-        cancelText: forceUpdate ? null : (isUser ? null : appLocalizations.noLongerRemind),
+        cancelText: forceUpdate
+            ? null
+            : (isUser ? null : appLocalizations.noLongerRemind),
       );
       if (res == true) {
         // 根据平台获取对应的下载地址
@@ -527,15 +532,15 @@ class AppController {
       );
     }
   }
-  
+
   /// 根据当前平台获取下载地址
   String? _getDownloadUrlForPlatform(Map<String, dynamic> data) {
     if (system.isWindows) {
       return data['windows_url'] as String?;
     } else if (system.isMacOS) {
       // macOS 优先使用 ARM 版本，如果没有则使用 Intel 版本
-      return (data['macos_arm_url'] as String?) ?? 
-             (data['macos_intel_url'] as String?);
+      return (data['macos_arm_url'] as String?) ??
+          (data['macos_intel_url'] as String?);
     } else if (system.isAndroid) {
       return data['android_url'] as String?;
     } else if (system.isLinux) {
@@ -726,11 +731,21 @@ class AppController {
     return;
   }
 
-  Future<void> addProfileFormURL(String url) async {
-    if (globalState.navigatorKey.currentState?.canPop() ?? false) {
-      globalState.navigatorKey.currentState?.popUntil((route) => route.isFirst);
+  /// 从 URL 添加配置
+  /// [url] 配置文件 URL
+  /// [navigateToProfiles] 是否跳转到配置页面，默认为 true
+  Future<void> addProfileFormURL(
+    String url, {
+    bool navigateToProfiles = true,
+  }) async {
+    if (navigateToProfiles) {
+      if (globalState.navigatorKey.currentState?.canPop() ?? false) {
+        globalState.navigatorKey.currentState?.popUntil(
+          (route) => route.isFirst,
+        );
+      }
+      toProfiles();
     }
-    toProfiles();
 
     final profile = await safeRun(
       () async {

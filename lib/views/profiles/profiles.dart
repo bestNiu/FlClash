@@ -8,6 +8,7 @@ import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/profiles/overwrite.dart';
 import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,7 +99,11 @@ class _ProfilesViewState extends State<ProfilesView> {
         : [];
   }
 
-  Widget _buildFAB() {
+  Widget? _buildFAB() {
+    // 根据 config.yaml 中的 show_profile_add 配置控制新增按钮的显示
+    if (!xboardApi.uiConfig.showProfileAdd) {
+      return null;
+    }
     return FloatingActionButton(
       heroTag: null,
       onPressed: _handleShowAddExtendPage,
@@ -297,106 +302,99 @@ class ProfileItem extends StatelessWidget {
         key: Key(profile.id),
         horizontalTitleGap: 16,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        trailing: SizedBox(
-          height: 40,
-          width: 40,
-          child: FadeThroughBox(
-            child: profile.isUpdating
-                ? const Padding(
-                    key: ValueKey('loading'),
-                    padding: EdgeInsets.all(8),
-                    child: CircularProgressIndicator(),
-                  )
-                : CommonPopupBox(
-                    key: ValueKey('menu'),
-                    popup: CommonPopupMenu(
-                      items: [
-                        PopupMenuItemData(
-                          icon: Icons.edit_outlined,
-                          label: appLocalizations.edit,
-                          onPressed: () {
-                            _handleShowEditExtendPage(context);
-                          },
-                        ),
-                        PopupMenuItemData(
-                          icon: Icons.visibility_outlined,
-                          label: appLocalizations.preview,
-                          onPressed: () {
-                            _handlePreview(context);
-                          },
-                        ),
-                        if (profile.type == ProfileType.url) ...[
-                          PopupMenuItemData(
-                            icon: Icons.sync_alt_sharp,
-                            label: appLocalizations.sync,
-                            onPressed: () {
-                              updateProfile();
-                            },
-                          ),
-                        ],
-                        PopupMenuItemData(
-                          icon: Icons.emergency_outlined,
-                          label: appLocalizations.more,
-                          subItems: [
-                            PopupMenuItemData(
-                              icon: Icons.extension_outlined,
-                              label: appLocalizations.override,
-                              onPressed: () {
-                                _handlePushGenProfilePage(context, profile.id);
-                              },
-                            ),
-                            // PopupMenuItemData(
-                            //   icon: Icons.extension_outlined,
-                            //   label: appLocalizations.override + "1",
-                            //   onPressed: () {
-                            //     final overrideProfileView = OverrideProfileView(
-                            //       profileId: profile.id,
-                            //     );
-                            //     BaseNavigator.push(
-                            //       context,
-                            //       overrideProfileView,
-                            //     );
-                            //   },
-                            // ),
-                            if (profile.type == ProfileType.url) ...[
+        // 根据 config.yaml 中的 show_profile_edit 配置控制三点按钮的显示
+        trailing: xboardApi.uiConfig.showProfileEdit
+            ? SizedBox(
+                height: 40,
+                width: 40,
+                child: FadeThroughBox(
+                  child: profile.isUpdating
+                      ? const Padding(
+                          key: ValueKey('loading'),
+                          padding: EdgeInsets.all(8),
+                          child: CircularProgressIndicator(),
+                        )
+                      : CommonPopupBox(
+                          key: ValueKey('menu'),
+                          popup: CommonPopupMenu(
+                            items: [
                               PopupMenuItemData(
-                                icon: Icons.copy,
-                                label: appLocalizations.copyLink,
+                                icon: Icons.edit_outlined,
+                                label: appLocalizations.edit,
                                 onPressed: () {
-                                  _handleCopyLink(context);
+                                  _handleShowEditExtendPage(context);
+                                },
+                              ),
+                              PopupMenuItemData(
+                                icon: Icons.visibility_outlined,
+                                label: appLocalizations.preview,
+                                onPressed: () {
+                                  _handlePreview(context);
+                                },
+                              ),
+                              if (profile.type == ProfileType.url) ...[
+                                PopupMenuItemData(
+                                  icon: Icons.sync_alt_sharp,
+                                  label: appLocalizations.sync,
+                                  onPressed: () {
+                                    updateProfile();
+                                  },
+                                ),
+                              ],
+                              PopupMenuItemData(
+                                icon: Icons.emergency_outlined,
+                                label: appLocalizations.more,
+                                subItems: [
+                                  PopupMenuItemData(
+                                    icon: Icons.extension_outlined,
+                                    label: appLocalizations.override,
+                                    onPressed: () {
+                                      _handlePushGenProfilePage(
+                                        context,
+                                        profile.id,
+                                      );
+                                    },
+                                  ),
+                                  if (profile.type == ProfileType.url) ...[
+                                    PopupMenuItemData(
+                                      icon: Icons.copy,
+                                      label: appLocalizations.copyLink,
+                                      onPressed: () {
+                                        _handleCopyLink(context);
+                                      },
+                                    ),
+                                  ],
+                                  PopupMenuItemData(
+                                    icon: Icons.file_copy_outlined,
+                                    label: appLocalizations.exportFile,
+                                    onPressed: () {
+                                      _handleExportFile(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                              PopupMenuItemData(
+                                danger: true,
+                                icon: Icons.delete_outlined,
+                                label: appLocalizations.delete,
+                                onPressed: () {
+                                  _handleDeleteProfile(context);
                                 },
                               ),
                             ],
-                            PopupMenuItemData(
-                              icon: Icons.file_copy_outlined,
-                              label: appLocalizations.exportFile,
+                          ),
+                          targetBuilder: (open) {
+                            return IconButton(
                               onPressed: () {
-                                _handleExportFile(context);
+                                open();
                               },
-                            ),
-                          ],
-                        ),
-                        PopupMenuItemData(
-                          danger: true,
-                          icon: Icons.delete_outlined,
-                          label: appLocalizations.delete,
-                          onPressed: () {
-                            _handleDeleteProfile(context);
+                              icon: Icon(Icons.more_vert),
+                            );
                           },
                         ),
-                      ],
-                    ),
-                    targetBuilder: (open) {
-                      return IconButton(
-                        onPressed: () {
-                          open();
-                        },
-                        icon: Icon(Icons.more_vert),
-                      );
-                    },
-                  ),
-          ),
-        ),
+                ),
+              )
+            : null,
         title: Container(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Column(

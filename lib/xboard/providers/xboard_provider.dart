@@ -353,8 +353,8 @@ class XboardStateNotifier extends _$XboardStateNotifier {
         return Result.success(true);
       }
 
-      // 创建新 Profile
-      await globalState.appController.addProfileFormURL(subscribeUrl);
+      // 创建新 Profile（不跳转到配置页面，登录成功后应跳转到仪表盘）
+      await globalState.appController.addProfileFormURL(subscribeUrl, navigateToProfiles: false);
 
       // 更新标签为套餐名
       final newProfiles = ref.read(profilesProvider);

@@ -148,6 +148,10 @@ class AppVersionInfo {
 ///   welcome_text: 连接您的订阅服务
 ///   # 面板图标 URL（可选）
 ///   icon_url: https://example.com/icon.png
+///   # 是否显示配置页面的新增按钮（默认 true）
+///   show_profile_add: false
+///   # 是否显示配置页面的编辑按钮（默认 true）
+///   show_profile_edit: false
 ///
 /// # 软件版本信息（可选）- 用于检查更新和软件下载
 /// app:
@@ -274,12 +278,22 @@ class XboardUIConfig {
   /// 面板图标 URL（可选）
   final String? iconUrl;
 
+  /// 是否显示配置页面的新增按钮（FAB 和菜单中的新增选项）
+  /// 默认为 true，设为 false 时隐藏新增按钮
+  final bool showProfileAdd;
+
+  /// 是否显示配置页面的编辑按钮（更多菜单中的编辑选项）
+  /// 默认为 true，设为 false 时隐藏编辑按钮
+  final bool showProfileEdit;
+
   const XboardUIConfig({
     this.title = 'Xboard',
     this.panelName = 'Xboard 面板',
     this.welcomeText = '连接您的订阅服务',
     this.footerText = '登录后可自动同步订阅到 FlClash',
     this.iconUrl,
+    this.showProfileAdd = true,
+    this.showProfileEdit = true,
   });
 
   /// 从 YAML Map 解析
@@ -290,6 +304,8 @@ class XboardUIConfig {
       welcomeText: yaml['welcome_text']?.toString() ?? '连接您的订阅服务',
       footerText: yaml['footer_text']?.toString() ?? '登录后可自动同步订阅到 FlClash',
       iconUrl: yaml['icon_url']?.toString(),
+      showProfileAdd: yaml['show_profile_add'] != false,
+      showProfileEdit: yaml['show_profile_edit'] != false,
     );
   }
 
@@ -301,6 +317,8 @@ class XboardUIConfig {
       welcomeText: json['welcomeText']?.toString() ?? '连接您的订阅服务',
       footerText: json['footerText']?.toString() ?? '登录后可自动同步订阅到 FlClash',
       iconUrl: json['iconUrl']?.toString(),
+      showProfileAdd: json['showProfileAdd'] != false,
+      showProfileEdit: json['showProfileEdit'] != false,
     );
   }
 
@@ -312,6 +330,8 @@ class XboardUIConfig {
       'welcomeText': welcomeText,
       'footerText': footerText,
       'iconUrl': iconUrl,
+      'showProfileAdd': showProfileAdd,
+      'showProfileEdit': showProfileEdit,
     };
   }
 }
