@@ -179,6 +179,8 @@ _XboardConfig _$XboardConfigFromJson(Map<String, dynamic> json) =>
       haResolvedTime: (json['haResolvedTime'] as num?)?.toInt(),
       haConfigVersion: (json['haConfigVersion'] as num?)?.toInt(),
       cachedUiConfig: json['cachedUiConfig'] as String?,
+      lastShownAnnouncementVersion:
+          (json['lastShownAnnouncementVersion'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$XboardConfigToJson(_XboardConfig instance) =>
@@ -193,6 +195,7 @@ Map<String, dynamic> _$XboardConfigToJson(_XboardConfig instance) =>
       'haResolvedTime': instance.haResolvedTime,
       'haConfigVersion': instance.haConfigVersion,
       'cachedUiConfig': instance.cachedUiConfig,
+      'lastShownAnnouncementVersion': instance.lastShownAnnouncementVersion,
     };
 
 _XboardState _$XboardStateFromJson(Map<String, dynamic> json) => _XboardState(

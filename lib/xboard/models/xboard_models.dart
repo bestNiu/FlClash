@@ -177,6 +177,9 @@ class AppVersionInfo {
 ///   ios_account: example@icloud.com
 ///   ios_password: your_password
 ///
+/// # 公告信息是否显示
+/// announcement_show: true
+///
 /// # 公告信息（可选）
 /// announcement: "欢迎使用 Fly 服务"
 ///
@@ -199,6 +202,9 @@ class XboardHAConfig {
   /// 软件版本信息
   final AppVersionInfo? appVersion;
 
+  /// 公告是否显示
+  final bool announcementShow;
+
   /// 公告信息
   final String? announcement;
 
@@ -211,6 +217,7 @@ class XboardHAConfig {
     this.backupUrls = const [],
     XboardUIConfig? ui,
     this.appVersion,
+    this.announcementShow = true,
     this.announcement,
     this.updatedAt,
   }) : ui = ui ?? const XboardUIConfig();
@@ -242,6 +249,15 @@ class XboardHAConfig {
       );
     }
 
+    // 解析 announcement_show，默认为 true
+    bool announcementShow = true;
+    final showValue = yaml['announcement_show'];
+    if (showValue is bool) {
+      announcementShow = showValue;
+    } else if (showValue != null) {
+      announcementShow = showValue.toString().toLowerCase() == 'true';
+    }
+
     return XboardHAConfig(
       version: version,
       panelUrl: yaml['panel_url']?.toString() ?? XboardConstants.defaultBaseUrl,
@@ -252,6 +268,7 @@ class XboardHAConfig {
           [],
       ui: uiConfig,
       appVersion: appVersionInfo,
+      announcementShow: announcementShow,
       announcement: yaml['announcement']?.toString(),
       updatedAt: yaml['updated_at']?.toString(),
     );
@@ -478,6 +495,9 @@ abstract class XboardConfig with _$XboardConfig {
 
     /// 缓存的 UI 配置（JSON 格式）
     String? cachedUiConfig,
+
+    /// 上次显示公告的配置版本号（用于避免重复弹窗）
+    int? lastShownAnnouncementVersion,
   }) = _XboardConfig;
 
   factory XboardConfig.fromJson(Map<String, Object?> json) =>

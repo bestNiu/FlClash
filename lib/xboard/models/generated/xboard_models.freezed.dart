@@ -1548,7 +1548,8 @@ mixin _$XboardConfig {
  String? get haResolvedUrl;/// 高可用解析时间戳
  int? get haResolvedTime;/// 高可用配置版本号（用于检测更新）
  int? get haConfigVersion;/// 缓存的 UI 配置（JSON 格式）
- String? get cachedUiConfig;
+ String? get cachedUiConfig;/// 上次显示公告的配置版本号（用于避免重复弹窗）
+ int? get lastShownAnnouncementVersion;
 /// Create a copy of XboardConfig
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1561,16 +1562,16 @@ $XboardConfigCopyWith<XboardConfig> get copyWith => _$XboardConfigCopyWithImpl<X
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardConfig&&(identical(other.baseUrl, baseUrl) || other.baseUrl == baseUrl)&&(identical(other.authToken, authToken) || other.authToken == authToken)&&(identical(other.authData, authData) || other.authData == authData)&&(identical(other.loginTime, loginTime) || other.loginTime == loginTime)&&(identical(other.autoSyncSubscribe, autoSyncSubscribe) || other.autoSyncSubscribe == autoSyncSubscribe)&&(identical(other.enableHA, enableHA) || other.enableHA == enableHA)&&(identical(other.haResolvedUrl, haResolvedUrl) || other.haResolvedUrl == haResolvedUrl)&&(identical(other.haResolvedTime, haResolvedTime) || other.haResolvedTime == haResolvedTime)&&(identical(other.haConfigVersion, haConfigVersion) || other.haConfigVersion == haConfigVersion)&&(identical(other.cachedUiConfig, cachedUiConfig) || other.cachedUiConfig == cachedUiConfig));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardConfig&&(identical(other.baseUrl, baseUrl) || other.baseUrl == baseUrl)&&(identical(other.authToken, authToken) || other.authToken == authToken)&&(identical(other.authData, authData) || other.authData == authData)&&(identical(other.loginTime, loginTime) || other.loginTime == loginTime)&&(identical(other.autoSyncSubscribe, autoSyncSubscribe) || other.autoSyncSubscribe == autoSyncSubscribe)&&(identical(other.enableHA, enableHA) || other.enableHA == enableHA)&&(identical(other.haResolvedUrl, haResolvedUrl) || other.haResolvedUrl == haResolvedUrl)&&(identical(other.haResolvedTime, haResolvedTime) || other.haResolvedTime == haResolvedTime)&&(identical(other.haConfigVersion, haConfigVersion) || other.haConfigVersion == haConfigVersion)&&(identical(other.cachedUiConfig, cachedUiConfig) || other.cachedUiConfig == cachedUiConfig)&&(identical(other.lastShownAnnouncementVersion, lastShownAnnouncementVersion) || other.lastShownAnnouncementVersion == lastShownAnnouncementVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,baseUrl,authToken,authData,loginTime,autoSyncSubscribe,enableHA,haResolvedUrl,haResolvedTime,haConfigVersion,cachedUiConfig);
+int get hashCode => Object.hash(runtimeType,baseUrl,authToken,authData,loginTime,autoSyncSubscribe,enableHA,haResolvedUrl,haResolvedTime,haConfigVersion,cachedUiConfig,lastShownAnnouncementVersion);
 
 @override
 String toString() {
-  return 'XboardConfig(baseUrl: $baseUrl, authToken: $authToken, authData: $authData, loginTime: $loginTime, autoSyncSubscribe: $autoSyncSubscribe, enableHA: $enableHA, haResolvedUrl: $haResolvedUrl, haResolvedTime: $haResolvedTime, haConfigVersion: $haConfigVersion, cachedUiConfig: $cachedUiConfig)';
+  return 'XboardConfig(baseUrl: $baseUrl, authToken: $authToken, authData: $authData, loginTime: $loginTime, autoSyncSubscribe: $autoSyncSubscribe, enableHA: $enableHA, haResolvedUrl: $haResolvedUrl, haResolvedTime: $haResolvedTime, haConfigVersion: $haConfigVersion, cachedUiConfig: $cachedUiConfig, lastShownAnnouncementVersion: $lastShownAnnouncementVersion)';
 }
 
 
@@ -1581,7 +1582,7 @@ abstract mixin class $XboardConfigCopyWith<$Res>  {
   factory $XboardConfigCopyWith(XboardConfig value, $Res Function(XboardConfig) _then) = _$XboardConfigCopyWithImpl;
 @useResult
 $Res call({
- String? baseUrl, String? authToken, String? authData, int? loginTime, bool autoSyncSubscribe, bool enableHA, String? haResolvedUrl, int? haResolvedTime, int? haConfigVersion, String? cachedUiConfig
+ String? baseUrl, String? authToken, String? authData, int? loginTime, bool autoSyncSubscribe, bool enableHA, String? haResolvedUrl, int? haResolvedTime, int? haConfigVersion, String? cachedUiConfig, int? lastShownAnnouncementVersion
 });
 
 
@@ -1598,7 +1599,7 @@ class _$XboardConfigCopyWithImpl<$Res>
 
 /// Create a copy of XboardConfig
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? baseUrl = freezed,Object? authToken = freezed,Object? authData = freezed,Object? loginTime = freezed,Object? autoSyncSubscribe = null,Object? enableHA = null,Object? haResolvedUrl = freezed,Object? haResolvedTime = freezed,Object? haConfigVersion = freezed,Object? cachedUiConfig = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? baseUrl = freezed,Object? authToken = freezed,Object? authData = freezed,Object? loginTime = freezed,Object? autoSyncSubscribe = null,Object? enableHA = null,Object? haResolvedUrl = freezed,Object? haResolvedTime = freezed,Object? haConfigVersion = freezed,Object? cachedUiConfig = freezed,Object? lastShownAnnouncementVersion = freezed,}) {
   return _then(_self.copyWith(
 baseUrl: freezed == baseUrl ? _self.baseUrl : baseUrl // ignore: cast_nullable_to_non_nullable
 as String?,authToken: freezed == authToken ? _self.authToken : authToken // ignore: cast_nullable_to_non_nullable
@@ -1610,7 +1611,8 @@ as bool,haResolvedUrl: freezed == haResolvedUrl ? _self.haResolvedUrl : haResolv
 as String?,haResolvedTime: freezed == haResolvedTime ? _self.haResolvedTime : haResolvedTime // ignore: cast_nullable_to_non_nullable
 as int?,haConfigVersion: freezed == haConfigVersion ? _self.haConfigVersion : haConfigVersion // ignore: cast_nullable_to_non_nullable
 as int?,cachedUiConfig: freezed == cachedUiConfig ? _self.cachedUiConfig : cachedUiConfig // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,lastShownAnnouncementVersion: freezed == lastShownAnnouncementVersion ? _self.lastShownAnnouncementVersion : lastShownAnnouncementVersion // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -1695,10 +1697,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? baseUrl,  String? authToken,  String? authData,  int? loginTime,  bool autoSyncSubscribe,  bool enableHA,  String? haResolvedUrl,  int? haResolvedTime,  int? haConfigVersion,  String? cachedUiConfig)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? baseUrl,  String? authToken,  String? authData,  int? loginTime,  bool autoSyncSubscribe,  bool enableHA,  String? haResolvedUrl,  int? haResolvedTime,  int? haConfigVersion,  String? cachedUiConfig,  int? lastShownAnnouncementVersion)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _XboardConfig() when $default != null:
-return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_that.autoSyncSubscribe,_that.enableHA,_that.haResolvedUrl,_that.haResolvedTime,_that.haConfigVersion,_that.cachedUiConfig);case _:
+return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_that.autoSyncSubscribe,_that.enableHA,_that.haResolvedUrl,_that.haResolvedTime,_that.haConfigVersion,_that.cachedUiConfig,_that.lastShownAnnouncementVersion);case _:
   return orElse();
 
 }
@@ -1716,10 +1718,10 @@ return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? baseUrl,  String? authToken,  String? authData,  int? loginTime,  bool autoSyncSubscribe,  bool enableHA,  String? haResolvedUrl,  int? haResolvedTime,  int? haConfigVersion,  String? cachedUiConfig)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? baseUrl,  String? authToken,  String? authData,  int? loginTime,  bool autoSyncSubscribe,  bool enableHA,  String? haResolvedUrl,  int? haResolvedTime,  int? haConfigVersion,  String? cachedUiConfig,  int? lastShownAnnouncementVersion)  $default,) {final _that = this;
 switch (_that) {
 case _XboardConfig():
-return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_that.autoSyncSubscribe,_that.enableHA,_that.haResolvedUrl,_that.haResolvedTime,_that.haConfigVersion,_that.cachedUiConfig);case _:
+return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_that.autoSyncSubscribe,_that.enableHA,_that.haResolvedUrl,_that.haResolvedTime,_that.haConfigVersion,_that.cachedUiConfig,_that.lastShownAnnouncementVersion);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1736,10 +1738,10 @@ return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? baseUrl,  String? authToken,  String? authData,  int? loginTime,  bool autoSyncSubscribe,  bool enableHA,  String? haResolvedUrl,  int? haResolvedTime,  int? haConfigVersion,  String? cachedUiConfig)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? baseUrl,  String? authToken,  String? authData,  int? loginTime,  bool autoSyncSubscribe,  bool enableHA,  String? haResolvedUrl,  int? haResolvedTime,  int? haConfigVersion,  String? cachedUiConfig,  int? lastShownAnnouncementVersion)?  $default,) {final _that = this;
 switch (_that) {
 case _XboardConfig() when $default != null:
-return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_that.autoSyncSubscribe,_that.enableHA,_that.haResolvedUrl,_that.haResolvedTime,_that.haConfigVersion,_that.cachedUiConfig);case _:
+return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_that.autoSyncSubscribe,_that.enableHA,_that.haResolvedUrl,_that.haResolvedTime,_that.haConfigVersion,_that.cachedUiConfig,_that.lastShownAnnouncementVersion);case _:
   return null;
 
 }
@@ -1751,7 +1753,7 @@ return $default(_that.baseUrl,_that.authToken,_that.authData,_that.loginTime,_th
 @JsonSerializable()
 
 class _XboardConfig implements XboardConfig {
-  const _XboardConfig({this.baseUrl, this.authToken, this.authData, this.loginTime, this.autoSyncSubscribe = true, this.enableHA = true, this.haResolvedUrl, this.haResolvedTime, this.haConfigVersion, this.cachedUiConfig});
+  const _XboardConfig({this.baseUrl, this.authToken, this.authData, this.loginTime, this.autoSyncSubscribe = true, this.enableHA = true, this.haResolvedUrl, this.haResolvedTime, this.haConfigVersion, this.cachedUiConfig, this.lastShownAnnouncementVersion});
   factory _XboardConfig.fromJson(Map<String, dynamic> json) => _$XboardConfigFromJson(json);
 
 /// 面板地址（实际使用的地址）
@@ -1774,6 +1776,8 @@ class _XboardConfig implements XboardConfig {
 @override final  int? haConfigVersion;
 /// 缓存的 UI 配置（JSON 格式）
 @override final  String? cachedUiConfig;
+/// 上次显示公告的配置版本号（用于避免重复弹窗）
+@override final  int? lastShownAnnouncementVersion;
 
 /// Create a copy of XboardConfig
 /// with the given fields replaced by the non-null parameter values.
@@ -1788,16 +1792,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardConfig&&(identical(other.baseUrl, baseUrl) || other.baseUrl == baseUrl)&&(identical(other.authToken, authToken) || other.authToken == authToken)&&(identical(other.authData, authData) || other.authData == authData)&&(identical(other.loginTime, loginTime) || other.loginTime == loginTime)&&(identical(other.autoSyncSubscribe, autoSyncSubscribe) || other.autoSyncSubscribe == autoSyncSubscribe)&&(identical(other.enableHA, enableHA) || other.enableHA == enableHA)&&(identical(other.haResolvedUrl, haResolvedUrl) || other.haResolvedUrl == haResolvedUrl)&&(identical(other.haResolvedTime, haResolvedTime) || other.haResolvedTime == haResolvedTime)&&(identical(other.haConfigVersion, haConfigVersion) || other.haConfigVersion == haConfigVersion)&&(identical(other.cachedUiConfig, cachedUiConfig) || other.cachedUiConfig == cachedUiConfig));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardConfig&&(identical(other.baseUrl, baseUrl) || other.baseUrl == baseUrl)&&(identical(other.authToken, authToken) || other.authToken == authToken)&&(identical(other.authData, authData) || other.authData == authData)&&(identical(other.loginTime, loginTime) || other.loginTime == loginTime)&&(identical(other.autoSyncSubscribe, autoSyncSubscribe) || other.autoSyncSubscribe == autoSyncSubscribe)&&(identical(other.enableHA, enableHA) || other.enableHA == enableHA)&&(identical(other.haResolvedUrl, haResolvedUrl) || other.haResolvedUrl == haResolvedUrl)&&(identical(other.haResolvedTime, haResolvedTime) || other.haResolvedTime == haResolvedTime)&&(identical(other.haConfigVersion, haConfigVersion) || other.haConfigVersion == haConfigVersion)&&(identical(other.cachedUiConfig, cachedUiConfig) || other.cachedUiConfig == cachedUiConfig)&&(identical(other.lastShownAnnouncementVersion, lastShownAnnouncementVersion) || other.lastShownAnnouncementVersion == lastShownAnnouncementVersion));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,baseUrl,authToken,authData,loginTime,autoSyncSubscribe,enableHA,haResolvedUrl,haResolvedTime,haConfigVersion,cachedUiConfig);
+int get hashCode => Object.hash(runtimeType,baseUrl,authToken,authData,loginTime,autoSyncSubscribe,enableHA,haResolvedUrl,haResolvedTime,haConfigVersion,cachedUiConfig,lastShownAnnouncementVersion);
 
 @override
 String toString() {
-  return 'XboardConfig(baseUrl: $baseUrl, authToken: $authToken, authData: $authData, loginTime: $loginTime, autoSyncSubscribe: $autoSyncSubscribe, enableHA: $enableHA, haResolvedUrl: $haResolvedUrl, haResolvedTime: $haResolvedTime, haConfigVersion: $haConfigVersion, cachedUiConfig: $cachedUiConfig)';
+  return 'XboardConfig(baseUrl: $baseUrl, authToken: $authToken, authData: $authData, loginTime: $loginTime, autoSyncSubscribe: $autoSyncSubscribe, enableHA: $enableHA, haResolvedUrl: $haResolvedUrl, haResolvedTime: $haResolvedTime, haConfigVersion: $haConfigVersion, cachedUiConfig: $cachedUiConfig, lastShownAnnouncementVersion: $lastShownAnnouncementVersion)';
 }
 
 
@@ -1808,7 +1812,7 @@ abstract mixin class _$XboardConfigCopyWith<$Res> implements $XboardConfigCopyWi
   factory _$XboardConfigCopyWith(_XboardConfig value, $Res Function(_XboardConfig) _then) = __$XboardConfigCopyWithImpl;
 @override @useResult
 $Res call({
- String? baseUrl, String? authToken, String? authData, int? loginTime, bool autoSyncSubscribe, bool enableHA, String? haResolvedUrl, int? haResolvedTime, int? haConfigVersion, String? cachedUiConfig
+ String? baseUrl, String? authToken, String? authData, int? loginTime, bool autoSyncSubscribe, bool enableHA, String? haResolvedUrl, int? haResolvedTime, int? haConfigVersion, String? cachedUiConfig, int? lastShownAnnouncementVersion
 });
 
 
@@ -1825,7 +1829,7 @@ class __$XboardConfigCopyWithImpl<$Res>
 
 /// Create a copy of XboardConfig
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? baseUrl = freezed,Object? authToken = freezed,Object? authData = freezed,Object? loginTime = freezed,Object? autoSyncSubscribe = null,Object? enableHA = null,Object? haResolvedUrl = freezed,Object? haResolvedTime = freezed,Object? haConfigVersion = freezed,Object? cachedUiConfig = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? baseUrl = freezed,Object? authToken = freezed,Object? authData = freezed,Object? loginTime = freezed,Object? autoSyncSubscribe = null,Object? enableHA = null,Object? haResolvedUrl = freezed,Object? haResolvedTime = freezed,Object? haConfigVersion = freezed,Object? cachedUiConfig = freezed,Object? lastShownAnnouncementVersion = freezed,}) {
   return _then(_XboardConfig(
 baseUrl: freezed == baseUrl ? _self.baseUrl : baseUrl // ignore: cast_nullable_to_non_nullable
 as String?,authToken: freezed == authToken ? _self.authToken : authToken // ignore: cast_nullable_to_non_nullable
@@ -1837,7 +1841,8 @@ as bool,haResolvedUrl: freezed == haResolvedUrl ? _self.haResolvedUrl : haResolv
 as String?,haResolvedTime: freezed == haResolvedTime ? _self.haResolvedTime : haResolvedTime // ignore: cast_nullable_to_non_nullable
 as int?,haConfigVersion: freezed == haConfigVersion ? _self.haConfigVersion : haConfigVersion // ignore: cast_nullable_to_non_nullable
 as int?,cachedUiConfig: freezed == cachedUiConfig ? _self.cachedUiConfig : cachedUiConfig // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,lastShownAnnouncementVersion: freezed == lastShownAnnouncementVersion ? _self.lastShownAnnouncementVersion : lastShownAnnouncementVersion // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

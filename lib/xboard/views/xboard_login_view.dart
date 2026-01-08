@@ -66,10 +66,10 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
     final result = await xboardApi.resolveAndSetBaseUrl(
       forceRefresh: forceRefresh,
     );
-    
+
     // 异步操作完成后检查 widget 是否还存在
     if (!mounted) return;
-    
+
     if (result.isSuccess && result.data != null) {
       // 更新输入框
       _baseUrlController.text = result.data!;
@@ -434,6 +434,9 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
 
                 SizedBox(height: isMobile ? 12 : 16),
 
+                // 公告区域
+                _buildAnnouncementSection(context, isMobile),
+
                 // 底部提示文字
                 Text(
                   xboardApi.uiConfig.footerText,
@@ -463,9 +466,139 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
   }
 
   void _openDownloadPage(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const AppDownloadView(),
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const AppDownloadView()));
+  }
+
+  /// 构建公告区域
+  Widget _buildAnnouncementSection(BuildContext context, bool isMobile) {
+    final haConfig = xboardApi.haService.lastConfig;
+    final announcement = haConfig?.announcement;
+    final announcementShow = haConfig?.announcementShow ?? true;
+
+    // 如果公告显示开关关闭或没有公告内容，不显示
+    if (!announcementShow || announcement == null || announcement.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => _showAnnouncementDialog(context, announcement, isMobile),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 12 : 16,
+              vertical: isMobile ? 10 : 12,
+            ),
+            decoration: BoxDecoration(
+              color: context.colorScheme.primaryContainer.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: context.colorScheme.primary.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.campaign_outlined,
+                  size: isMobile ? 18 : 20,
+                  color: context.colorScheme.primary,
+                ),
+                SizedBox(width: isMobile ? 8 : 10),
+                Expanded(
+                  child: Text(
+                    announcement,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: context.colorScheme.onPrimaryContainer,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  size: isMobile ? 18 : 20,
+                  color: context.colorScheme.onPrimaryContainer.withOpacity(
+                    0.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: isMobile ? 12 : 16),
+      ],
+    );
+  }
+
+  /// 显示公告详情对话框
+  void _showAnnouncementDialog(
+    BuildContext context,
+    String announcement,
+    bool isMobile,
+  ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 移动端宽度限制更窄，桌面端适中
+    final dialogWidth = isMobile ? screenWidth * 0.85 : 360.0;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.campaign_outlined,
+              color: context.colorScheme.primary,
+              size: isMobile ? 22 : 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '公告',
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        content: Container(
+          width: dialogWidth,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.5,
+            maxWidth: dialogWidth,
+          ),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              announcement,
+              style: context.textTheme.bodyMedium?.copyWith(
+                height: 1.6,
+                fontSize: isMobile ? 14 : 15,
+              ),
+            ),
+          ),
+        ),
+        contentPadding: EdgeInsets.fromLTRB(
+          isMobile ? 20 : 24,
+          16,
+          isMobile ? 20 : 24,
+          8,
+        ),
+        actionsPadding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 12 : 16,
+          vertical: 8,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('关闭'),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+        ),
       ),
     );
   }

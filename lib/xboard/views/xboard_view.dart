@@ -18,12 +18,117 @@ class XboardView extends ConsumerStatefulWidget {
 }
 
 class _XboardViewState extends ConsumerState<XboardView> {
+  bool _hasCheckedAnnouncement = false;
+
   @override
   void initState() {
     super.initState();
     // 检查登录状态
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(xboardStateProvider.notifier).checkAuthStatus();
+    });
+  }
+
+  /// 检查并显示公告弹窗
+  void _checkAndShowAnnouncement() {
+    if (_hasCheckedAnnouncement) return;
+    _hasCheckedAnnouncement = true;
+
+    final config = ref.read(xboardConfigProvider);
+    final haConfig = xboardApi.haService.lastConfig;
+    final announcement = haConfig?.announcement;
+    final announcementShow = haConfig?.announcementShow ?? true;
+    final currentVersion = haConfig?.version ?? 0;
+
+    // 如果公告显示开关关闭，不显示
+    if (!announcementShow) return;
+
+    // 如果没有公告内容，不显示
+    if (announcement == null || announcement.isEmpty) return;
+
+    // 如果已经显示过当前版本的公告，不再显示
+    if (config.lastShownAnnouncementVersion == currentVersion) return;
+
+    // 延迟显示，确保页面已完全加载
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      _showAnnouncementDialog(context, announcement, currentVersion);
+    });
+  }
+
+  /// 显示公告弹窗并更新已显示版本
+  void _showAnnouncementDialog(
+    BuildContext context,
+    String announcement,
+    int version,
+  ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    // 移动端宽度限制更窄，桌面端适中
+    final dialogWidth = isMobile ? screenWidth * 0.85 : 360.0;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.campaign_outlined,
+              color: context.colorScheme.primary,
+              size: isMobile ? 22 : 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '公告',
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        content: Container(
+          width: dialogWidth,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.5,
+            maxWidth: dialogWidth,
+          ),
+          child: SingleChildScrollView(
+            child: SelectableText(
+              announcement,
+              style: context.textTheme.bodyMedium?.copyWith(
+                height: 1.6,
+                fontSize: isMobile ? 14 : 15,
+              ),
+            ),
+          ),
+        ),
+        contentPadding: EdgeInsets.fromLTRB(
+          isMobile ? 20 : 24,
+          16,
+          isMobile ? 20 : 24,
+          8,
+        ),
+        actionsPadding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 12 : 16,
+          vertical: 8,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('我知道了'),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+        ),
+      ),
+    ).then((_) {
+      // 弹窗关闭后，更新已显示的公告版本
+      ref.read(xboardConfigProvider.notifier).updateConfig(
+            (config) =>
+                config.copyWith(lastShownAnnouncementVersion: version),
+          );
     });
   }
 
@@ -92,7 +197,16 @@ class _XboardViewState extends ConsumerState<XboardView> {
 
     // 未登录时不显示 AppBar，登录后显示带标题的 AppBar
     if (!xboardState.isLoggedIn) {
+      // 重置公告检查状态，以便下次登录时重新检查
+      _hasCheckedAnnouncement = false;
       return const XboardLoginView();
+    }
+
+    // 已登录且数据加载完成后，检查是否需要显示公告
+    if (!xboardState.isLoading && xboardState.user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkAndShowAnnouncement();
+      });
     }
 
     return CommonScaffold(
@@ -453,39 +567,109 @@ class _XboardViewState extends ConsumerState<XboardView> {
   }
 
   Widget _buildNoticeItem(BuildContext context, XboardNotice notice) {
-    return CommonCard(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    notice.title,
-                    style: context.textTheme.titleSmall,
+    return GestureDetector(
+      onTap: () => _showNoticeDetailDialog(context, notice),
+      child: CommonCard(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      notice.title,
+                      style: context.textTheme.titleSmall,
+                    ),
                   ),
+                  if (notice.createdAt != null)
+                    Text(
+                      _formatDate(notice.createdAt!),
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: context.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                notice.content,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
-                if (notice.createdAt != null)
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 显示公告详情对话框
+  void _showNoticeDetailDialog(BuildContext context, XboardNotice notice) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.campaign_outlined,
+              color: context.colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                notice.title,
+                style: context.textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
+        content: Container(
+          width: double.maxFinite,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (notice.createdAt != null) ...[
                   Text(
                     _formatDate(notice.createdAt!),
                     style: context.textTheme.bodySmall?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  const SizedBox(height: 12),
+                ],
+                SelectableText(
+                  notice.content,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    height: 1.6,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              notice.content,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('关闭'),
+          ),
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

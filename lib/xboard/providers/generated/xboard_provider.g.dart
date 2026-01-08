@@ -45,7 +45,7 @@ final class XboardConfigNotifierProvider
 }
 
 String _$xboardConfigNotifierHash() =>
-    r'af90cf7228ec77339814d774dfe4f703213e185f';
+    r'aaf8704c0c7d58c7145475ef67c13f929e839985';
 
 /// Xboard 配置 Provider（持久化）
 
@@ -105,7 +105,7 @@ final class XboardStateNotifierProvider
 }
 
 String _$xboardStateNotifierHash() =>
-    r'46604c02eb0a570d553ecd53b3c10a7497f93540';
+    r'c9fff14e615ed6f46074709515b8b7fd41bbe4d3';
 
 /// Xboard 状态 Provider（运行时）
 
