@@ -16,6 +16,7 @@ class AppDownloadView extends StatefulWidget {
 
 class _AppDownloadViewState extends State<AppDownloadView> {
   bool _isLoading = true;
+  bool _isRefreshing = false; // 刷新按钮的加载状态
   AppVersionInfo? _appVersion;
 
   @override
@@ -24,12 +25,15 @@ class _AppDownloadViewState extends State<AppDownloadView> {
     _loadConfig();
   }
 
+  /// 加载配置（初始加载，显示全屏加载）
   Future<void> _loadConfig() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     // 尝试从已缓存的配置获取
     final lastConfig = xboardApi.haService.lastConfig;
     if (lastConfig?.appVersion != null) {
+      if (!mounted) return;
       setState(() {
         _appVersion = lastConfig!.appVersion;
         _isLoading = false;
@@ -37,13 +41,30 @@ class _AppDownloadViewState extends State<AppDownloadView> {
       return;
     }
 
-    // 如果没有缓存，尝试重新解析
+    // 没有缓存时，重新解析配置
     await xboardApi.resolveAndSetBaseUrl(forceRefresh: true);
     final config = xboardApi.haService.lastConfig;
 
+    if (!mounted) return;
     setState(() {
       _appVersion = config?.appVersion;
       _isLoading = false;
+    });
+  }
+
+  /// 刷新配置（异步刷新，只显示按钮加载状态）
+  Future<void> _refreshConfig() async {
+    if (!mounted || _isRefreshing) return;
+    setState(() => _isRefreshing = true);
+
+    // 强制刷新配置
+    await xboardApi.resolveAndSetBaseUrl(forceRefresh: true);
+    final config = xboardApi.haService.lastConfig;
+
+    if (!mounted) return;
+    setState(() {
+      _appVersion = config?.appVersion;
+      _isRefreshing = false;
     });
   }
 
@@ -128,8 +149,14 @@ class _AppDownloadViewState extends State<AppDownloadView> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: _isLoading ? null : _loadConfig,
-            icon: const Icon(Icons.refresh),
+            onPressed: (_isLoading || _isRefreshing) ? null : _refreshConfig,
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
             tooltip: '刷新',
           ),
         ],
@@ -390,6 +417,23 @@ class _AppDownloadViewState extends State<AppDownloadView> {
                       ),
                     ],
                   ),
+                ),
+                // 刷新按钮 - 用于刷新 config.yaml 获取最新的 iOS 账号信息
+                IconButton(
+                  onPressed: (_isLoading || _isRefreshing)
+                      ? null
+                      : _refreshConfig,
+                  icon: _isRefreshing
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.colorScheme.primary,
+                          ),
+                        )
+                      : Icon(Icons.refresh, color: context.colorScheme.primary),
+                  tooltip: '刷新配置',
                 ),
               ],
             ),

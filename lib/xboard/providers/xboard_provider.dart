@@ -109,15 +109,18 @@ class XboardStateNotifier extends _$XboardStateNotifier {
     String email,
     String password,
   ) async {
+    if (!ref.mounted) return Result.error('操作已取消');
     state = state.copyWith(isLoading: true, error: null);
 
     // 设置面板地址
     xboardApi.setBaseUrl(baseUrl);
+    if (!ref.mounted) return Result.error('操作已取消');
     ref.read(xboardConfigProvider.notifier).setBaseUrl(baseUrl);
 
     // 调用登录接口
     final result = await xboardApi.login(email, password);
 
+    if (!ref.mounted) return Result.error('操作已取消');
     if (result.isError) {
       state = state.copyWith(isLoading: false, error: result.message);
       return Result.error(result.message.isNotEmpty ? result.message : '登录失败');
@@ -125,6 +128,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
 
     final auth = result.data!;
     // 1. 保存登录态（认证信息）
+    if (!ref.mounted) return Result.error('操作已取消');
     ref
         .read(xboardConfigProvider.notifier)
         .setAuth(auth.token, auth.authData);
@@ -132,6 +136,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
     // 2. 获取用户信息和订阅信息（自动拉取订阅地址）
     await refresh();
 
+    if (!ref.mounted) return Result.error('操作已取消');
     state = state.copyWith(isLoggedIn: true, isLoading: false, error: null);
     
     // 3-5. 自动同步订阅到 FlClash（解析 & 校验 & 无感更新配置）
@@ -139,6 +144,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
     if (config.autoSyncSubscribe && state.subscribe?.hasValidSubscribe == true) {
       // 延迟执行，确保状态已更新
       Future.microtask(() async {
+        if (!ref.mounted) return;
         final syncResult = await syncSubscribeToFlClash();
         if (syncResult.isSuccess) {
           // 自动应用配置
@@ -233,11 +239,13 @@ class XboardStateNotifier extends _$XboardStateNotifier {
 
   /// 刷新用户数据
   Future<void> refresh() async {
+    if (!ref.mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     // 确保已认证
     final config = ref.read(xboardConfigProvider);
     if (config.authData == null) {
+      if (!ref.mounted) return;
       state = state.copyWith(isLoading: false, isLoggedIn: false);
       return;
     }
@@ -255,6 +263,9 @@ class XboardStateNotifier extends _$XboardStateNotifier {
         xboardApi.getNotices(),
       ]);
 
+      // 异步操作完成后检查 ref 是否还有效
+      if (!ref.mounted) return;
+
       final userResult = results[0] as Result<XboardUser>;
       final subscribeResult = results[1] as Result<XboardSubscribe>;
       final noticesResult = results[2] as Result<List<XboardNotice>>;
@@ -264,6 +275,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
         if (userResult.message.contains('401') ||
             userResult.message.contains('认证')) {
           await logout();
+          if (!ref.mounted) return;
           state = state.copyWith(
             isLoading: false,
             error: '登录已过期，请重新登录',
@@ -272,6 +284,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
         }
       }
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoggedIn: userResult.isSuccess,
         isLoading: false,
@@ -281,6 +294,7 @@ class XboardStateNotifier extends _$XboardStateNotifier {
         error: userResult.isError ? userResult.message : null,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -290,8 +304,10 @@ class XboardStateNotifier extends _$XboardStateNotifier {
 
   /// 检查登录状态
   Future<void> checkAuthStatus() async {
+    if (!ref.mounted) return;
     final config = ref.read(xboardConfigProvider);
     if (config.authData == null || config.baseUrl == null) {
+      if (!ref.mounted) return;
       state = state.copyWith(isLoggedIn: false);
       return;
     }

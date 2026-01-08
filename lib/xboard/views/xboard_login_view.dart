@@ -58,12 +58,17 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
   /// 通过高可用服务解析真实面板地址
   /// [forceRefresh] 是否强制刷新（忽略缓存）
   Future<void> _resolveHAAddress({bool forceRefresh = false}) async {
+    if (!mounted) return;
     setState(() => _isResolvingHA = true);
 
     // 强制刷新时忽略缓存
     final result = await xboardApi.resolveAndSetBaseUrl(
       forceRefresh: forceRefresh,
     );
+    
+    // 异步操作完成后检查 widget 是否还存在
+    if (!mounted) return;
+    
     if (result.isSuccess && result.data != null) {
       // 更新输入框
       _baseUrlController.text = result.data!;
@@ -83,6 +88,7 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
           );
     }
 
+    if (!mounted) return;
     setState(() => _isResolvingHA = false);
   }
 

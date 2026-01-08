@@ -5,6 +5,7 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:fl_clash/xboard/models/xboard_models.dart';
 import 'package:fl_clash/xboard/providers/xboard_provider.dart';
 import 'package:fl_clash/xboard/services/xboard_api.dart';
+import 'package:fl_clash/xboard/views/app_download_view.dart';
 import 'package:fl_clash/xboard/views/xboard_login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,6 +75,14 @@ class _XboardViewState extends ConsumerState<XboardView> {
 
   void _handleOpenUserCenter() {
     ref.read(xboardStateProvider.notifier).openUserCenter();
+  }
+
+  void _handleOpenDownload() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AppDownloadView(),
+      ),
+    );
   }
 
   @override
@@ -172,6 +181,12 @@ class _XboardViewState extends ConsumerState<XboardView> {
                   ),
                 ],
               ),
+            ),
+            // 软件下载按钮
+            IconButton(
+              onPressed: _handleOpenDownload,
+              icon: const Icon(Icons.download_rounded),
+              tooltip: '软件下载',
             ),
             // 登出按钮
             IconButton(
