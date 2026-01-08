@@ -63,12 +63,13 @@ class XboardConfigNotifier extends _$XboardConfigNotifier
 class XboardStateNotifier extends _$XboardStateNotifier {
   @override
   XboardState build() {
-    // 初始化时检查登录状态
-    _initAuth();
-    return const XboardState();
+    // 初始化时检查登录状态并返回初始状态
+    return _initAuth();
   }
 
-  void _initAuth() {
+  /// 初始化认证状态
+  /// 返回初始的 XboardState，如果有有效认证信息则 isLoggedIn = true
+  XboardState _initAuth() {
     final config = ref.read(xboardConfigProvider);
 
     // 恢复高可用缓存
@@ -88,13 +89,20 @@ class XboardStateNotifier extends _$XboardStateNotifier {
       }
     }
 
-    if (config.baseUrl != null && config.authData != null) {
+    // 检查是否有有效的认证信息
+    final hasValidAuth = config.baseUrl != null && config.authData != null;
+    
+    if (hasValidAuth) {
       xboardApi.setBaseUrl(config.baseUrl!);
       xboardApi.setAuth(config.authData);
+      // 有有效认证信息，初始状态设为已登录（后台会校验）
+      return const XboardState(isLoggedIn: true);
     } else if (config.baseUrl == null) {
       // 没有配置过面板地址，使用默认地址
       xboardApi.setBaseUrl(XboardConstants.defaultBaseUrl);
     }
+    
+    return const XboardState();
   }
 
   /// 登录
