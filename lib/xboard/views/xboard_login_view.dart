@@ -7,6 +7,7 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:fl_clash/xboard/models/xboard_models.dart';
 import 'package:fl_clash/xboard/providers/xboard_provider.dart';
 import 'package:fl_clash/xboard/services/xboard_api.dart';
+import 'package:fl_clash/xboard/views/app_download_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -430,10 +431,30 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                   ),
                   textAlign: TextAlign.center,
                 ),
+
+                SizedBox(height: isMobile ? 16 : 20),
+
+                // 软件下载按钮
+                TextButton.icon(
+                  onPressed: () => _openDownloadPage(context),
+                  icon: const Icon(Icons.download_rounded, size: 18),
+                  label: const Text('软件下载'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: context.colorScheme.primary,
+                  ),
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _openDownloadPage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AppDownloadView(),
       ),
     );
   }

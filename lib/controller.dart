@@ -533,14 +533,16 @@ class AppController {
     if (system.isWindows) {
       return data['windows_url'] as String?;
     } else if (system.isMacOS) {
-      return data['macos_url'] as String?;
+      // macOS 优先使用 ARM 版本，如果没有则使用 Intel 版本
+      return (data['macos_arm_url'] as String?) ?? 
+             (data['macos_intel_url'] as String?);
     } else if (system.isAndroid) {
       return data['android_url'] as String?;
     } else if (system.isLinux) {
       return data['linux_url'] as String?;
     }
-    // iOS 或其他平台
-    return data['ios_url'] as String?;
+    // 其他平台返回 null
+    return null;
   }
 
   Future<void> _handlePreference() async {

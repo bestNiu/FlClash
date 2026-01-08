@@ -84,9 +84,9 @@ class Request {
       'changelog': appVersionInfo.changelog,
       'force_update': appVersionInfo.forceUpdate,
       'windows_url': appVersionInfo.windowsUrl,
-      'macos_url': appVersionInfo.macosUrl,
+      'macos_intel_url': appVersionInfo.macosIntelUrl,
+      'macos_arm_url': appVersionInfo.macosArmUrl,
       'android_url': appVersionInfo.androidUrl,
-      'ios_url': appVersionInfo.iosUrl,
       'linux_url': appVersionInfo.linuxUrl,
     };
   }

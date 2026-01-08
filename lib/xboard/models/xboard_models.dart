@@ -38,14 +38,29 @@ class AppVersionInfo {
   /// Windows 下载地址
   final String? windowsUrl;
 
-  /// macOS 下载地址
-  final String? macosUrl;
+  /// macOS Intel 下载地址
+  final String? macosIntelUrl;
+
+  /// macOS Apple Silicon (M系列芯片) 下载地址
+  final String? macosArmUrl;
 
   /// Android 下载地址
   final String? androidUrl;
 
-  /// iOS 下载地址（可能是 App Store 链接）
-  final String? iosUrl;
+  /// iOS 使用说明
+  final String? iosGuide;
+
+  /// iOS 推荐应用名称（如 Shadowrocket）
+  final String? iosAppName;
+
+  /// iOS App Store 链接
+  final String? iosAppStoreUrl;
+
+  /// iOS 海外账号（可选，用于提示用户）
+  final String? iosAccount;
+
+  /// iOS 海外账号密码（可选）
+  final String? iosPassword;
 
   /// Linux 下载地址
   final String? linuxUrl;
@@ -55,9 +70,14 @@ class AppVersionInfo {
     this.changelog,
     this.forceUpdate = false,
     this.windowsUrl,
-    this.macosUrl,
+    this.macosIntelUrl,
+    this.macosArmUrl,
     this.androidUrl,
-    this.iosUrl,
+    this.iosGuide,
+    this.iosAppName,
+    this.iosAppStoreUrl,
+    this.iosAccount,
+    this.iosPassword,
     this.linuxUrl,
   });
 
@@ -68,9 +88,14 @@ class AppVersionInfo {
       changelog: yaml['changelog']?.toString(),
       forceUpdate: yaml['force_update'] == true,
       windowsUrl: yaml['windows_url']?.toString(),
-      macosUrl: yaml['macos_url']?.toString(),
+      macosIntelUrl: yaml['macos_intel_url']?.toString(),
+      macosArmUrl: yaml['macos_arm_url']?.toString(),
       androidUrl: yaml['android_url']?.toString(),
-      iosUrl: yaml['ios_url']?.toString(),
+      iosGuide: yaml['ios_guide']?.toString(),
+      iosAppName: yaml['ios_app_name']?.toString(),
+      iosAppStoreUrl: yaml['ios_app_store_url']?.toString(),
+      iosAccount: yaml['ios_account']?.toString(),
+      iosPassword: yaml['ios_password']?.toString(),
       linuxUrl: yaml['linux_url']?.toString(),
     );
   }
@@ -80,18 +105,21 @@ class AppVersionInfo {
     switch (platform.toLowerCase()) {
       case 'windows':
         return windowsUrl;
-      case 'macos':
-        return macosUrl;
+      case 'macos_intel':
+        return macosIntelUrl;
+      case 'macos_arm':
+        return macosArmUrl;
       case 'android':
         return androidUrl;
-      case 'ios':
-        return iosUrl;
       case 'linux':
         return linuxUrl;
       default:
         return null;
     }
   }
+
+  /// 是否有 iOS 海外账号信息
+  bool get hasIOSAccount => iosAccount != null && iosAccount!.isNotEmpty;
 }
 
 /// 高可用配置文件模型
@@ -121,7 +149,7 @@ class AppVersionInfo {
 ///   # 面板图标 URL（可选）
 ///   icon_url: https://example.com/icon.png
 ///
-/// # 软件版本信息（可选）- 用于检查更新
+/// # 软件版本信息（可选）- 用于检查更新和软件下载
 /// app:
 ///   # 最新版本号
 ///   version: "1.2.3"
@@ -133,11 +161,17 @@ class AppVersionInfo {
 ///   # 是否强制更新
 ///   force_update: false
 ///   # 各平台下载地址
-///   windows_url: https://example.com/app-windows.exe
-///   macos_url: https://example.com/app-macos.dmg
-///   android_url: https://example.com/app-android.apk
-///   ios_url: https://apps.apple.com/app/xxx
-///   linux_url: https://example.com/app-linux.deb
+///   windows_url: https://down.feego.top/file/windows.exe
+///   android_url: https://down.feego.top/file/android.apk
+///   linux_url: https://down.feego.top/file/linux.deb
+///   macos_intel_url: https://down.feego.top/file/mac-intel.dmg
+///   macos_arm_url: https://down.feego.top/file/mac-m.dmg
+///   # iOS 配置
+///   ios_guide: "需要登录海外 App Store 下载 Shadowrocket 使用"
+///   ios_app_name: Shadowrocket
+///   ios_app_store_url: https://apps.apple.com/app/shadowrocket/id932747118
+///   ios_account: example@icloud.com
+///   ios_password: your_password
 ///
 /// # 公告信息（可选）
 /// announcement: "欢迎使用 Fly 服务"
