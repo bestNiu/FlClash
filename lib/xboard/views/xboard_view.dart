@@ -152,7 +152,7 @@ class _XboardViewState extends ConsumerState<XboardView> {
       message: TextSpan(
         children: [
           TextSpan(
-            text: '退出账号将清除当前账号的订阅配置，是否继续？\n\n',
+            text: '退出账号将清空所有订阅配置，是否继续？\n\n',
             style: TextStyle(
               color: context.colorScheme.onSurface,
             ),

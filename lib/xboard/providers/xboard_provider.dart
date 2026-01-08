@@ -228,19 +228,12 @@ class XboardStateNotifier extends _$XboardStateNotifier {
     state = const XboardState();
   }
   
-  /// 清除 Xboard 关联的订阅配置
+  /// 清除所有订阅配置
   Future<void> _clearXboardSubscribe() async {
-    final subscribe = state.subscribe;
-    if (subscribe == null || subscribe.subscribeUrl == null) return;
-    
-    final subscribeUrl = subscribe.subscribeUrl!;
     final profiles = ref.read(profilesProvider);
     
-    // 查找并删除匹配的订阅
-    final matchingProfile = profiles.where((p) => p.url == subscribeUrl);
-    if (matchingProfile.isNotEmpty) {
-      final profile = matchingProfile.first;
-      // 删除配置文件
+    // 删除所有订阅配置
+    for (final profile in profiles) {
       await globalState.appController.deleteProfile(profile.id);
     }
   }
