@@ -295,6 +295,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "light": MessageLookupByLibrary.simpleMessage("浅色"),
     "list": MessageLookupByLibrary.simpleMessage("列表"),
     "listen": MessageLookupByLibrary.simpleMessage("监听"),
+    "login": MessageLookupByLibrary.simpleMessage("登录"),
     "loadTest": MessageLookupByLibrary.simpleMessage("加载测试"),
     "loading": MessageLookupByLibrary.simpleMessage("加载中..."),
     "local": MessageLookupByLibrary.simpleMessage("本地"),
