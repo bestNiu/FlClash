@@ -22,6 +22,9 @@ class _XboardInviteViewState extends ConsumerState<XboardInviteView> {
   bool _isGenerating = false;
   XboardInviteInfo? _inviteInfo;
   String? _error;
+  
+  /// 是否已达到邀请码创建上限
+  bool _hasReachedLimit = false;
 
   @override
   void initState() {
@@ -63,8 +66,25 @@ class _XboardInviteViewState extends ConsumerState<XboardInviteView> {
       globalState.showNotifier('邀请码生成成功');
       await _loadInviteInfo();
     } else {
-      globalState
-          .showNotifier(result.message.isNotEmpty ? result.message : '生成失败');
+      // 检查是否是达到上限的错误
+      final isLimitError = result.message.contains('上限') || 
+                           result.message.contains('limit') ||
+                           result.message.contains('达到');
+      if (isLimitError) {
+        setState(() => _hasReachedLimit = true);
+      }
+      
+      // 检查是否是邀请码已生成但需要刷新的情况
+      final needRefresh = result.message.contains('已生成') || 
+                          result.message.contains('刷新');
+      if (needRefresh) {
+        globalState.showNotifier('邀请码生成成功');
+        await _loadInviteInfo();
+      } else {
+        globalState.showNotifier(
+          result.message.isNotEmpty ? result.message : '生成失败',
+        );
+      }
     }
 
     setState(() => _isGenerating = false);
@@ -456,29 +476,110 @@ class _XboardInviteViewState extends ConsumerState<XboardInviteView> {
   }
 
   Widget _buildCodeListHeader({required bool isDesktop}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final codes = _inviteInfo?.codes ?? [];
+    final codesCount = codes.length;
+    final isButtonDisabled = _isGenerating || _hasReachedLimit;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '我的邀请码',
-          style: (isDesktop
-                  ? context.textTheme.titleLarge
-                  : context.textTheme.titleMedium)
-              ?.copyWith(
-            fontWeight: FontWeight.w600,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '我的邀请码',
+                  style: (isDesktop
+                          ? context.textTheme.titleLarge
+                          : context.textTheme.titleMedium)
+                      ?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (codesCount > 0) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: context.colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '$codesCount',
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: context.colorScheme.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            _hasReachedLimit
+                ? Tooltip(
+                    message: '已达到邀请码创建数量上限',
+                    child: FilledButton.tonalIcon(
+                      onPressed: null,
+                      icon: Icon(
+                        Icons.block,
+                        size: 18,
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                      label: Text(
+                        isDesktop ? '已达上限' : '上限',
+                        style: TextStyle(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  )
+                : FilledButton.tonalIcon(
+                    onPressed: isButtonDisabled ? null : _generateInviteCode,
+                    icon: _isGenerating
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.add, size: 20),
+                    label: Text(isDesktop ? '生成邀请码' : '生成'),
+                  ),
+          ],
+        ),
+        // 达到上限时显示提示信息
+        if (_hasReachedLimit) ...[
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: context.colorScheme.tertiaryContainer.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: context.colorScheme.tertiary.withOpacity(0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 18,
+                  color: context.colorScheme.tertiary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    '您已达到邀请码创建数量上限，请分享现有邀请码邀请好友',
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: context.colorScheme.onTertiaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        FilledButton.tonalIcon(
-          onPressed: _isGenerating ? null : _generateInviteCode,
-          icon: _isGenerating
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.add, size: 20),
-          label: Text(isDesktop ? '生成邀请码' : '生成'),
-        ),
+        ],
       ],
     );
   }

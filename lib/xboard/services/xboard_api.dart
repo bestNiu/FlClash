@@ -570,7 +570,14 @@ class XboardApi {
         final message = json['message'] as String?;
 
         if (status == 'success' && json['data'] != null) {
-          return Result.success(XboardInviteCode.fromJson(json['data']));
+          final data = json['data'];
+          // 确保 data 是 Map 类型，某些 API 可能返回 bool
+          if (data is Map<String, dynamic>) {
+            return Result.success(XboardInviteCode.fromJson(data));
+          } else {
+            // API 返回了非预期的数据类型（如 bool），需要重新获取邀请码列表
+            return Result.error('邀请码已生成，请刷新列表查看');
+          }
         }
 
         // 处理特定错误类型

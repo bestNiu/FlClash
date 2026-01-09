@@ -35,8 +35,6 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
-  bool _isResolvingHA = false;
-
   @override
   void initState() {
     super.initState();
@@ -60,7 +58,6 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
   /// [forceRefresh] 是否强制刷新（忽略缓存）
   Future<void> _resolveHAAddress({bool forceRefresh = false}) async {
     if (!mounted) return;
-    setState(() => _isResolvingHA = true);
 
     // 强制刷新时忽略缓存
     final result = await xboardApi.resolveAndSetBaseUrl(
@@ -88,9 +85,6 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
             ),
           );
     }
-
-    if (!mounted) return;
-    setState(() => _isResolvingHA = false);
   }
 
   @override
@@ -162,16 +156,6 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
       // 注册成功后跳转到仪表盘页面
       globalState.appController.toPage(PageLabel.dashboard);
     }
-  }
-
-  String? _validateUrl(String? value) {
-    if (value == null || value.isEmpty) {
-      return '请输入面板地址';
-    }
-    if (!value.startsWith('http://') && !value.startsWith('https://')) {
-      return '请输入有效的网址 (http:// 或 https://)';
-    }
-    return null;
   }
 
   String? _validateEmail(String? value) {
@@ -257,43 +241,6 @@ class _XboardLoginViewState extends ConsumerState<XboardLoginView>
                             builder: (context, _) {
                               return Column(
                                 children: [
-                                  // 面板地址
-                                  TextFormField(
-                                    controller: _baseUrlController,
-                                    decoration: InputDecoration(
-                                      labelText: '面板地址',
-                                      hintText: XboardConstants.defaultBaseUrl,
-                                      prefixIcon: const Icon(Icons.link),
-                                      border: const OutlineInputBorder(),
-                                      isDense: isMobile,
-                                      suffixIcon: _isResolvingHA
-                                          ? const Padding(
-                                              padding: EdgeInsets.all(12),
-                                              child: SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                    ),
-                                              ),
-                                            )
-                                          : IconButton(
-                                              icon: const Icon(Icons.refresh),
-                                              tooltip: '刷新高可用地址',
-                                              onPressed: () =>
-                                                  _resolveHAAddress(
-                                                    forceRefresh: true,
-                                                  ),
-                                            ),
-                                    ),
-                                    keyboardType: TextInputType.url,
-                                    validator: _validateUrl,
-                                    textInputAction: TextInputAction.next,
-                                    enabled: !_isResolvingHA,
-                                  ),
-                                  SizedBox(height: isMobile ? 12 : 16),
-
                                   // 邮箱
                                   TextFormField(
                                     controller: _emailController,
