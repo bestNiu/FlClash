@@ -95,7 +95,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          flutter build apk --release
+          flutter build apk --release --dart-define=APP_ENV=stable
           mkdir -p dist
           cp -f build/app/outputs/flutter-apk/app-release.apk dist/
 
@@ -103,7 +103,7 @@ jobs:
       - name: Build (non-android)
         if: matrix.platform != 'android'
         run: |
-          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }}
+          dart setup.dart ${{ matrix.platform }} --arch ${{ matrix.arch }} --env stable
       
       # （可选但强烈推荐）打印 dist，方便你确认确实有产物
       - name: Show dist
