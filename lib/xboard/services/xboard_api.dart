@@ -43,6 +43,10 @@ class XboardHAService {
   XboardUIConfig get currentUiConfig =>
       _lastConfig?.ui ?? _cachedUiConfig ?? const XboardUIConfig();
 
+  /// 获取当前 API 路径配置（从最近解析的配置获取）
+  XboardApiPaths get currentApiPaths =>
+      _lastConfig?.apiPaths ?? const XboardApiPaths();
+
   /// 获取当前配置版本号
   int get currentVersion => _lastConfig?.version ?? _cachedVersion ?? 0;
 
@@ -190,6 +194,9 @@ class XboardApi {
   String? _authData;
   final XboardHAService _haService = XboardHAService();
 
+  /// API 路径配置（从 config.yaml 加载的混淆路径）
+  XboardApiPaths _apiPaths = const XboardApiPaths();
+
   /// 高可用解析到的地址缓存
   String? _haResolvedUrl;
 
@@ -220,6 +227,13 @@ class XboardApi {
   /// 获取当前 UI 配置（优先使用最新解析的，否则使用缓存的）
   XboardUIConfig get uiConfig => _haService.currentUiConfig;
 
+  /// 获取当前 API 路径配置
+  XboardApiPaths get apiPaths => _apiPaths;
+
+  /// 获取 URL 构建器
+  XboardApiUrlBuilder get urlBuilder =>
+      XboardApiUrlBuilder(baseUrl: _baseUrl, paths: _apiPaths);
+
   /// 获取当前配置版本号
   int get configVersion => _haService.currentVersion;
 
@@ -230,6 +244,11 @@ class XboardApi {
   /// 设置缓存的配置（从持久化存储恢复）
   void setCachedUiConfig(XboardUIConfig? uiConfig, int? version) {
     _haService.setCachedConfig(uiConfig, version);
+  }
+
+  /// 设置 API 路径配置（从 config.yaml 加载）
+  void setApiPaths(XboardApiPaths? paths) {
+    _apiPaths = paths ?? const XboardApiPaths();
   }
 
   /// 通过高可用服务解析并设置面板地址
@@ -252,11 +271,14 @@ class XboardApi {
       _haResolvedUrl = result.data;
       _haResolvedTime = DateTime.now().millisecondsSinceEpoch;
       setBaseUrl(result.data!);
+      // 设置从配置文件获取的 API 路径（用于路径混淆）
+      setApiPaths(_haService.currentApiPaths);
       return Result.success(result.data!);
     }
 
-    // 解析失败，使用默认地址
+    // 解析失败，使用默认地址和默认路径
     setBaseUrl(XboardConstants.defaultBaseUrl);
+    setApiPaths(const XboardApiPaths());
     return Result.success(XboardConstants.defaultBaseUrl);
   }
 
@@ -297,7 +319,7 @@ class XboardApi {
   Future<Result<XboardAuth>> login(String email, String password) async {
     try {
       final response = await _dio.post(
-        '$_baseUrl/api/v1/passport/auth/login',
+        urlBuilder.loginUrl,
         data:
             'email=${Uri.encodeComponent(email)}&password=${Uri.encodeComponent(password)}',
       );
@@ -336,7 +358,7 @@ class XboardApi {
       }
 
       final response = await _dio.post(
-        '$_baseUrl/api/v1/passport/auth/register',
+        urlBuilder.registerUrl,
         data: params.entries
             .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
             .join('&'),
@@ -363,7 +385,7 @@ class XboardApi {
   Future<Result<bool>> sendEmailCode(String email) async {
     try {
       final response = await _dio.post(
-        '$_baseUrl/api/v1/passport/comm/sendEmailVerify',
+        urlBuilder.sendEmailVerifyUrl,
         data: 'email=${Uri.encodeComponent(email)}',
       );
 
@@ -385,9 +407,9 @@ class XboardApi {
   /// 获取用户信息
   Future<Result<XboardUser>> getUserInfo() async {
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final response = await _dio.get(
-        '$_baseUrl/api/v1/user/info?t=$timestamp',
+        urlBuilder.userInfoUrl(timestamp: timestamp),
       );
 
       if (response.statusCode == 200) {
@@ -408,9 +430,9 @@ class XboardApi {
   /// 获取订阅信息
   Future<Result<XboardSubscribe>> getSubscribe() async {
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final response = await _dio.get(
-        '$_baseUrl/api/v1/user/getSubscribe?t=$timestamp',
+        urlBuilder.getSubscribeUrl(timestamp: timestamp),
       );
 
       if (response.statusCode == 200) {
@@ -431,9 +453,9 @@ class XboardApi {
   /// 获取公告列表
   Future<Result<List<XboardNotice>>> getNotices() async {
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final response = await _dio.get(
-        '$_baseUrl/api/v1/user/notice/fetch?t=$timestamp',
+        urlBuilder.noticeFetchUrl(timestamp: timestamp),
       );
 
       if (response.statusCode == 200) {
@@ -458,7 +480,7 @@ class XboardApi {
   /// 重置订阅链接
   Future<Result<String>> resetSubscribeToken() async {
     try {
-      final response = await _dio.get('$_baseUrl/api/v1/user/resetSecurity');
+      final response = await _dio.get(urlBuilder.resetSecurityUrl);
 
       if (response.statusCode == 200) {
         final json = response.data as Map<String, dynamic>;
@@ -478,16 +500,16 @@ class XboardApi {
   /// 获取邀请信息
   Future<Result<XboardInviteInfo>> getInviteInfo() async {
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final response = await _dio.get(
-        '$_baseUrl/api/v1/user/invite/fetch?t=$timestamp',
+        urlBuilder.inviteFetchUrl(timestamp: timestamp),
       );
 
       if (response.statusCode == 200) {
         final json = response.data as Map<String, dynamic>;
         if (json['data'] != null) {
           final data = json['data'] as Map<String, dynamic>;
-          
+
           // 解析邀请码列表
           final List<XboardInviteCode> codes = [];
           if (data['codes'] != null && data['codes'] is List) {
@@ -497,7 +519,7 @@ class XboardApi {
               }
             }
           }
-          
+
           // 解析统计信息 - 可能是数组或对象
           XboardInviteStat? stat;
           final statData = data['stat'];
@@ -515,7 +537,7 @@ class XboardApi {
               stat = XboardInviteStat.fromJson(statData);
             }
           }
-          
+
           return Result.success(XboardInviteInfo(codes: codes, stat: stat));
         }
         return Result.success(const XboardInviteInfo());
@@ -527,7 +549,7 @@ class XboardApi {
       return Result.error(e.toString());
     }
   }
-  
+
   /// 安全解析 int 值
   int _parseIntSafe(dynamic value) {
     if (value == null) return 0;
@@ -540,29 +562,27 @@ class XboardApi {
   /// 生成邀请码
   Future<Result<XboardInviteCode>> generateInviteCode() async {
     try {
-      final response = await _dio.get(
-        '$_baseUrl/api/v1/user/invite/save',
-      );
+      final response = await _dio.get(urlBuilder.inviteSaveUrl);
 
       if (response.statusCode == 200) {
         final json = response.data as Map<String, dynamic>;
         final status = json['status'] as String?;
         final message = json['message'] as String?;
-        
+
         if (status == 'success' && json['data'] != null) {
           return Result.success(XboardInviteCode.fromJson(json['data']));
         }
-        
+
         // 处理特定错误类型
         if (status == 'fail') {
           // 已达到创建数量上限
-          if (message?.contains('已达到创建数量上限') == true || 
+          if (message?.contains('已达到创建数量上限') == true ||
               message?.contains('上限') == true) {
             return Result.error('邀请码数量已达上限，无法继续创建');
           }
           return Result.error(message ?? '生成邀请码失败');
         }
-        
+
         return Result.error(message ?? '生成邀请码失败');
       }
       return Result.error('请求失败: ${response.statusCode}');
@@ -576,9 +596,9 @@ class XboardApi {
   /// 获取签到状态
   Future<Result<XboardCheckinStatus>> getCheckinStatus() async {
     try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final response = await _dio.get(
-        '$_baseUrl/api/v1/user/checkin/status?t=$timestamp',
+        urlBuilder.checkinStatusUrl(timestamp: timestamp),
       );
 
       if (response.statusCode == 200) {
@@ -587,9 +607,11 @@ class XboardApi {
           return Result.success(XboardCheckinStatus.fromJson(json['data']));
         }
         // 兼容只返回状态的情况
-        return Result.success(XboardCheckinStatus(
-          isCheckedIn: json['data'] == true || json['status'] == 'success',
-        ));
+        return Result.success(
+          XboardCheckinStatus(
+            isCheckedIn: json['data'] == true || json['status'] == 'success',
+          ),
+        );
       }
       return Result.error('请求失败: ${response.statusCode}');
     } on DioException catch (e) {
@@ -605,9 +627,7 @@ class XboardApi {
   /// 签到
   Future<Result<XboardCheckinResult>> checkin() async {
     try {
-      final response = await _dio.post(
-        '$_baseUrl/api/v1/user/checkin',
-      );
+      final response = await _dio.post(urlBuilder.checkinUrl);
 
       if (response.statusCode == 200) {
         final json = response.data as Map<String, dynamic>;
@@ -618,11 +638,13 @@ class XboardApi {
             return Result.success(XboardCheckinResult.fromJson(data));
           }
           // 兼容只返回 message 的情况
-          return Result.success(XboardCheckinResult(
-            success: true,
-            message: json['message']?.toString() ?? '签到成功',
-            traffic: _parseTrafficFromMessage(json['message']?.toString()),
-          ));
+          return Result.success(
+            XboardCheckinResult(
+              success: true,
+              message: json['message']?.toString() ?? '签到成功',
+              traffic: _parseTrafficFromMessage(json['message']?.toString()),
+            ),
+          );
         }
         return Result.error(json['message'] ?? '签到失败');
       }
@@ -641,7 +663,7 @@ class XboardApi {
   /// 从签到消息中解析流量
   int _parseTrafficFromMessage(String? message) {
     if (message == null) return 0;
-    
+
     // 尝试解析 "获得 X GB 流量" 格式
     final gbRegex = RegExp(r'(\d+(?:\.\d+)?)\s*[gG][bB]');
     final gbMatch = gbRegex.firstMatch(message);

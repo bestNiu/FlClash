@@ -24,6 +24,236 @@ class XboardConstants {
   static const String configPath = '/fly/config.yaml';
 }
 
+/// ========== API 路径混淆配置 ==========
+/// 用于从 config.yaml 动态加载的路径混淆映射
+///
+/// config.yaml 配置示例:
+/// ```yaml
+/// # API 路径混淆配置（可选）
+/// # 客户端会使用混淆后的路径请求，nginx 需要反向代理到真实路径
+/// api_paths:
+///   # 认证相关
+///   passport_auth_login: /apiprod/v100/passport100/auth100/login1100
+///   passport_auth_register: /apiprod/v100/passport100/auth100/register1100
+///   passport_comm_sendEmailVerify: /apiprod/v100/passport100/comm100/sendEmailVerify1100
+///   # 用户相关
+///   user_info: /apiprod/v100/user100/info1100
+///   user_getSubscribe: /apiprod/v100/user100/getSubscribe1100
+///   user_resetSecurity: /apiprod/v100/user100/resetSecurity1100
+///   # 公告相关
+///   user_notice_fetch: /apiprod/v100/user100/notice100/fetch1100
+///   # 邀请相关
+///   user_invite_fetch: /apiprod/v100/user100/invite100/fetch1100
+///   user_invite_save: /apiprod/v100/user100/invite100/save1100
+///   # 签到相关
+///   user_checkin_status: /apiprod/v100/user100/checkin100/status1100
+///   user_checkin: /apiprod/v100/user100/checkin1100
+/// ```
+class XboardApiPaths {
+  /// 认证 - 登录
+  final String passportAuthLogin;
+
+  /// 认证 - 注册
+  final String passportAuthRegister;
+
+  /// 认证 - 发送邮箱验证码
+  final String passportCommSendEmailVerify;
+
+  /// 用户 - 获取信息
+  final String userInfo;
+
+  /// 用户 - 获取订阅
+  final String userGetSubscribe;
+
+  /// 用户 - 重置安全令牌
+  final String userResetSecurity;
+
+  /// 用户 - 获取公告列表
+  final String userNoticeFetch;
+
+  /// 用户 - 获取邀请信息
+  final String userInviteFetch;
+
+  /// 用户 - 生成邀请码
+  final String userInviteSave;
+
+  /// 用户 - 获取签到状态
+  final String userCheckinStatus;
+
+  /// 用户 - 签到
+  final String userCheckin;
+
+  const XboardApiPaths({
+    this.passportAuthLogin = '/api/v1/passport/auth/login',
+    this.passportAuthRegister = '/api/v1/passport/auth/register',
+    this.passportCommSendEmailVerify = '/api/v1/passport/comm/sendEmailVerify',
+    this.userInfo = '/api/v1/user/info',
+    this.userGetSubscribe = '/api/v1/user/getSubscribe',
+    this.userResetSecurity = '/api/v1/user/resetSecurity',
+    this.userNoticeFetch = '/api/v1/user/notice/fetch',
+    this.userInviteFetch = '/api/v1/user/invite/fetch',
+    this.userInviteSave = '/api/v1/user/invite/save',
+    this.userCheckinStatus = '/api/v1/user/checkin/status',
+    this.userCheckin = '/api/v1/user/checkin',
+  });
+
+  /// 从 YAML Map 解析
+  factory XboardApiPaths.fromYaml(Map<String, dynamic> yaml) {
+    return XboardApiPaths(
+      passportAuthLogin:
+          yaml['passport_auth_login']?.toString() ??
+          '/api/v1/passport/auth/login',
+      passportAuthRegister:
+          yaml['passport_auth_register']?.toString() ??
+          '/api/v1/passport/auth/register',
+      passportCommSendEmailVerify:
+          yaml['passport_comm_sendEmailVerify']?.toString() ??
+          '/api/v1/passport/comm/sendEmailVerify',
+      userInfo: yaml['user_info']?.toString() ?? '/api/v1/user/info',
+      userGetSubscribe:
+          yaml['user_getSubscribe']?.toString() ?? '/api/v1/user/getSubscribe',
+      userResetSecurity:
+          yaml['user_resetSecurity']?.toString() ??
+          '/api/v1/user/resetSecurity',
+      userNoticeFetch:
+          yaml['user_notice_fetch']?.toString() ?? '/api/v1/user/notice/fetch',
+      userInviteFetch:
+          yaml['user_invite_fetch']?.toString() ?? '/api/v1/user/invite/fetch',
+      userInviteSave:
+          yaml['user_invite_save']?.toString() ?? '/api/v1/user/invite/save',
+      userCheckinStatus:
+          yaml['user_checkin_status']?.toString() ??
+          '/api/v1/user/checkin/status',
+      userCheckin: yaml['user_checkin']?.toString() ?? '/api/v1/user/checkin',
+    );
+  }
+
+  /// 从 JSON Map 解析（用于从持久化存储恢复）
+  factory XboardApiPaths.fromJson(Map<String, dynamic> json) {
+    return XboardApiPaths(
+      passportAuthLogin:
+          json['passportAuthLogin']?.toString() ??
+          '/api/v1/passport/auth/login',
+      passportAuthRegister:
+          json['passportAuthRegister']?.toString() ??
+          '/api/v1/passport/auth/register',
+      passportCommSendEmailVerify:
+          json['passportCommSendEmailVerify']?.toString() ??
+          '/api/v1/passport/comm/sendEmailVerify',
+      userInfo: json['userInfo']?.toString() ?? '/api/v1/user/info',
+      userGetSubscribe:
+          json['userGetSubscribe']?.toString() ?? '/api/v1/user/getSubscribe',
+      userResetSecurity:
+          json['userResetSecurity']?.toString() ?? '/api/v1/user/resetSecurity',
+      userNoticeFetch:
+          json['userNoticeFetch']?.toString() ?? '/api/v1/user/notice/fetch',
+      userInviteFetch:
+          json['userInviteFetch']?.toString() ?? '/api/v1/user/invite/fetch',
+      userInviteSave:
+          json['userInviteSave']?.toString() ?? '/api/v1/user/invite/save',
+      userCheckinStatus:
+          json['userCheckinStatus']?.toString() ??
+          '/api/v1/user/checkin/status',
+      userCheckin: json['userCheckin']?.toString() ?? '/api/v1/user/checkin',
+    );
+  }
+
+  /// 转换为 JSON Map（用于持久化存储）
+  Map<String, dynamic> toJson() {
+    return {
+      'passportAuthLogin': passportAuthLogin,
+      'passportAuthRegister': passportAuthRegister,
+      'passportCommSendEmailVerify': passportCommSendEmailVerify,
+      'userInfo': userInfo,
+      'userGetSubscribe': userGetSubscribe,
+      'userResetSecurity': userResetSecurity,
+      'userNoticeFetch': userNoticeFetch,
+      'userInviteFetch': userInviteFetch,
+      'userInviteSave': userInviteSave,
+      'userCheckinStatus': userCheckinStatus,
+      'userCheckin': userCheckin,
+    };
+  }
+
+  /// 是否使用了混淆路径（检查是否与默认路径不同）
+  bool get isObfuscated {
+    const defaultPaths = XboardApiPaths();
+    return passportAuthLogin != defaultPaths.passportAuthLogin ||
+        userInfo != defaultPaths.userInfo;
+  }
+}
+
+/// API URL 构建工具类
+class XboardApiUrlBuilder {
+  final String baseUrl;
+  final XboardApiPaths paths;
+
+  XboardApiUrlBuilder({required this.baseUrl, XboardApiPaths? paths})
+    : paths = paths ?? const XboardApiPaths();
+
+  String _buildUrl(String path, {Map<String, String>? queryParams}) {
+    final base = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+
+    if (queryParams != null && queryParams.isNotEmpty) {
+      final query = queryParams.entries
+          .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      return '$base$path?$query';
+    }
+    return '$base$path';
+  }
+
+  /// 登录 URL
+  String get loginUrl => _buildUrl(paths.passportAuthLogin);
+
+  /// 注册 URL
+  String get registerUrl => _buildUrl(paths.passportAuthRegister);
+
+  /// 发送邮箱验证码 URL
+  String get sendEmailVerifyUrl => _buildUrl(paths.passportCommSendEmailVerify);
+
+  /// 用户信息 URL
+  String userInfoUrl({String? timestamp}) => _buildUrl(
+    paths.userInfo,
+    queryParams: timestamp != null ? {'t': timestamp} : null,
+  );
+
+  /// 订阅信息 URL
+  String getSubscribeUrl({String? timestamp}) => _buildUrl(
+    paths.userGetSubscribe,
+    queryParams: timestamp != null ? {'t': timestamp} : null,
+  );
+
+  /// 重置安全令牌 URL
+  String get resetSecurityUrl => _buildUrl(paths.userResetSecurity);
+
+  /// 公告列表 URL
+  String noticeFetchUrl({String? timestamp}) => _buildUrl(
+    paths.userNoticeFetch,
+    queryParams: timestamp != null ? {'t': timestamp} : null,
+  );
+
+  /// 邀请信息 URL
+  String inviteFetchUrl({String? timestamp}) => _buildUrl(
+    paths.userInviteFetch,
+    queryParams: timestamp != null ? {'t': timestamp} : null,
+  );
+
+  /// 生成邀请码 URL
+  String get inviteSaveUrl => _buildUrl(paths.userInviteSave);
+
+  /// 签到状态 URL
+  String checkinStatusUrl({String? timestamp}) => _buildUrl(
+    paths.userCheckinStatus,
+    queryParams: timestamp != null ? {'t': timestamp} : null,
+  );
+
+  /// 签到 URL
+  String get checkinUrl => _buildUrl(paths.userCheckin);
+}
+
 /// 软件版本信息模型
 class AppVersionInfo {
   /// 最新版本号（如 "1.2.3"）
@@ -153,6 +383,27 @@ class AppVersionInfo {
 ///   # 是否显示配置页面的编辑按钮（默认 true）
 ///   show_profile_edit: false
 ///
+/// # API 路径混淆配置（可选）
+/// # 客户端会使用配置的混淆路径请求，nginx 需要反向代理到真实路径
+/// # 如果不配置，则使用默认的真实路径
+/// api_paths:
+///   # 认证相关
+///   passport_auth_login: /apiprod/v100/passport100/auth100/login1100
+///   passport_auth_register: /apiprod/v100/passport100/auth100/register1100
+///   passport_comm_sendEmailVerify: /apiprod/v100/passport100/comm100/sendEmailVerify1100
+///   # 用户相关
+///   user_info: /apiprod/v100/user100/info1100
+///   user_getSubscribe: /apiprod/v100/user100/getSubscribe1100
+///   user_resetSecurity: /apiprod/v100/user100/resetSecurity1100
+///   # 公告相关
+///   user_notice_fetch: /apiprod/v100/user100/notice100/fetch1100
+///   # 邀请相关
+///   user_invite_fetch: /apiprod/v100/user100/invite100/fetch1100
+///   user_invite_save: /apiprod/v100/user100/invite100/save1100
+///   # 签到相关
+///   user_checkin_status: /apiprod/v100/user100/checkin100/status1100
+///   user_checkin: /apiprod/v100/user100/checkin1100
+///
 /// # 软件版本信息（可选）- 用于检查更新和软件下载
 /// app:
 ///   # 最新版本号
@@ -199,6 +450,9 @@ class XboardHAConfig {
   /// UI 配置
   final XboardUIConfig ui;
 
+  /// API 路径配置（用于路径混淆）
+  final XboardApiPaths apiPaths;
+
   /// 软件版本信息
   final AppVersionInfo? appVersion;
 
@@ -216,11 +470,13 @@ class XboardHAConfig {
     required this.panelUrl,
     this.backupUrls = const [],
     XboardUIConfig? ui,
+    XboardApiPaths? apiPaths,
     this.appVersion,
     this.announcementShow = true,
     this.announcement,
     this.updatedAt,
-  }) : ui = ui ?? const XboardUIConfig();
+  }) : ui = ui ?? const XboardUIConfig(),
+       apiPaths = apiPaths ?? const XboardApiPaths();
 
   /// 从 YAML Map 解析
   factory XboardHAConfig.fromYaml(Map<String, dynamic> yaml) {
@@ -238,6 +494,15 @@ class XboardHAConfig {
     final uiValue = yaml['ui'];
     if (uiValue is Map) {
       uiConfig = XboardUIConfig.fromYaml(Map<String, dynamic>.from(uiValue));
+    }
+
+    // 解析 api_paths 配置（路径混淆）
+    XboardApiPaths apiPathsConfig = const XboardApiPaths();
+    final apiPathsValue = yaml['api_paths'];
+    if (apiPathsValue is Map) {
+      apiPathsConfig = XboardApiPaths.fromYaml(
+        Map<String, dynamic>.from(apiPathsValue),
+      );
     }
 
     // 解析 app 版本配置
@@ -267,6 +532,7 @@ class XboardHAConfig {
               .toList() ??
           [],
       ui: uiConfig,
+      apiPaths: apiPathsConfig,
       appVersion: appVersionInfo,
       announcementShow: announcementShow,
       announcement: yaml['announcement']?.toString(),
