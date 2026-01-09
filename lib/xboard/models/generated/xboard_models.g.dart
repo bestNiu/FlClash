@@ -224,3 +224,96 @@ Map<String, dynamic> _$XboardStateToJson(_XboardState instance) =>
       'notices': instance.notices,
       'error': instance.error,
     };
+
+_XboardInviteInfo _$XboardInviteInfoFromJson(Map<String, dynamic> json) =>
+    _XboardInviteInfo(
+      codes:
+          (json['codes'] as List<dynamic>?)
+              ?.map((e) => XboardInviteCode.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      stat: json['stat'] == null
+          ? null
+          : XboardInviteStat.fromJson(json['stat'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$XboardInviteInfoToJson(_XboardInviteInfo instance) =>
+    <String, dynamic>{'codes': instance.codes, 'stat': instance.stat};
+
+_XboardInviteCode _$XboardInviteCodeFromJson(Map<String, dynamic> json) =>
+    _XboardInviteCode(
+      id: json['id'] == null ? 0 : _safeInt(json['id']),
+      userId: (json['user_id'] as num?)?.toInt(),
+      code: json['code'] as String? ?? '',
+      limit: (json['limit'] as num?)?.toInt(),
+      pv: json['pv'] == null ? 0 : _safeInt(json['pv']),
+      createdAt: (json['created_at'] as num?)?.toInt(),
+      updatedAt: (json['updated_at'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$XboardInviteCodeToJson(_XboardInviteCode instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'user_id': instance.userId,
+      'code': instance.code,
+      'limit': instance.limit,
+      'pv': instance.pv,
+      'created_at': instance.createdAt,
+      'updated_at': instance.updatedAt,
+    };
+
+_XboardInviteStat _$XboardInviteStatFromJson(Map<String, dynamic> json) =>
+    _XboardInviteStat(
+      registeredCount: json['registered_count'] == null
+          ? 0
+          : _safeInt(json['registered_count']),
+      commissionRate: json['commission_rate'] == null
+          ? 0
+          : _safeInt(json['commission_rate']),
+      pendingCommission: json['pending_commission'] == null
+          ? 0
+          : _safeInt(json['pending_commission']),
+      commissionBalance: json['commission_balance'] == null
+          ? 0
+          : _safeInt(json['commission_balance']),
+    );
+
+Map<String, dynamic> _$XboardInviteStatToJson(_XboardInviteStat instance) =>
+    <String, dynamic>{
+      'registered_count': instance.registeredCount,
+      'commission_rate': instance.commissionRate,
+      'pending_commission': instance.pendingCommission,
+      'commission_balance': instance.commissionBalance,
+    };
+
+_XboardCheckinStatus _$XboardCheckinStatusFromJson(Map<String, dynamic> json) =>
+    _XboardCheckinStatus(
+      isCheckedIn: json['is_checked_in'] as bool? ?? false,
+      lastCheckinAt: (json['last_checkin_at'] as num?)?.toInt(),
+      continuousDays: (json['continuous_days'] as num?)?.toInt() ?? 0,
+      monthCheckinDays: (json['month_checkin_days'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$XboardCheckinStatusToJson(
+  _XboardCheckinStatus instance,
+) => <String, dynamic>{
+  'is_checked_in': instance.isCheckedIn,
+  'last_checkin_at': instance.lastCheckinAt,
+  'continuous_days': instance.continuousDays,
+  'month_checkin_days': instance.monthCheckinDays,
+};
+
+_XboardCheckinResult _$XboardCheckinResultFromJson(Map<String, dynamic> json) =>
+    _XboardCheckinResult(
+      success: json['success'] as bool? ?? false,
+      traffic: (json['traffic'] as num?)?.toInt() ?? 0,
+      message: json['message'] as String?,
+    );
+
+Map<String, dynamic> _$XboardCheckinResultToJson(
+  _XboardCheckinResult instance,
+) => <String, dynamic>{
+  'success': instance.success,
+  'traffic': instance.traffic,
+  'message': instance.message,
+};

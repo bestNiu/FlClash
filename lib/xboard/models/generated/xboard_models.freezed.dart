@@ -2181,4 +2181,1435 @@ $XboardSubscribeCopyWith<$Res>? get subscribe {
 }
 }
 
+
+/// @nodoc
+mixin _$XboardInviteInfo {
+
+/// 邀请码列表
+@JsonKey(name: 'codes') List<XboardInviteCode> get codes;/// 邀请数据统计
+@JsonKey(name: 'stat') XboardInviteStat? get stat;
+/// Create a copy of XboardInviteInfo
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XboardInviteInfoCopyWith<XboardInviteInfo> get copyWith => _$XboardInviteInfoCopyWithImpl<XboardInviteInfo>(this as XboardInviteInfo, _$identity);
+
+  /// Serializes this XboardInviteInfo to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardInviteInfo&&const DeepCollectionEquality().equals(other.codes, codes)&&(identical(other.stat, stat) || other.stat == stat));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(codes),stat);
+
+@override
+String toString() {
+  return 'XboardInviteInfo(codes: $codes, stat: $stat)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $XboardInviteInfoCopyWith<$Res>  {
+  factory $XboardInviteInfoCopyWith(XboardInviteInfo value, $Res Function(XboardInviteInfo) _then) = _$XboardInviteInfoCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'codes') List<XboardInviteCode> codes,@JsonKey(name: 'stat') XboardInviteStat? stat
+});
+
+
+$XboardInviteStatCopyWith<$Res>? get stat;
+
+}
+/// @nodoc
+class _$XboardInviteInfoCopyWithImpl<$Res>
+    implements $XboardInviteInfoCopyWith<$Res> {
+  _$XboardInviteInfoCopyWithImpl(this._self, this._then);
+
+  final XboardInviteInfo _self;
+  final $Res Function(XboardInviteInfo) _then;
+
+/// Create a copy of XboardInviteInfo
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? codes = null,Object? stat = freezed,}) {
+  return _then(_self.copyWith(
+codes: null == codes ? _self.codes : codes // ignore: cast_nullable_to_non_nullable
+as List<XboardInviteCode>,stat: freezed == stat ? _self.stat : stat // ignore: cast_nullable_to_non_nullable
+as XboardInviteStat?,
+  ));
+}
+/// Create a copy of XboardInviteInfo
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$XboardInviteStatCopyWith<$Res>? get stat {
+    if (_self.stat == null) {
+    return null;
+  }
+
+  return $XboardInviteStatCopyWith<$Res>(_self.stat!, (value) {
+    return _then(_self.copyWith(stat: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [XboardInviteInfo].
+extension XboardInviteInfoPatterns on XboardInviteInfo {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _XboardInviteInfo value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _XboardInviteInfo() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _XboardInviteInfo value)  $default,){
+final _that = this;
+switch (_that) {
+case _XboardInviteInfo():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _XboardInviteInfo value)?  $default,){
+final _that = this;
+switch (_that) {
+case _XboardInviteInfo() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'codes')  List<XboardInviteCode> codes, @JsonKey(name: 'stat')  XboardInviteStat? stat)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _XboardInviteInfo() when $default != null:
+return $default(_that.codes,_that.stat);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'codes')  List<XboardInviteCode> codes, @JsonKey(name: 'stat')  XboardInviteStat? stat)  $default,) {final _that = this;
+switch (_that) {
+case _XboardInviteInfo():
+return $default(_that.codes,_that.stat);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'codes')  List<XboardInviteCode> codes, @JsonKey(name: 'stat')  XboardInviteStat? stat)?  $default,) {final _that = this;
+switch (_that) {
+case _XboardInviteInfo() when $default != null:
+return $default(_that.codes,_that.stat);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _XboardInviteInfo implements XboardInviteInfo {
+  const _XboardInviteInfo({@JsonKey(name: 'codes') final  List<XboardInviteCode> codes = const [], @JsonKey(name: 'stat') this.stat}): _codes = codes;
+  factory _XboardInviteInfo.fromJson(Map<String, dynamic> json) => _$XboardInviteInfoFromJson(json);
+
+/// 邀请码列表
+ final  List<XboardInviteCode> _codes;
+/// 邀请码列表
+@override@JsonKey(name: 'codes') List<XboardInviteCode> get codes {
+  if (_codes is EqualUnmodifiableListView) return _codes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_codes);
+}
+
+/// 邀请数据统计
+@override@JsonKey(name: 'stat') final  XboardInviteStat? stat;
+
+/// Create a copy of XboardInviteInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$XboardInviteInfoCopyWith<_XboardInviteInfo> get copyWith => __$XboardInviteInfoCopyWithImpl<_XboardInviteInfo>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$XboardInviteInfoToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardInviteInfo&&const DeepCollectionEquality().equals(other._codes, _codes)&&(identical(other.stat, stat) || other.stat == stat));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_codes),stat);
+
+@override
+String toString() {
+  return 'XboardInviteInfo(codes: $codes, stat: $stat)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$XboardInviteInfoCopyWith<$Res> implements $XboardInviteInfoCopyWith<$Res> {
+  factory _$XboardInviteInfoCopyWith(_XboardInviteInfo value, $Res Function(_XboardInviteInfo) _then) = __$XboardInviteInfoCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'codes') List<XboardInviteCode> codes,@JsonKey(name: 'stat') XboardInviteStat? stat
+});
+
+
+@override $XboardInviteStatCopyWith<$Res>? get stat;
+
+}
+/// @nodoc
+class __$XboardInviteInfoCopyWithImpl<$Res>
+    implements _$XboardInviteInfoCopyWith<$Res> {
+  __$XboardInviteInfoCopyWithImpl(this._self, this._then);
+
+  final _XboardInviteInfo _self;
+  final $Res Function(_XboardInviteInfo) _then;
+
+/// Create a copy of XboardInviteInfo
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? codes = null,Object? stat = freezed,}) {
+  return _then(_XboardInviteInfo(
+codes: null == codes ? _self._codes : codes // ignore: cast_nullable_to_non_nullable
+as List<XboardInviteCode>,stat: freezed == stat ? _self.stat : stat // ignore: cast_nullable_to_non_nullable
+as XboardInviteStat?,
+  ));
+}
+
+/// Create a copy of XboardInviteInfo
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$XboardInviteStatCopyWith<$Res>? get stat {
+    if (_self.stat == null) {
+    return null;
+  }
+
+  return $XboardInviteStatCopyWith<$Res>(_self.stat!, (value) {
+    return _then(_self.copyWith(stat: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$XboardInviteCode {
+
+/// 邀请码 ID
+@JsonKey(fromJson: _safeInt) int get id;/// 用户 ID
+@JsonKey(name: 'user_id') int? get userId;/// 邀请码
+ String get code;/// 邀请人数限制 (null 表示无限)
+ int? get limit;/// 使用次数
+@JsonKey(name: 'pv', fromJson: _safeInt) int get pv;/// 创建时间
+@JsonKey(name: 'created_at') int? get createdAt;/// 更新时间
+@JsonKey(name: 'updated_at') int? get updatedAt;
+/// Create a copy of XboardInviteCode
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XboardInviteCodeCopyWith<XboardInviteCode> get copyWith => _$XboardInviteCodeCopyWithImpl<XboardInviteCode>(this as XboardInviteCode, _$identity);
+
+  /// Serializes this XboardInviteCode to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardInviteCode&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.code, code) || other.code == code)&&(identical(other.limit, limit) || other.limit == limit)&&(identical(other.pv, pv) || other.pv == pv)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,userId,code,limit,pv,createdAt,updatedAt);
+
+@override
+String toString() {
+  return 'XboardInviteCode(id: $id, userId: $userId, code: $code, limit: $limit, pv: $pv, createdAt: $createdAt, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $XboardInviteCodeCopyWith<$Res>  {
+  factory $XboardInviteCodeCopyWith(XboardInviteCode value, $Res Function(XboardInviteCode) _then) = _$XboardInviteCodeCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(fromJson: _safeInt) int id,@JsonKey(name: 'user_id') int? userId, String code, int? limit,@JsonKey(name: 'pv', fromJson: _safeInt) int pv,@JsonKey(name: 'created_at') int? createdAt,@JsonKey(name: 'updated_at') int? updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$XboardInviteCodeCopyWithImpl<$Res>
+    implements $XboardInviteCodeCopyWith<$Res> {
+  _$XboardInviteCodeCopyWithImpl(this._self, this._then);
+
+  final XboardInviteCode _self;
+  final $Res Function(XboardInviteCode) _then;
+
+/// Create a copy of XboardInviteCode
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = freezed,Object? code = null,Object? limit = freezed,Object? pv = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int?,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,limit: freezed == limit ? _self.limit : limit // ignore: cast_nullable_to_non_nullable
+as int?,pv: null == pv ? _self.pv : pv // ignore: cast_nullable_to_non_nullable
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [XboardInviteCode].
+extension XboardInviteCodePatterns on XboardInviteCode {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _XboardInviteCode value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _XboardInviteCode() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _XboardInviteCode value)  $default,){
+final _that = this;
+switch (_that) {
+case _XboardInviteCode():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _XboardInviteCode value)?  $default,){
+final _that = this;
+switch (_that) {
+case _XboardInviteCode() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(fromJson: _safeInt)  int id, @JsonKey(name: 'user_id')  int? userId,  String code,  int? limit, @JsonKey(name: 'pv', fromJson: _safeInt)  int pv, @JsonKey(name: 'created_at')  int? createdAt, @JsonKey(name: 'updated_at')  int? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _XboardInviteCode() when $default != null:
+return $default(_that.id,_that.userId,_that.code,_that.limit,_that.pv,_that.createdAt,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(fromJson: _safeInt)  int id, @JsonKey(name: 'user_id')  int? userId,  String code,  int? limit, @JsonKey(name: 'pv', fromJson: _safeInt)  int pv, @JsonKey(name: 'created_at')  int? createdAt, @JsonKey(name: 'updated_at')  int? updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _XboardInviteCode():
+return $default(_that.id,_that.userId,_that.code,_that.limit,_that.pv,_that.createdAt,_that.updatedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(fromJson: _safeInt)  int id, @JsonKey(name: 'user_id')  int? userId,  String code,  int? limit, @JsonKey(name: 'pv', fromJson: _safeInt)  int pv, @JsonKey(name: 'created_at')  int? createdAt, @JsonKey(name: 'updated_at')  int? updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _XboardInviteCode() when $default != null:
+return $default(_that.id,_that.userId,_that.code,_that.limit,_that.pv,_that.createdAt,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _XboardInviteCode implements XboardInviteCode {
+  const _XboardInviteCode({@JsonKey(fromJson: _safeInt) this.id = 0, @JsonKey(name: 'user_id') this.userId, this.code = '', this.limit, @JsonKey(name: 'pv', fromJson: _safeInt) this.pv = 0, @JsonKey(name: 'created_at') this.createdAt, @JsonKey(name: 'updated_at') this.updatedAt});
+  factory _XboardInviteCode.fromJson(Map<String, dynamic> json) => _$XboardInviteCodeFromJson(json);
+
+/// 邀请码 ID
+@override@JsonKey(fromJson: _safeInt) final  int id;
+/// 用户 ID
+@override@JsonKey(name: 'user_id') final  int? userId;
+/// 邀请码
+@override@JsonKey() final  String code;
+/// 邀请人数限制 (null 表示无限)
+@override final  int? limit;
+/// 使用次数
+@override@JsonKey(name: 'pv', fromJson: _safeInt) final  int pv;
+/// 创建时间
+@override@JsonKey(name: 'created_at') final  int? createdAt;
+/// 更新时间
+@override@JsonKey(name: 'updated_at') final  int? updatedAt;
+
+/// Create a copy of XboardInviteCode
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$XboardInviteCodeCopyWith<_XboardInviteCode> get copyWith => __$XboardInviteCodeCopyWithImpl<_XboardInviteCode>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$XboardInviteCodeToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardInviteCode&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.code, code) || other.code == code)&&(identical(other.limit, limit) || other.limit == limit)&&(identical(other.pv, pv) || other.pv == pv)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,userId,code,limit,pv,createdAt,updatedAt);
+
+@override
+String toString() {
+  return 'XboardInviteCode(id: $id, userId: $userId, code: $code, limit: $limit, pv: $pv, createdAt: $createdAt, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$XboardInviteCodeCopyWith<$Res> implements $XboardInviteCodeCopyWith<$Res> {
+  factory _$XboardInviteCodeCopyWith(_XboardInviteCode value, $Res Function(_XboardInviteCode) _then) = __$XboardInviteCodeCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(fromJson: _safeInt) int id,@JsonKey(name: 'user_id') int? userId, String code, int? limit,@JsonKey(name: 'pv', fromJson: _safeInt) int pv,@JsonKey(name: 'created_at') int? createdAt,@JsonKey(name: 'updated_at') int? updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$XboardInviteCodeCopyWithImpl<$Res>
+    implements _$XboardInviteCodeCopyWith<$Res> {
+  __$XboardInviteCodeCopyWithImpl(this._self, this._then);
+
+  final _XboardInviteCode _self;
+  final $Res Function(_XboardInviteCode) _then;
+
+/// Create a copy of XboardInviteCode
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = freezed,Object? code = null,Object? limit = freezed,Object? pv = null,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
+  return _then(_XboardInviteCode(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int?,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,limit: freezed == limit ? _self.limit : limit // ignore: cast_nullable_to_non_nullable
+as int?,pv: null == pv ? _self.pv : pv // ignore: cast_nullable_to_non_nullable
+as int,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$XboardInviteStat {
+
+/// 已注册用户数
+@JsonKey(name: 'registered_count', fromJson: _safeInt) int get registeredCount;/// 佣金比例 (如 10 表示 10%)
+@JsonKey(name: 'commission_rate', fromJson: _safeInt) int get commissionRate;/// 待确认佣金（分）
+@JsonKey(name: 'pending_commission', fromJson: _safeInt) int get pendingCommission;/// 已确认佣金（分）
+@JsonKey(name: 'commission_balance', fromJson: _safeInt) int get commissionBalance;
+/// Create a copy of XboardInviteStat
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XboardInviteStatCopyWith<XboardInviteStat> get copyWith => _$XboardInviteStatCopyWithImpl<XboardInviteStat>(this as XboardInviteStat, _$identity);
+
+  /// Serializes this XboardInviteStat to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardInviteStat&&(identical(other.registeredCount, registeredCount) || other.registeredCount == registeredCount)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate)&&(identical(other.pendingCommission, pendingCommission) || other.pendingCommission == pendingCommission)&&(identical(other.commissionBalance, commissionBalance) || other.commissionBalance == commissionBalance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,registeredCount,commissionRate,pendingCommission,commissionBalance);
+
+@override
+String toString() {
+  return 'XboardInviteStat(registeredCount: $registeredCount, commissionRate: $commissionRate, pendingCommission: $pendingCommission, commissionBalance: $commissionBalance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $XboardInviteStatCopyWith<$Res>  {
+  factory $XboardInviteStatCopyWith(XboardInviteStat value, $Res Function(XboardInviteStat) _then) = _$XboardInviteStatCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'registered_count', fromJson: _safeInt) int registeredCount,@JsonKey(name: 'commission_rate', fromJson: _safeInt) int commissionRate,@JsonKey(name: 'pending_commission', fromJson: _safeInt) int pendingCommission,@JsonKey(name: 'commission_balance', fromJson: _safeInt) int commissionBalance
+});
+
+
+
+
+}
+/// @nodoc
+class _$XboardInviteStatCopyWithImpl<$Res>
+    implements $XboardInviteStatCopyWith<$Res> {
+  _$XboardInviteStatCopyWithImpl(this._self, this._then);
+
+  final XboardInviteStat _self;
+  final $Res Function(XboardInviteStat) _then;
+
+/// Create a copy of XboardInviteStat
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? registeredCount = null,Object? commissionRate = null,Object? pendingCommission = null,Object? commissionBalance = null,}) {
+  return _then(_self.copyWith(
+registeredCount: null == registeredCount ? _self.registeredCount : registeredCount // ignore: cast_nullable_to_non_nullable
+as int,commissionRate: null == commissionRate ? _self.commissionRate : commissionRate // ignore: cast_nullable_to_non_nullable
+as int,pendingCommission: null == pendingCommission ? _self.pendingCommission : pendingCommission // ignore: cast_nullable_to_non_nullable
+as int,commissionBalance: null == commissionBalance ? _self.commissionBalance : commissionBalance // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [XboardInviteStat].
+extension XboardInviteStatPatterns on XboardInviteStat {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _XboardInviteStat value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _XboardInviteStat() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _XboardInviteStat value)  $default,){
+final _that = this;
+switch (_that) {
+case _XboardInviteStat():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _XboardInviteStat value)?  $default,){
+final _that = this;
+switch (_that) {
+case _XboardInviteStat() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'registered_count', fromJson: _safeInt)  int registeredCount, @JsonKey(name: 'commission_rate', fromJson: _safeInt)  int commissionRate, @JsonKey(name: 'pending_commission', fromJson: _safeInt)  int pendingCommission, @JsonKey(name: 'commission_balance', fromJson: _safeInt)  int commissionBalance)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _XboardInviteStat() when $default != null:
+return $default(_that.registeredCount,_that.commissionRate,_that.pendingCommission,_that.commissionBalance);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'registered_count', fromJson: _safeInt)  int registeredCount, @JsonKey(name: 'commission_rate', fromJson: _safeInt)  int commissionRate, @JsonKey(name: 'pending_commission', fromJson: _safeInt)  int pendingCommission, @JsonKey(name: 'commission_balance', fromJson: _safeInt)  int commissionBalance)  $default,) {final _that = this;
+switch (_that) {
+case _XboardInviteStat():
+return $default(_that.registeredCount,_that.commissionRate,_that.pendingCommission,_that.commissionBalance);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'registered_count', fromJson: _safeInt)  int registeredCount, @JsonKey(name: 'commission_rate', fromJson: _safeInt)  int commissionRate, @JsonKey(name: 'pending_commission', fromJson: _safeInt)  int pendingCommission, @JsonKey(name: 'commission_balance', fromJson: _safeInt)  int commissionBalance)?  $default,) {final _that = this;
+switch (_that) {
+case _XboardInviteStat() when $default != null:
+return $default(_that.registeredCount,_that.commissionRate,_that.pendingCommission,_that.commissionBalance);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _XboardInviteStat implements XboardInviteStat {
+  const _XboardInviteStat({@JsonKey(name: 'registered_count', fromJson: _safeInt) this.registeredCount = 0, @JsonKey(name: 'commission_rate', fromJson: _safeInt) this.commissionRate = 0, @JsonKey(name: 'pending_commission', fromJson: _safeInt) this.pendingCommission = 0, @JsonKey(name: 'commission_balance', fromJson: _safeInt) this.commissionBalance = 0});
+  factory _XboardInviteStat.fromJson(Map<String, dynamic> json) => _$XboardInviteStatFromJson(json);
+
+/// 已注册用户数
+@override@JsonKey(name: 'registered_count', fromJson: _safeInt) final  int registeredCount;
+/// 佣金比例 (如 10 表示 10%)
+@override@JsonKey(name: 'commission_rate', fromJson: _safeInt) final  int commissionRate;
+/// 待确认佣金（分）
+@override@JsonKey(name: 'pending_commission', fromJson: _safeInt) final  int pendingCommission;
+/// 已确认佣金（分）
+@override@JsonKey(name: 'commission_balance', fromJson: _safeInt) final  int commissionBalance;
+
+/// Create a copy of XboardInviteStat
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$XboardInviteStatCopyWith<_XboardInviteStat> get copyWith => __$XboardInviteStatCopyWithImpl<_XboardInviteStat>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$XboardInviteStatToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardInviteStat&&(identical(other.registeredCount, registeredCount) || other.registeredCount == registeredCount)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate)&&(identical(other.pendingCommission, pendingCommission) || other.pendingCommission == pendingCommission)&&(identical(other.commissionBalance, commissionBalance) || other.commissionBalance == commissionBalance));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,registeredCount,commissionRate,pendingCommission,commissionBalance);
+
+@override
+String toString() {
+  return 'XboardInviteStat(registeredCount: $registeredCount, commissionRate: $commissionRate, pendingCommission: $pendingCommission, commissionBalance: $commissionBalance)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$XboardInviteStatCopyWith<$Res> implements $XboardInviteStatCopyWith<$Res> {
+  factory _$XboardInviteStatCopyWith(_XboardInviteStat value, $Res Function(_XboardInviteStat) _then) = __$XboardInviteStatCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'registered_count', fromJson: _safeInt) int registeredCount,@JsonKey(name: 'commission_rate', fromJson: _safeInt) int commissionRate,@JsonKey(name: 'pending_commission', fromJson: _safeInt) int pendingCommission,@JsonKey(name: 'commission_balance', fromJson: _safeInt) int commissionBalance
+});
+
+
+
+
+}
+/// @nodoc
+class __$XboardInviteStatCopyWithImpl<$Res>
+    implements _$XboardInviteStatCopyWith<$Res> {
+  __$XboardInviteStatCopyWithImpl(this._self, this._then);
+
+  final _XboardInviteStat _self;
+  final $Res Function(_XboardInviteStat) _then;
+
+/// Create a copy of XboardInviteStat
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? registeredCount = null,Object? commissionRate = null,Object? pendingCommission = null,Object? commissionBalance = null,}) {
+  return _then(_XboardInviteStat(
+registeredCount: null == registeredCount ? _self.registeredCount : registeredCount // ignore: cast_nullable_to_non_nullable
+as int,commissionRate: null == commissionRate ? _self.commissionRate : commissionRate // ignore: cast_nullable_to_non_nullable
+as int,pendingCommission: null == pendingCommission ? _self.pendingCommission : pendingCommission // ignore: cast_nullable_to_non_nullable
+as int,commissionBalance: null == commissionBalance ? _self.commissionBalance : commissionBalance // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$XboardCheckinStatus {
+
+/// 今日是否已签到
+@JsonKey(name: 'is_checked_in') bool get isCheckedIn;/// 上次签到时间（时间戳）
+@JsonKey(name: 'last_checkin_at') int? get lastCheckinAt;/// 连续签到天数
+@JsonKey(name: 'continuous_days') int get continuousDays;/// 本月签到天数
+@JsonKey(name: 'month_checkin_days') int get monthCheckinDays;
+/// Create a copy of XboardCheckinStatus
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XboardCheckinStatusCopyWith<XboardCheckinStatus> get copyWith => _$XboardCheckinStatusCopyWithImpl<XboardCheckinStatus>(this as XboardCheckinStatus, _$identity);
+
+  /// Serializes this XboardCheckinStatus to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardCheckinStatus&&(identical(other.isCheckedIn, isCheckedIn) || other.isCheckedIn == isCheckedIn)&&(identical(other.lastCheckinAt, lastCheckinAt) || other.lastCheckinAt == lastCheckinAt)&&(identical(other.continuousDays, continuousDays) || other.continuousDays == continuousDays)&&(identical(other.monthCheckinDays, monthCheckinDays) || other.monthCheckinDays == monthCheckinDays));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,isCheckedIn,lastCheckinAt,continuousDays,monthCheckinDays);
+
+@override
+String toString() {
+  return 'XboardCheckinStatus(isCheckedIn: $isCheckedIn, lastCheckinAt: $lastCheckinAt, continuousDays: $continuousDays, monthCheckinDays: $monthCheckinDays)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $XboardCheckinStatusCopyWith<$Res>  {
+  factory $XboardCheckinStatusCopyWith(XboardCheckinStatus value, $Res Function(XboardCheckinStatus) _then) = _$XboardCheckinStatusCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'is_checked_in') bool isCheckedIn,@JsonKey(name: 'last_checkin_at') int? lastCheckinAt,@JsonKey(name: 'continuous_days') int continuousDays,@JsonKey(name: 'month_checkin_days') int monthCheckinDays
+});
+
+
+
+
+}
+/// @nodoc
+class _$XboardCheckinStatusCopyWithImpl<$Res>
+    implements $XboardCheckinStatusCopyWith<$Res> {
+  _$XboardCheckinStatusCopyWithImpl(this._self, this._then);
+
+  final XboardCheckinStatus _self;
+  final $Res Function(XboardCheckinStatus) _then;
+
+/// Create a copy of XboardCheckinStatus
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isCheckedIn = null,Object? lastCheckinAt = freezed,Object? continuousDays = null,Object? monthCheckinDays = null,}) {
+  return _then(_self.copyWith(
+isCheckedIn: null == isCheckedIn ? _self.isCheckedIn : isCheckedIn // ignore: cast_nullable_to_non_nullable
+as bool,lastCheckinAt: freezed == lastCheckinAt ? _self.lastCheckinAt : lastCheckinAt // ignore: cast_nullable_to_non_nullable
+as int?,continuousDays: null == continuousDays ? _self.continuousDays : continuousDays // ignore: cast_nullable_to_non_nullable
+as int,monthCheckinDays: null == monthCheckinDays ? _self.monthCheckinDays : monthCheckinDays // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [XboardCheckinStatus].
+extension XboardCheckinStatusPatterns on XboardCheckinStatus {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _XboardCheckinStatus value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _XboardCheckinStatus() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _XboardCheckinStatus value)  $default,){
+final _that = this;
+switch (_that) {
+case _XboardCheckinStatus():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _XboardCheckinStatus value)?  $default,){
+final _that = this;
+switch (_that) {
+case _XboardCheckinStatus() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'is_checked_in')  bool isCheckedIn, @JsonKey(name: 'last_checkin_at')  int? lastCheckinAt, @JsonKey(name: 'continuous_days')  int continuousDays, @JsonKey(name: 'month_checkin_days')  int monthCheckinDays)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _XboardCheckinStatus() when $default != null:
+return $default(_that.isCheckedIn,_that.lastCheckinAt,_that.continuousDays,_that.monthCheckinDays);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'is_checked_in')  bool isCheckedIn, @JsonKey(name: 'last_checkin_at')  int? lastCheckinAt, @JsonKey(name: 'continuous_days')  int continuousDays, @JsonKey(name: 'month_checkin_days')  int monthCheckinDays)  $default,) {final _that = this;
+switch (_that) {
+case _XboardCheckinStatus():
+return $default(_that.isCheckedIn,_that.lastCheckinAt,_that.continuousDays,_that.monthCheckinDays);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'is_checked_in')  bool isCheckedIn, @JsonKey(name: 'last_checkin_at')  int? lastCheckinAt, @JsonKey(name: 'continuous_days')  int continuousDays, @JsonKey(name: 'month_checkin_days')  int monthCheckinDays)?  $default,) {final _that = this;
+switch (_that) {
+case _XboardCheckinStatus() when $default != null:
+return $default(_that.isCheckedIn,_that.lastCheckinAt,_that.continuousDays,_that.monthCheckinDays);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _XboardCheckinStatus implements XboardCheckinStatus {
+  const _XboardCheckinStatus({@JsonKey(name: 'is_checked_in') this.isCheckedIn = false, @JsonKey(name: 'last_checkin_at') this.lastCheckinAt, @JsonKey(name: 'continuous_days') this.continuousDays = 0, @JsonKey(name: 'month_checkin_days') this.monthCheckinDays = 0});
+  factory _XboardCheckinStatus.fromJson(Map<String, dynamic> json) => _$XboardCheckinStatusFromJson(json);
+
+/// 今日是否已签到
+@override@JsonKey(name: 'is_checked_in') final  bool isCheckedIn;
+/// 上次签到时间（时间戳）
+@override@JsonKey(name: 'last_checkin_at') final  int? lastCheckinAt;
+/// 连续签到天数
+@override@JsonKey(name: 'continuous_days') final  int continuousDays;
+/// 本月签到天数
+@override@JsonKey(name: 'month_checkin_days') final  int monthCheckinDays;
+
+/// Create a copy of XboardCheckinStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$XboardCheckinStatusCopyWith<_XboardCheckinStatus> get copyWith => __$XboardCheckinStatusCopyWithImpl<_XboardCheckinStatus>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$XboardCheckinStatusToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardCheckinStatus&&(identical(other.isCheckedIn, isCheckedIn) || other.isCheckedIn == isCheckedIn)&&(identical(other.lastCheckinAt, lastCheckinAt) || other.lastCheckinAt == lastCheckinAt)&&(identical(other.continuousDays, continuousDays) || other.continuousDays == continuousDays)&&(identical(other.monthCheckinDays, monthCheckinDays) || other.monthCheckinDays == monthCheckinDays));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,isCheckedIn,lastCheckinAt,continuousDays,monthCheckinDays);
+
+@override
+String toString() {
+  return 'XboardCheckinStatus(isCheckedIn: $isCheckedIn, lastCheckinAt: $lastCheckinAt, continuousDays: $continuousDays, monthCheckinDays: $monthCheckinDays)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$XboardCheckinStatusCopyWith<$Res> implements $XboardCheckinStatusCopyWith<$Res> {
+  factory _$XboardCheckinStatusCopyWith(_XboardCheckinStatus value, $Res Function(_XboardCheckinStatus) _then) = __$XboardCheckinStatusCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'is_checked_in') bool isCheckedIn,@JsonKey(name: 'last_checkin_at') int? lastCheckinAt,@JsonKey(name: 'continuous_days') int continuousDays,@JsonKey(name: 'month_checkin_days') int monthCheckinDays
+});
+
+
+
+
+}
+/// @nodoc
+class __$XboardCheckinStatusCopyWithImpl<$Res>
+    implements _$XboardCheckinStatusCopyWith<$Res> {
+  __$XboardCheckinStatusCopyWithImpl(this._self, this._then);
+
+  final _XboardCheckinStatus _self;
+  final $Res Function(_XboardCheckinStatus) _then;
+
+/// Create a copy of XboardCheckinStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isCheckedIn = null,Object? lastCheckinAt = freezed,Object? continuousDays = null,Object? monthCheckinDays = null,}) {
+  return _then(_XboardCheckinStatus(
+isCheckedIn: null == isCheckedIn ? _self.isCheckedIn : isCheckedIn // ignore: cast_nullable_to_non_nullable
+as bool,lastCheckinAt: freezed == lastCheckinAt ? _self.lastCheckinAt : lastCheckinAt // ignore: cast_nullable_to_non_nullable
+as int?,continuousDays: null == continuousDays ? _self.continuousDays : continuousDays // ignore: cast_nullable_to_non_nullable
+as int,monthCheckinDays: null == monthCheckinDays ? _self.monthCheckinDays : monthCheckinDays // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$XboardCheckinResult {
+
+/// 是否签到成功
+ bool get success;/// 获得的流量（字节）
+@JsonKey(name: 'traffic') int get traffic;/// 提示消息
+ String? get message;
+/// Create a copy of XboardCheckinResult
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XboardCheckinResultCopyWith<XboardCheckinResult> get copyWith => _$XboardCheckinResultCopyWithImpl<XboardCheckinResult>(this as XboardCheckinResult, _$identity);
+
+  /// Serializes this XboardCheckinResult to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XboardCheckinResult&&(identical(other.success, success) || other.success == success)&&(identical(other.traffic, traffic) || other.traffic == traffic)&&(identical(other.message, message) || other.message == message));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,success,traffic,message);
+
+@override
+String toString() {
+  return 'XboardCheckinResult(success: $success, traffic: $traffic, message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $XboardCheckinResultCopyWith<$Res>  {
+  factory $XboardCheckinResultCopyWith(XboardCheckinResult value, $Res Function(XboardCheckinResult) _then) = _$XboardCheckinResultCopyWithImpl;
+@useResult
+$Res call({
+ bool success,@JsonKey(name: 'traffic') int traffic, String? message
+});
+
+
+
+
+}
+/// @nodoc
+class _$XboardCheckinResultCopyWithImpl<$Res>
+    implements $XboardCheckinResultCopyWith<$Res> {
+  _$XboardCheckinResultCopyWithImpl(this._self, this._then);
+
+  final XboardCheckinResult _self;
+  final $Res Function(XboardCheckinResult) _then;
+
+/// Create a copy of XboardCheckinResult
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? success = null,Object? traffic = null,Object? message = freezed,}) {
+  return _then(_self.copyWith(
+success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
+as bool,traffic: null == traffic ? _self.traffic : traffic // ignore: cast_nullable_to_non_nullable
+as int,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [XboardCheckinResult].
+extension XboardCheckinResultPatterns on XboardCheckinResult {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _XboardCheckinResult value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _XboardCheckinResult() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _XboardCheckinResult value)  $default,){
+final _that = this;
+switch (_that) {
+case _XboardCheckinResult():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _XboardCheckinResult value)?  $default,){
+final _that = this;
+switch (_that) {
+case _XboardCheckinResult() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool success, @JsonKey(name: 'traffic')  int traffic,  String? message)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _XboardCheckinResult() when $default != null:
+return $default(_that.success,_that.traffic,_that.message);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool success, @JsonKey(name: 'traffic')  int traffic,  String? message)  $default,) {final _that = this;
+switch (_that) {
+case _XboardCheckinResult():
+return $default(_that.success,_that.traffic,_that.message);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool success, @JsonKey(name: 'traffic')  int traffic,  String? message)?  $default,) {final _that = this;
+switch (_that) {
+case _XboardCheckinResult() when $default != null:
+return $default(_that.success,_that.traffic,_that.message);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _XboardCheckinResult implements XboardCheckinResult {
+  const _XboardCheckinResult({this.success = false, @JsonKey(name: 'traffic') this.traffic = 0, this.message});
+  factory _XboardCheckinResult.fromJson(Map<String, dynamic> json) => _$XboardCheckinResultFromJson(json);
+
+/// 是否签到成功
+@override@JsonKey() final  bool success;
+/// 获得的流量（字节）
+@override@JsonKey(name: 'traffic') final  int traffic;
+/// 提示消息
+@override final  String? message;
+
+/// Create a copy of XboardCheckinResult
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$XboardCheckinResultCopyWith<_XboardCheckinResult> get copyWith => __$XboardCheckinResultCopyWithImpl<_XboardCheckinResult>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$XboardCheckinResultToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _XboardCheckinResult&&(identical(other.success, success) || other.success == success)&&(identical(other.traffic, traffic) || other.traffic == traffic)&&(identical(other.message, message) || other.message == message));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,success,traffic,message);
+
+@override
+String toString() {
+  return 'XboardCheckinResult(success: $success, traffic: $traffic, message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$XboardCheckinResultCopyWith<$Res> implements $XboardCheckinResultCopyWith<$Res> {
+  factory _$XboardCheckinResultCopyWith(_XboardCheckinResult value, $Res Function(_XboardCheckinResult) _then) = __$XboardCheckinResultCopyWithImpl;
+@override @useResult
+$Res call({
+ bool success,@JsonKey(name: 'traffic') int traffic, String? message
+});
+
+
+
+
+}
+/// @nodoc
+class __$XboardCheckinResultCopyWithImpl<$Res>
+    implements _$XboardCheckinResultCopyWith<$Res> {
+  __$XboardCheckinResultCopyWithImpl(this._self, this._then);
+
+  final _XboardCheckinResult _self;
+  final $Res Function(_XboardCheckinResult) _then;
+
+/// Create a copy of XboardCheckinResult
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? success = null,Object? traffic = null,Object? message = freezed,}) {
+  return _then(_XboardCheckinResult(
+success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
+as bool,traffic: null == traffic ? _self.traffic : traffic // ignore: cast_nullable_to_non_nullable
+as int,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
 // dart format on

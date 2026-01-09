@@ -105,7 +105,7 @@ final class XboardStateNotifierProvider
 }
 
 String _$xboardStateNotifierHash() =>
-    r'c9fff14e615ed6f46074709515b8b7fd41bbe4d3';
+    r'be6cbf083dcbeab7be70a38df44c962efe17ccf4';
 
 /// Xboard 状态 Provider（运行时）
 

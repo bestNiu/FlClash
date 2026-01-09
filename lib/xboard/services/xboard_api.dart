@@ -475,6 +475,192 @@ class XboardApi {
     }
   }
 
+  /// 获取邀请信息
+  Future<Result<XboardInviteInfo>> getInviteInfo() async {
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final response = await _dio.get(
+        '$_baseUrl/api/v1/user/invite/fetch?t=$timestamp',
+      );
+
+      if (response.statusCode == 200) {
+        final json = response.data as Map<String, dynamic>;
+        if (json['data'] != null) {
+          final data = json['data'] as Map<String, dynamic>;
+          
+          // 解析邀请码列表
+          final List<XboardInviteCode> codes = [];
+          if (data['codes'] != null && data['codes'] is List) {
+            for (final item in data['codes']) {
+              if (item is Map<String, dynamic>) {
+                codes.add(XboardInviteCode.fromJson(item));
+              }
+            }
+          }
+          
+          // 解析统计信息 - 可能是数组或对象
+          XboardInviteStat? stat;
+          final statData = data['stat'];
+          if (statData != null) {
+            if (statData is List && statData.length >= 4) {
+              // 数组格式: [registered_count, commission_rate, pending_commission, commission_balance]
+              stat = XboardInviteStat(
+                registeredCount: _parseIntSafe(statData[0]),
+                commissionRate: _parseIntSafe(statData[1]),
+                pendingCommission: _parseIntSafe(statData[2]),
+                commissionBalance: _parseIntSafe(statData[3]),
+              );
+            } else if (statData is Map<String, dynamic>) {
+              // 对象格式
+              stat = XboardInviteStat.fromJson(statData);
+            }
+          }
+          
+          return Result.success(XboardInviteInfo(codes: codes, stat: stat));
+        }
+        return Result.success(const XboardInviteInfo());
+      }
+      return Result.error('请求失败: ${response.statusCode}');
+    } on DioException catch (e) {
+      return Result.error(_handleDioError(e));
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+  
+  /// 安全解析 int 值
+  int _parseIntSafe(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  /// 生成邀请码
+  Future<Result<XboardInviteCode>> generateInviteCode() async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/api/v1/user/invite/save',
+      );
+
+      if (response.statusCode == 200) {
+        final json = response.data as Map<String, dynamic>;
+        final status = json['status'] as String?;
+        final message = json['message'] as String?;
+        
+        if (status == 'success' && json['data'] != null) {
+          return Result.success(XboardInviteCode.fromJson(json['data']));
+        }
+        
+        // 处理特定错误类型
+        if (status == 'fail') {
+          // 已达到创建数量上限
+          if (message?.contains('已达到创建数量上限') == true || 
+              message?.contains('上限') == true) {
+            return Result.error('邀请码数量已达上限，无法继续创建');
+          }
+          return Result.error(message ?? '生成邀请码失败');
+        }
+        
+        return Result.error(message ?? '生成邀请码失败');
+      }
+      return Result.error('请求失败: ${response.statusCode}');
+    } on DioException catch (e) {
+      return Result.error(_handleDioError(e));
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  /// 获取签到状态
+  Future<Result<XboardCheckinStatus>> getCheckinStatus() async {
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final response = await _dio.get(
+        '$_baseUrl/api/v1/user/checkin/status?t=$timestamp',
+      );
+
+      if (response.statusCode == 200) {
+        final json = response.data as Map<String, dynamic>;
+        if (json['data'] != null) {
+          return Result.success(XboardCheckinStatus.fromJson(json['data']));
+        }
+        // 兼容只返回状态的情况
+        return Result.success(XboardCheckinStatus(
+          isCheckedIn: json['data'] == true || json['status'] == 'success',
+        ));
+      }
+      return Result.error('请求失败: ${response.statusCode}');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return Result.error('当前面板暂不支持签到功能');
+      }
+      return Result.error(_handleDioError(e));
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  /// 签到
+  Future<Result<XboardCheckinResult>> checkin() async {
+    try {
+      final response = await _dio.post(
+        '$_baseUrl/api/v1/user/checkin',
+      );
+
+      if (response.statusCode == 200) {
+        final json = response.data as Map<String, dynamic>;
+        if (json['status'] == 'success') {
+          // 处理签到成功的响应
+          final data = json['data'];
+          if (data != null && data is Map<String, dynamic>) {
+            return Result.success(XboardCheckinResult.fromJson(data));
+          }
+          // 兼容只返回 message 的情况
+          return Result.success(XboardCheckinResult(
+            success: true,
+            message: json['message']?.toString() ?? '签到成功',
+            traffic: _parseTrafficFromMessage(json['message']?.toString()),
+          ));
+        }
+        return Result.error(json['message'] ?? '签到失败');
+      }
+      return Result.error('请求失败: ${response.statusCode}');
+    } on DioException catch (e) {
+      // 404 表示签到接口不存在
+      if (e.response?.statusCode == 404) {
+        return Result.error('当前面板暂不支持签到功能');
+      }
+      return Result.error(_handleDioError(e));
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  /// 从签到消息中解析流量
+  int _parseTrafficFromMessage(String? message) {
+    if (message == null) return 0;
+    
+    // 尝试解析 "获得 X GB 流量" 格式
+    final gbRegex = RegExp(r'(\d+(?:\.\d+)?)\s*[gG][bB]');
+    final gbMatch = gbRegex.firstMatch(message);
+    if (gbMatch != null) {
+      final gb = double.tryParse(gbMatch.group(1) ?? '0') ?? 0;
+      return (gb * 1024 * 1024 * 1024).round();
+    }
+
+    // 尝试解析 "获得 X MB 流量" 格式
+    final mbRegex = RegExp(r'(\d+(?:\.\d+)?)\s*[mM][bB]');
+    final mbMatch = mbRegex.firstMatch(message);
+    if (mbMatch != null) {
+      final mb = double.tryParse(mbMatch.group(1) ?? '0') ?? 0;
+      return (mb * 1024 * 1024).round();
+    }
+
+    return 0;
+  }
+
   /// 登出
   void logout() {
     setAuth(null);

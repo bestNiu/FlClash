@@ -558,3 +558,171 @@ extension XboardUserExt on XboardUser {
   /// 是否有有效套餐
   bool get hasPlan => planId != null && planId! > 0;
 }
+
+/// Xboard 邀请信息
+@freezed
+abstract class XboardInviteInfo with _$XboardInviteInfo {
+  const factory XboardInviteInfo({
+    /// 邀请码列表
+    @JsonKey(name: 'codes') @Default([]) List<XboardInviteCode> codes,
+
+    /// 邀请数据统计
+    @JsonKey(name: 'stat') XboardInviteStat? stat,
+  }) = _XboardInviteInfo;
+
+  factory XboardInviteInfo.fromJson(Map<String, Object?> json) =>
+      _$XboardInviteInfoFromJson(json);
+}
+
+/// Xboard 邀请码
+@freezed
+abstract class XboardInviteCode with _$XboardInviteCode {
+  const factory XboardInviteCode({
+    /// 邀请码 ID
+    @JsonKey(fromJson: _safeInt) @Default(0) int id,
+
+    /// 用户 ID
+    @JsonKey(name: 'user_id') int? userId,
+
+    /// 邀请码
+    @Default('') String code,
+
+    /// 邀请人数限制 (null 表示无限)
+    int? limit,
+
+    /// 使用次数
+    @JsonKey(name: 'pv', fromJson: _safeInt) @Default(0) int pv,
+
+    /// 创建时间
+    @JsonKey(name: 'created_at') int? createdAt,
+
+    /// 更新时间
+    @JsonKey(name: 'updated_at') int? updatedAt,
+  }) = _XboardInviteCode;
+
+  factory XboardInviteCode.fromJson(Map<String, Object?> json) =>
+      _$XboardInviteCodeFromJson(json);
+}
+
+/// Xboard 邀请码扩展
+extension XboardInviteCodeExt on XboardInviteCode {
+  /// 生成邀请链接
+  String generateInviteUrl(String baseUrl) {
+    // 移除尾部斜杠
+    final url = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    return '$url/#/register?code=$code';
+  }
+}
+
+/// 安全地将值转换为 int
+int _safeInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
+}
+
+/// Xboard 邀请统计
+@freezed
+abstract class XboardInviteStat with _$XboardInviteStat {
+  const factory XboardInviteStat({
+    /// 已注册用户数
+    @JsonKey(name: 'registered_count', fromJson: _safeInt)
+    @Default(0)
+    int registeredCount,
+
+    /// 佣金比例 (如 10 表示 10%)
+    @JsonKey(name: 'commission_rate', fromJson: _safeInt)
+    @Default(0)
+    int commissionRate,
+
+    /// 待确认佣金（分）
+    @JsonKey(name: 'pending_commission', fromJson: _safeInt)
+    @Default(0)
+    int pendingCommission,
+
+    /// 已确认佣金（分）
+    @JsonKey(name: 'commission_balance', fromJson: _safeInt)
+    @Default(0)
+    int commissionBalance,
+  }) = _XboardInviteStat;
+
+  factory XboardInviteStat.fromJson(Map<String, Object?> json) =>
+      _$XboardInviteStatFromJson(json);
+}
+
+/// Xboard 邀请统计扩展
+extension XboardInviteStatExt on XboardInviteStat {
+  /// 待确认佣金（元）
+  double get pendingCommissionYuan => pendingCommission / 100;
+
+  /// 已确认佣金（元）
+  double get commissionBalanceYuan => commissionBalance / 100;
+
+  /// 总佣金（元）
+  double get totalCommissionYuan =>
+      pendingCommissionYuan + commissionBalanceYuan;
+}
+
+/// Xboard 签到状态
+@freezed
+abstract class XboardCheckinStatus with _$XboardCheckinStatus {
+  const factory XboardCheckinStatus({
+    /// 今日是否已签到
+    @JsonKey(name: 'is_checked_in') @Default(false) bool isCheckedIn,
+
+    /// 上次签到时间（时间戳）
+    @JsonKey(name: 'last_checkin_at') int? lastCheckinAt,
+
+    /// 连续签到天数
+    @JsonKey(name: 'continuous_days') @Default(0) int continuousDays,
+
+    /// 本月签到天数
+    @JsonKey(name: 'month_checkin_days') @Default(0) int monthCheckinDays,
+  }) = _XboardCheckinStatus;
+
+  factory XboardCheckinStatus.fromJson(Map<String, Object?> json) =>
+      _$XboardCheckinStatusFromJson(json);
+}
+
+/// Xboard 签到结果
+@freezed
+abstract class XboardCheckinResult with _$XboardCheckinResult {
+  const factory XboardCheckinResult({
+    /// 是否签到成功
+    @Default(false) bool success,
+
+    /// 获得的流量（字节）
+    @JsonKey(name: 'traffic') @Default(0) int traffic,
+
+    /// 提示消息
+    String? message,
+  }) = _XboardCheckinResult;
+
+  factory XboardCheckinResult.fromJson(Map<String, Object?> json) =>
+      _$XboardCheckinResultFromJson(json);
+}
+
+/// Xboard 签到结果扩展
+extension XboardCheckinResultExt on XboardCheckinResult {
+  /// 获得的流量（GB）
+  double get trafficGB => traffic / (1024 * 1024 * 1024);
+
+  /// 获得的流量（MB）
+  double get trafficMB => traffic / (1024 * 1024);
+
+  /// 格式化的流量显示
+  String get formattedTraffic {
+    if (traffic >= 1024 * 1024 * 1024) {
+      return '${trafficGB.toStringAsFixed(2)} GB';
+    } else if (traffic >= 1024 * 1024) {
+      return '${trafficMB.toStringAsFixed(2)} MB';
+    } else if (traffic >= 1024) {
+      return '${(traffic / 1024).toStringAsFixed(2)} KB';
+    }
+    return '$traffic B';
+  }
+}

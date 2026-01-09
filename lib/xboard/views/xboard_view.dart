@@ -7,6 +7,8 @@ import 'package:fl_clash/xboard/providers/xboard_provider.dart';
 import 'package:fl_clash/xboard/services/xboard_api.dart';
 import 'package:fl_clash/xboard/views/app_download_view.dart';
 import 'package:fl_clash/xboard/views/xboard_login_view.dart';
+import 'package:fl_clash/xboard/views/xboard_checkin_view.dart';
+import 'package:fl_clash/xboard/views/xboard_invite_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -507,45 +509,280 @@ class _XboardViewState extends ConsumerState<XboardView> {
   Widget _buildActionButtons(BuildContext context, XboardState state) {
     final hasValidSubscribe = state.subscribe?.hasValidSubscribe ?? false;
 
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 500;
+        
+        return Column(
+          children: [
+            // 快捷操作区域 - 签到和邀请
+            _buildQuickActions(context, constraints.maxWidth),
+            const SizedBox(height: 12),
+            
+            // 操作按钮组 - 宽屏时横向排列
+            if (isWide)
+              _buildWideActionButtons(context, state, hasValidSubscribe)
+            else
+              _buildNarrowActionButtons(context, state, hasValidSubscribe),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 宽屏模式下的操作按钮
+  Widget _buildWideActionButtons(BuildContext context, XboardState state, bool hasValidSubscribe) {
+    return Column(
+      children: [
+        if (hasValidSubscribe) ...[
+          Row(
+            children: [
+              // 同步订阅按钮
+              Expanded(
+                flex: 2,
+                child: _buildPrimaryActionButton(
+                  context: context,
+                  icon: Icons.sync_rounded,
+                  label: '同步订阅',
+                  onPressed: state.isLoading ? null : _handleSyncSubscribe,
+                  isPrimary: true,
+                ),
+              ),
+              const SizedBox(width: 10),
+              // 续费按钮
+              Expanded(
+                flex: 2,
+                child: _buildPrimaryActionButton(
+                  context: context,
+                  icon: Icons.shopping_cart_outlined,
+                  label: '续费/升级套餐',
+                  onPressed: _handleOpenPurchase,
+                  isPrimary: false,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ] else ...[
+          SizedBox(
+            width: double.infinity,
+            child: _buildPrimaryActionButton(
+              context: context,
+              icon: Icons.shopping_cart_rounded,
+              label: '前往购买',
+              onPressed: _handleOpenPurchase,
+              isPrimary: true,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        // 用户中心按钮
+        _buildTextActionButton(
+          context: context,
+          icon: Icons.open_in_new_rounded,
+          label: '打开用户中心',
+          onPressed: _handleOpenUserCenter,
+        ),
+      ],
+    );
+  }
+
+  /// 窄屏模式下的操作按钮
+  Widget _buildNarrowActionButtons(BuildContext context, XboardState state, bool hasValidSubscribe) {
     return Column(
       children: [
         if (hasValidSubscribe) ...[
           // 同步订阅按钮
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
+            child: _buildPrimaryActionButton(
+              context: context,
+              icon: Icons.sync_rounded,
+              label: '同步订阅',
               onPressed: state.isLoading ? null : _handleSyncSubscribe,
-              icon: const Icon(Icons.sync),
-              label: const Text('同步订阅'),
+              isPrimary: true,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
+          // 续费按钮
+          SizedBox(
+            width: double.infinity,
+            child: _buildPrimaryActionButton(
+              context: context,
+              icon: Icons.shopping_cart_outlined,
+              label: '续费/升级套餐',
+              onPressed: _handleOpenPurchase,
+              isPrimary: false,
+            ),
+          ),
+        ] else ...[
+          SizedBox(
+            width: double.infinity,
+            child: _buildPrimaryActionButton(
+              context: context,
+              icon: Icons.shopping_cart_rounded,
+              label: '前往购买',
+              onPressed: _handleOpenPurchase,
+              isPrimary: true,
+            ),
+          ),
         ],
-
-        // 前往购买/续费按钮
-        SizedBox(
-          width: double.infinity,
-          child: hasValidSubscribe
-              ? OutlinedButton.icon(
-                  onPressed: _handleOpenPurchase,
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  label: const Text('续费/升级套餐'),
-                )
-              : FilledButton.icon(
-                  onPressed: _handleOpenPurchase,
-                  icon: const Icon(Icons.shopping_cart),
-                  label: const Text('前往购买'),
-                ),
-        ),
-        const SizedBox(height: 12),
-
+        const SizedBox(height: 8),
         // 用户中心按钮
-        SizedBox(
-          width: double.infinity,
-          child: TextButton.icon(
-            onPressed: _handleOpenUserCenter,
-            icon: const Icon(Icons.open_in_new),
-            label: const Text('打开用户中心'),
+        _buildTextActionButton(
+          context: context,
+          icon: Icons.open_in_new_rounded,
+          label: '打开用户中心',
+          onPressed: _handleOpenUserCenter,
+        ),
+      ],
+    );
+  }
+
+  /// 构建主要操作按钮（带动画效果）
+  Widget _buildPrimaryActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback? onPressed,
+    required bool isPrimary,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(12),
+        splashColor: isPrimary 
+            ? context.colorScheme.onPrimary.withOpacity(0.1)
+            : context.colorScheme.primary.withOpacity(0.1),
+        highlightColor: isPrimary
+            ? context.colorScheme.onPrimary.withOpacity(0.05)
+            : context.colorScheme.primary.withOpacity(0.05),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: isPrimary 
+                ? context.colorScheme.primary
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: isPrimary 
+                ? null 
+                : Border.all(
+                    color: context.colorScheme.outline.withOpacity(0.4),
+                    width: 1,
+                  ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isPrimary 
+                      ? context.colorScheme.onPrimary
+                      : context.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: isPrimary 
+                        ? context.colorScheme.onPrimary
+                        : context.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建文字操作按钮
+  Widget _buildTextActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(8),
+        splashColor: context.colorScheme.primary.withOpacity(0.1),
+        highlightColor: context.colorScheme.primary.withOpacity(0.05),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: context.colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 构建快捷操作区域 - 签到和邀请
+  Widget _buildQuickActions(BuildContext context, double maxWidth) {
+    // 根据宽度决定是否使用紧凑布局
+    final isCompact = maxWidth < 360;
+    
+    return Row(
+      children: [
+        // 每日签到
+        Expanded(
+          child: _QuickActionCard(
+            icon: Icons.calendar_today_rounded,
+            title: '每日签到',
+            subtitle: '领取流量奖励',
+            gradientColors: [
+              context.colorScheme.primary,
+              context.colorScheme.primary.withOpacity(0.75),
+            ],
+            isCompact: isCompact,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const XboardCheckinView(),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        // 我的邀请
+        Expanded(
+          child: _QuickActionCard(
+            icon: Icons.card_giftcard_rounded,
+            title: '我的邀请',
+            subtitle: '邀请好友得佣金',
+            gradientColors: [
+              context.colorScheme.tertiary,
+              context.colorScheme.tertiary.withOpacity(0.75),
+            ],
+            isCompact: isCompact,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const XboardInviteView(),
+              ),
+            ),
           ),
         ),
       ],
@@ -708,5 +945,153 @@ class _XboardViewState extends ConsumerState<XboardView> {
   String _formatDate(int timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     return '${date.month}/${date.day}';
+  }
+}
+
+/// 快捷操作卡片组件 - 紧凑横向布局，带点击动画
+class _QuickActionCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final List<Color> gradientColors;
+  final VoidCallback onTap;
+  final bool isCompact;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.gradientColors,
+    required this.onTap,
+    this.isCompact = false,
+  });
+
+  @override
+  State<_QuickActionCard> createState() => _QuickActionCardState();
+}
+
+class _QuickActionCardState extends State<_QuickActionCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 120),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() => _isPressed = true);
+    _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() => _isPressed = false);
+    _controller.reverse();
+  }
+
+  void _handleTapCancel() {
+    setState(() => _isPressed = false);
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _scaleAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: child,
+        );
+      },
+      child: GestureDetector(
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: widget.gradientColors,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: widget.gradientColors.first.withOpacity(_isPressed ? 0.1 : 0.2),
+                blurRadius: _isPressed ? 4 : 10,
+                offset: Offset(0, _isPressed ? 1 : 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // 图标
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              // 文字
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      widget.subtitle,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 箭头指示
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.white.withOpacity(0.7),
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
