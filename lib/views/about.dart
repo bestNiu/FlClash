@@ -48,9 +48,9 @@ class AboutView extends ConsumerWidget {
           },
         ),
         ListItem(
-          title: const Text('Telegram'),
+          title: const Text('Support'),
           onTap: () {
-            dialogs.openUrl('https://t.me/FlClash');
+            dialogs.openUrl(supportUrl);
           },
           trailing: const Icon(Icons.launch),
         ),

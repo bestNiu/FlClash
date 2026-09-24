@@ -1,8 +1,8 @@
-display_name: FlClash
-package_name: FlClash
+display_name: fly001
+package_name: fly001
 maintainer:
-  name: chen08209
-  email: chen08209@gmail.com
+  name: fly001
+  email: devnull@example.invalid
 
 priority: optional
 section: x11
@@ -33,7 +33,7 @@ keywords:
   - ClashMeta
   - Proxy
 
-generic_name: FlClash
+generic_name: fly001
 
 categories:
   - Network
