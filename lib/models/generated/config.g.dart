@@ -13,6 +13,8 @@ _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
           ? defaultDashboardWidgets
           : dashboardWidgetsSafeFormJson(json['dashboardWidgets'] as List?),
       onlyStatisticsProxy: json['onlyStatisticsProxy'] as bool? ?? false,
+      showNotificationStopAction:
+          json['showNotificationStopAction'] as bool? ?? true,
       autoLaunch: json['autoLaunch'] as bool? ?? false,
       silentLaunch: json['silentLaunch'] as bool? ?? false,
       autoRun: json['autoRun'] as bool? ?? false,
@@ -28,13 +30,15 @@ _AppSettingProps _$AppSettingPropsFromJson(Map<String, dynamic> json) =>
       minimizeOnExit: json['minimizeOnExit'] as bool? ?? true,
       hidden: json['hidden'] as bool? ?? false,
       developerMode: json['developerMode'] as bool? ?? false,
-      recoveryStrategy:
+      restoreStrategy:
           $enumDecodeNullable(
-            _$RecoveryStrategyEnumMap,
-            json['recoveryStrategy'],
+            _$RestoreStrategyEnumMap,
+            json['restoreStrategy'],
           ) ??
-          RecoveryStrategy.compatible,
+          RestoreStrategy.compatible,
       showTrayTitle: json['showTrayTitle'] as bool? ?? true,
+      checkCertificate: json['checkCertificate'] as bool? ?? true,
+      customUserAgent: json['customUserAgent'] as String? ?? '',
     );
 
 Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
@@ -44,6 +48,7 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
           .map((e) => _$DashboardWidgetEnumMap[e]!)
           .toList(),
       'onlyStatisticsProxy': instance.onlyStatisticsProxy,
+      'showNotificationStopAction': instance.showNotificationStopAction,
       'autoLaunch': instance.autoLaunch,
       'silentLaunch': instance.silentLaunch,
       'autoRun': instance.autoRun,
@@ -59,13 +64,15 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'minimizeOnExit': instance.minimizeOnExit,
       'hidden': instance.hidden,
       'developerMode': instance.developerMode,
-      'recoveryStrategy': _$RecoveryStrategyEnumMap[instance.recoveryStrategy]!,
+      'restoreStrategy': _$RestoreStrategyEnumMap[instance.restoreStrategy]!,
       'showTrayTitle': instance.showTrayTitle,
+      'checkCertificate': instance.checkCertificate,
+      'customUserAgent': instance.customUserAgent,
     };
 
-const _$RecoveryStrategyEnumMap = {
-  RecoveryStrategy.compatible: 'compatible',
-  RecoveryStrategy.override: 'override',
+const _$RestoreStrategyEnumMap = {
+  RestoreStrategy.compatible: 'compatible',
+  RestoreStrategy.override: 'override',
 };
 
 const _$DashboardWidgetEnumMap = {
@@ -81,8 +88,8 @@ const _$DashboardWidgetEnumMap = {
   DashboardWidget.memoryInfo: 'memoryInfo',
 };
 
-_AccessControl _$AccessControlFromJson(Map<String, dynamic> json) =>
-    _AccessControl(
+_AccessControlProps _$AccessControlPropsFromJson(Map<String, dynamic> json) =>
+    _AccessControlProps(
       enable: json['enable'] as bool? ?? false,
       mode:
           $enumDecodeNullable(_$AccessControlModeEnumMap, json['mode']) ??
@@ -104,7 +111,7 @@ _AccessControl _$AccessControlFromJson(Map<String, dynamic> json) =>
       isFilterNonInternetApp: json['isFilterNonInternetApp'] as bool? ?? true,
     );
 
-Map<String, dynamic> _$AccessControlToJson(_AccessControl instance) =>
+Map<String, dynamic> _$AccessControlPropsToJson(_AccessControlProps instance) =>
     <String, dynamic>{
       'enable': instance.enable,
       'mode': _$AccessControlModeEnumMap[instance.mode]!,
@@ -147,9 +154,11 @@ _VpnProps _$VpnPropsFromJson(Map<String, dynamic> json) => _VpnProps(
   ipv6: json['ipv6'] as bool? ?? false,
   allowBypass: json['allowBypass'] as bool? ?? true,
   dnsHijacking: json['dnsHijacking'] as bool? ?? false,
-  accessControl: json['accessControl'] == null
-      ? defaultAccessControl
-      : AccessControl.fromJson(json['accessControl'] as Map<String, dynamic>),
+  accessControlProps: json['accessControlProps'] == null
+      ? defaultAccessControlProps
+      : AccessControlProps.fromJson(
+          json['accessControlProps'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
@@ -158,7 +167,22 @@ Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
   'ipv6': instance.ipv6,
   'allowBypass': instance.allowBypass,
   'dnsHijacking': instance.dnsHijacking,
-  'accessControl': instance.accessControl,
+  'accessControlProps': instance.accessControlProps,
+};
+
+_AuthenticationProps _$AuthenticationPropsFromJson(Map<String, dynamic> json) =>
+    _AuthenticationProps(
+      enable: json['enable'] as bool? ?? false,
+      username: json['username'] as String? ?? '',
+      password: json['password'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$AuthenticationPropsToJson(
+  _AuthenticationProps instance,
+) => <String, dynamic>{
+  'enable': instance.enable,
+  'username': instance.username,
+  'password': instance.password,
 };
 
 _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
@@ -174,6 +198,11 @@ _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
           RouteMode.config,
       autoSetSystemDns: json['autoSetSystemDns'] as bool? ?? true,
       appendSystemDns: json['appendSystemDns'] as bool? ?? false,
+      authentication: json['authentication'] == null
+          ? defaultAuthenticationProps
+          : AuthenticationProps.fromJson(
+              json['authentication'] as Map<String, dynamic>?,
+            ),
     );
 
 Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
@@ -183,6 +212,7 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'routeMode': _$RouteModeEnumMap[instance.routeMode]!,
       'autoSetSystemDns': instance.autoSetSystemDns,
       'appendSystemDns': instance.appendSystemDns,
+      'authentication': instance.authentication,
     };
 
 const _$RouteModeEnumMap = {
@@ -190,8 +220,8 @@ const _$RouteModeEnumMap = {
   RouteMode.config: 'config',
 };
 
-_ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
-    _ProxiesStyle(
+_ProxiesStyleProps _$ProxiesStylePropsFromJson(Map<String, dynamic> json) =>
+    _ProxiesStyleProps(
       type:
           $enumDecodeNullable(_$ProxiesTypeEnumMap, json['type']) ??
           ProxiesType.tab,
@@ -209,7 +239,7 @@ _ProxiesStyle _$ProxiesStyleFromJson(Map<String, dynamic> json) =>
           ProxyCardType.expand,
     );
 
-Map<String, dynamic> _$ProxiesStyleToJson(_ProxiesStyle instance) =>
+Map<String, dynamic> _$ProxiesStylePropsToJson(_ProxiesStyleProps instance) =>
     <String, dynamic>{
       'type': _$ProxiesTypeEnumMap[instance.type]!,
       'sortType': _$ProxiesSortTypeEnumMap[instance.sortType]!,
@@ -302,42 +332,22 @@ const _$DynamicSchemeVariantEnumMap = {
   DynamicSchemeVariant.fruitSalad: 'fruitSalad',
 };
 
-_ScriptProps _$ScriptPropsFromJson(Map<String, dynamic> json) => _ScriptProps(
-  currentId: json['currentId'] as String?,
-  scripts:
-      (json['scripts'] as List<dynamic>?)
-          ?.map((e) => Script.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-);
-
-Map<String, dynamic> _$ScriptPropsToJson(_ScriptProps instance) =>
-    <String, dynamic>{
-      'currentId': instance.currentId,
-      'scripts': instance.scripts,
-    };
-
 _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
-  appSetting: json['appSetting'] == null
-      ? defaultAppSettingProps
-      : AppSettingProps.safeFromJson(
-          json['appSetting'] as Map<String, Object?>?,
-        ),
-  profiles:
-      (json['profiles'] as List<dynamic>?)
-          ?.map((e) => Profile.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
+  currentProfileId: (json['currentProfileId'] as num?)?.toInt(),
+  overrideDns: json['overrideDns'] as bool? ?? false,
   hotKeyActions:
       (json['hotKeyActions'] as List<dynamic>?)
           ?.map((e) => HotKeyAction.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
-  currentProfileId: json['currentProfileId'] as String?,
-  overrideDns: json['overrideDns'] as bool? ?? false,
-  dav: json['dav'] == null
+  appSettingProps: json['appSettingProps'] == null
+      ? defaultAppSettingProps
+      : AppSettingProps.safeFromJson(
+          json['appSettingProps'] as Map<String, Object?>?,
+        ),
+  davProps: json['davProps'] == null
       ? null
-      : DAV.fromJson(json['dav'] as Map<String, dynamic>),
+      : DAVProps.fromJson(json['davProps'] as Map<String, dynamic>),
   networkProps: json['networkProps'] == null
       ? defaultNetworkProps
       : NetworkProps.fromJson(json['networkProps'] as Map<String, dynamic>?),
@@ -347,40 +357,37 @@ _Config _$ConfigFromJson(Map<String, dynamic> json) => _Config(
   themeProps: ThemeProps.safeFromJson(
     json['themeProps'] as Map<String, Object?>?,
   ),
-  proxiesStyle: json['proxiesStyle'] == null
-      ? defaultProxiesStyle
-      : ProxiesStyle.fromJson(json['proxiesStyle'] as Map<String, dynamic>?),
+  proxiesStyleProps: json['proxiesStyleProps'] == null
+      ? defaultProxiesStyleProps
+      : ProxiesStyleProps.fromJson(
+          json['proxiesStyleProps'] as Map<String, dynamic>?,
+        ),
   windowProps: json['windowProps'] == null
       ? defaultWindowProps
       : WindowProps.fromJson(json['windowProps'] as Map<String, dynamic>?),
   patchClashConfig: json['patchClashConfig'] == null
       ? defaultClashConfig
-      : ClashConfig.fromJson(json['patchClashConfig'] as Map<String, dynamic>),
-  scripts:
-      (json['scripts'] as List<dynamic>?)
-          ?.map((e) => Script.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-      const [],
-  rules:
-      (json['rules'] as List<dynamic>?)
-          ?.map((e) => Rule.fromJson(e as Map<String, dynamic>))
+      : PatchClashConfig.fromJson(
+          json['patchClashConfig'] as Map<String, dynamic>,
+        ),
+  excludeSSIDs:
+      (json['excludeSSIDs'] as List<dynamic>?)
+          ?.map((e) => e as String)
           .toList() ??
       const [],
 );
 
 Map<String, dynamic> _$ConfigToJson(_Config instance) => <String, dynamic>{
-  'appSetting': instance.appSetting,
-  'profiles': instance.profiles,
-  'hotKeyActions': instance.hotKeyActions,
   'currentProfileId': instance.currentProfileId,
   'overrideDns': instance.overrideDns,
-  'dav': instance.dav,
+  'hotKeyActions': instance.hotKeyActions,
+  'appSettingProps': instance.appSettingProps,
+  'davProps': instance.davProps,
   'networkProps': instance.networkProps,
   'vpnProps': instance.vpnProps,
   'themeProps': instance.themeProps,
-  'proxiesStyle': instance.proxiesStyle,
+  'proxiesStyleProps': instance.proxiesStyleProps,
   'windowProps': instance.windowProps,
   'patchClashConfig': instance.patchClashConfig,
-  'scripts': instance.scripts,
-  'rules': instance.rules,
+  'excludeSSIDs': instance.excludeSSIDs,
 };

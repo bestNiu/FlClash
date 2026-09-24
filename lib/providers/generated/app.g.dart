@@ -9,70 +9,70 @@ part of '../app.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(RealTunEnable)
-const realTunEnableProvider = RealTunEnableProvider._();
+@ProviderFor(AuthorizedTunEnable)
+final authorizedTunEnableProvider = AuthorizedTunEnableProvider._();
 
-final class RealTunEnableProvider
-    extends $NotifierProvider<RealTunEnable, bool> {
-  const RealTunEnableProvider._()
+final class AuthorizedTunEnableProvider
+    extends $NotifierProvider<AuthorizedTunEnable, TunAuthorizationState> {
+  AuthorizedTunEnableProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'realTunEnableProvider',
-        isAutoDispose: true,
+        name: r'authorizedTunEnableProvider',
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$realTunEnableHash();
+  String debugGetCreateSourceHash() => _$authorizedTunEnableHash();
 
   @$internal
   @override
-  RealTunEnable create() => RealTunEnable();
+  AuthorizedTunEnable create() => AuthorizedTunEnable();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
+  Override overrideWithValue(TunAuthorizationState value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
+      providerOverride: $SyncValueProvider<TunAuthorizationState>(value),
     );
   }
 }
 
-String _$realTunEnableHash() => r'a4e995c86deca4c8307966470e69d93d64a40df6';
+String _$authorizedTunEnableHash() =>
+    r'75958aeb341f93a4573209f7bae5057936d9700a';
 
-abstract class _$RealTunEnable extends $Notifier<bool> {
-  bool build();
+abstract class _$AuthorizedTunEnable extends $Notifier<TunAuthorizationState> {
+  TunAuthorizationState build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<bool, bool>;
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<TunAuthorizationState, TunAuthorizationState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
+              AnyNotifier<TunAuthorizationState, TunAuthorizationState>,
+              TunAuthorizationState,
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Logs)
-const logsProvider = LogsProvider._();
+final logsProvider = LogsProvider._();
 
 final class LogsProvider extends $NotifierProvider<Logs, FixedList<Log>> {
-  const LogsProvider._()
+  LogsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'logsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -93,14 +93,13 @@ final class LogsProvider extends $NotifierProvider<Logs, FixedList<Log>> {
   }
 }
 
-String _$logsHash() => r'a671cf70f13d38cae75dc51841b651fe2d2dad9a';
+String _$logsHash() => r'aefb14ef2c0a3c7a4e27f2ac4188a5b2943e60b5';
 
 abstract class _$Logs extends $Notifier<FixedList<Log>> {
   FixedList<Log> build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<FixedList<Log>, FixedList<Log>>;
     final element =
         ref.element
@@ -110,22 +109,22 @@ abstract class _$Logs extends $Notifier<FixedList<Log>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Requests)
-const requestsProvider = RequestsProvider._();
+final requestsProvider = RequestsProvider._();
 
 final class RequestsProvider
     extends $NotifierProvider<Requests, FixedList<TrackerInfo>> {
-  const RequestsProvider._()
+  RequestsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'requestsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -146,14 +145,13 @@ final class RequestsProvider
   }
 }
 
-String _$requestsHash() => r'8642621b8b5f2e56f3abb04554c058fb30389795';
+String _$requestsHash() => r'ceb041f2418513a5307b64bc9b5b58cae41e6eec';
 
 abstract class _$Requests extends $Notifier<FixedList<TrackerInfo>> {
   FixedList<TrackerInfo> build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<FixedList<TrackerInfo>, FixedList<TrackerInfo>>;
     final element =
@@ -164,22 +162,22 @@ abstract class _$Requests extends $Notifier<FixedList<TrackerInfo>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Providers)
-const providersProvider = ProvidersProvider._();
+final providersProvider = ProvidersProvider._();
 
 final class ProvidersProvider
     extends $NotifierProvider<Providers, List<ExternalProvider>> {
-  const ProvidersProvider._()
+  ProvidersProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'providersProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -200,14 +198,13 @@ final class ProvidersProvider
   }
 }
 
-String _$providersHash() => r'9cb491314be6dca0d9ff2d09aa276d19a92895af';
+String _$providersHash() => r'51d9bc898e1af8a7179c1c53145705b57d9a5996';
 
 abstract class _$Providers extends $Notifier<List<ExternalProvider>> {
   List<ExternalProvider> build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<List<ExternalProvider>, List<ExternalProvider>>;
     final element =
@@ -218,22 +215,22 @@ abstract class _$Providers extends $Notifier<List<ExternalProvider>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Packages)
-const packagesProvider = PackagesProvider._();
+final packagesProvider = PackagesProvider._();
 
 final class PackagesProvider
     extends $NotifierProvider<Packages, List<Package>> {
-  const PackagesProvider._()
+  PackagesProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'packagesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -254,14 +251,13 @@ final class PackagesProvider
   }
 }
 
-String _$packagesHash() => r'84bff9f5271622ed4199ecafacda8e74fa444fe2';
+String _$packagesHash() => r'93c92438ed777ec4c3017b90c22f4ddd1c02e931';
 
 abstract class _$Packages extends $Notifier<List<Package>> {
   List<Package> build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<List<Package>, List<Package>>;
     final element =
         ref.element
@@ -271,22 +267,22 @@ abstract class _$Packages extends $Notifier<List<Package>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(SystemBrightness)
-const systemBrightnessProvider = SystemBrightnessProvider._();
+final systemBrightnessProvider = SystemBrightnessProvider._();
 
 final class SystemBrightnessProvider
     extends $NotifierProvider<SystemBrightness, Brightness> {
-  const SystemBrightnessProvider._()
+  SystemBrightnessProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'systemBrightnessProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -307,14 +303,13 @@ final class SystemBrightnessProvider
   }
 }
 
-String _$systemBrightnessHash() => r'2fb112459d5f505768f8c33b314aa62cf1fb0a0a';
+String _$systemBrightnessHash() => r'5b8c93dc20f048b12cdad42b301afe8b9aa864cf';
 
 abstract class _$SystemBrightness extends $Notifier<Brightness> {
   Brightness build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<Brightness, Brightness>;
     final element =
         ref.element
@@ -324,22 +319,22 @@ abstract class _$SystemBrightness extends $Notifier<Brightness> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Traffics)
-const trafficsProvider = TrafficsProvider._();
+final trafficsProvider = TrafficsProvider._();
 
 final class TrafficsProvider
     extends $NotifierProvider<Traffics, FixedList<Traffic>> {
-  const TrafficsProvider._()
+  TrafficsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'trafficsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -360,14 +355,13 @@ final class TrafficsProvider
   }
 }
 
-String _$trafficsHash() => r'7df7d01f39e9fa1bf629221c9f73273757fa535a';
+String _$trafficsHash() => r'1fea2cb24af6903156ffa46394a71d953092f33d';
 
 abstract class _$Traffics extends $Notifier<FixedList<Traffic>> {
   FixedList<Traffic> build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<FixedList<Traffic>, FixedList<Traffic>>;
     final element =
         ref.element
@@ -377,22 +371,22 @@ abstract class _$Traffics extends $Notifier<FixedList<Traffic>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(TotalTraffic)
-const totalTrafficProvider = TotalTrafficProvider._();
+final totalTrafficProvider = TotalTrafficProvider._();
 
 final class TotalTrafficProvider
     extends $NotifierProvider<TotalTraffic, Traffic> {
-  const TotalTrafficProvider._()
+  TotalTrafficProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'totalTrafficProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -413,14 +407,13 @@ final class TotalTrafficProvider
   }
 }
 
-String _$totalTrafficHash() => r'cc993ec58fa4c8ee0dbbf2e8a146f7039e818d7e';
+String _$totalTrafficHash() => r'fc933692cd103acc8bcf02054a399659c08d9054';
 
 abstract class _$TotalTraffic extends $Notifier<Traffic> {
   Traffic build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<Traffic, Traffic>;
     final element =
         ref.element
@@ -430,21 +423,73 @@ abstract class _$TotalTraffic extends $Notifier<Traffic> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(LoadedLocale)
+final loadedLocaleProvider = LoadedLocaleProvider._();
+
+final class LoadedLocaleProvider
+    extends $NotifierProvider<LoadedLocale, Locale?> {
+  LoadedLocaleProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'loadedLocaleProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$loadedLocaleHash();
+
+  @$internal
+  @override
+  LoadedLocale create() => LoadedLocale();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Locale? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Locale?>(value),
+    );
+  }
+}
+
+String _$loadedLocaleHash() => r'6ca54222dc817825edac43735535d96c2b0559d4';
+
+abstract class _$LoadedLocale extends $Notifier<Locale?> {
+  Locale? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<Locale?, Locale?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Locale?, Locale?>,
+              Locale?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(LocalIp)
-const localIpProvider = LocalIpProvider._();
+final localIpProvider = LocalIpProvider._();
 
 final class LocalIpProvider extends $NotifierProvider<LocalIp, String?> {
-  const LocalIpProvider._()
+  LocalIpProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'localIpProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -465,14 +510,13 @@ final class LocalIpProvider extends $NotifierProvider<LocalIp, String?> {
   }
 }
 
-String _$localIpHash() => r'25ff07ff9ae316eac7ef39c29d9ae2714b7ba323';
+String _$localIpHash() => r'7daf4c498425db64db4e33b10c870d8fa10695d8';
 
 abstract class _$LocalIp extends $Notifier<String?> {
   String? build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<String?, String?>;
     final element =
         ref.element
@@ -482,21 +526,21 @@ abstract class _$LocalIp extends $Notifier<String?> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(RunTime)
-const runTimeProvider = RunTimeProvider._();
+final runTimeProvider = RunTimeProvider._();
 
 final class RunTimeProvider extends $NotifierProvider<RunTime, int?> {
-  const RunTimeProvider._()
+  RunTimeProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'runTimeProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -517,14 +561,13 @@ final class RunTimeProvider extends $NotifierProvider<RunTime, int?> {
   }
 }
 
-String _$runTimeHash() => r'8d792a969f68de037ee46f271e7f04a25924e6a6';
+String _$runTimeHash() => r'665a3a58487bb59aa54c3f797db0627986aa878f';
 
 abstract class _$RunTime extends $Notifier<int?> {
   int? build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<int?, int?>;
     final element =
         ref.element
@@ -534,21 +577,21 @@ abstract class _$RunTime extends $Notifier<int?> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(ViewSize)
-const viewSizeProvider = ViewSizeProvider._();
+final viewSizeProvider = ViewSizeProvider._();
 
 final class ViewSizeProvider extends $NotifierProvider<ViewSize, Size> {
-  const ViewSizeProvider._()
+  ViewSizeProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'viewSizeProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -569,14 +612,13 @@ final class ViewSizeProvider extends $NotifierProvider<ViewSize, Size> {
   }
 }
 
-String _$viewSizeHash() => r'8f7e485a3a2ec7cade8577c737cf7ead14868081';
+String _$viewSizeHash() => r'3f355412237dc1234cca0d97972ac2eef1eb4792';
 
 abstract class _$ViewSize extends $Notifier<Size> {
   Size build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<Size, Size>;
     final element =
         ref.element
@@ -586,21 +628,21 @@ abstract class _$ViewSize extends $Notifier<Size> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(SideWidth)
-const sideWidthProvider = SideWidthProvider._();
+final sideWidthProvider = SideWidthProvider._();
 
 final class SideWidthProvider extends $NotifierProvider<SideWidth, double> {
-  const SideWidthProvider._()
+  SideWidthProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'sideWidthProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -621,14 +663,13 @@ final class SideWidthProvider extends $NotifierProvider<SideWidth, double> {
   }
 }
 
-String _$sideWidthHash() => r'380c2ae2136dc75346259d3c1d0dd3325e41fe49';
+String _$sideWidthHash() => r'2f849d52dab271831bad68b07c1f90b5c18c0cc4';
 
 abstract class _$SideWidth extends $Notifier<double> {
   double build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<double, double>;
     final element =
         ref.element
@@ -638,23 +679,23 @@ abstract class _$SideWidth extends $Notifier<double> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(viewWidth)
-const viewWidthProvider = ViewWidthProvider._();
+final viewWidthProvider = ViewWidthProvider._();
 
 final class ViewWidthProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  const ViewWidthProvider._()
+  ViewWidthProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'viewWidthProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -681,21 +722,21 @@ final class ViewWidthProvider
   }
 }
 
-String _$viewWidthHash() => r'a469c3414170a6616ff3264962e7f160b2edceca';
+String _$viewWidthHash() => r'5ee8f1bdebe44760f7333f88127108f5ffd70214';
 
 @ProviderFor(viewMode)
-const viewModeProvider = ViewModeProvider._();
+final viewModeProvider = ViewModeProvider._();
 
 final class ViewModeProvider
     extends $FunctionalProvider<ViewMode, ViewMode, ViewMode>
     with $Provider<ViewMode> {
-  const ViewModeProvider._()
+  ViewModeProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'viewModeProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -722,20 +763,20 @@ final class ViewModeProvider
   }
 }
 
-String _$viewModeHash() => r'736e2acc7e7d98ee30132de1990bf85f9506b47a';
+String _$viewModeHash() => r'56f81d519e3835bddef4a3905182991169c17619';
 
 @ProviderFor(isMobileView)
-const isMobileViewProvider = IsMobileViewProvider._();
+final isMobileViewProvider = IsMobileViewProvider._();
 
 final class IsMobileViewProvider extends $FunctionalProvider<bool, bool, bool>
     with $Provider<bool> {
-  const IsMobileViewProvider._()
+  IsMobileViewProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'isMobileViewProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -762,21 +803,21 @@ final class IsMobileViewProvider extends $FunctionalProvider<bool, bool, bool>
   }
 }
 
-String _$isMobileViewHash() => r'554c9ed269a02af001e623e596622e2bb2d658e7';
+String _$isMobileViewHash() => r'1d75bccb4f50ae206bf43b68df869a5d95e5ea5f';
 
 @ProviderFor(viewHeight)
-const viewHeightProvider = ViewHeightProvider._();
+final viewHeightProvider = ViewHeightProvider._();
 
 final class ViewHeightProvider
     extends $FunctionalProvider<double, double, double>
     with $Provider<double> {
-  const ViewHeightProvider._()
+  ViewHeightProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'viewHeightProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -803,19 +844,19 @@ final class ViewHeightProvider
   }
 }
 
-String _$viewHeightHash() => r'410aee5b41388226ab16737f0e85a56f7e9fe801';
+String _$viewHeightHash() => r'dc3fc18337b5ce9fc953d994c380e8f1fa49f352';
 
 @ProviderFor(Init)
-const initProvider = InitProvider._();
+final initProvider = InitProvider._();
 
 final class InitProvider extends $NotifierProvider<Init, bool> {
-  const InitProvider._()
+  InitProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'initProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -836,14 +877,13 @@ final class InitProvider extends $NotifierProvider<Init, bool> {
   }
 }
 
-String _$initHash() => r'7d3f11c8aff7a1924c5ec8886b2cd2cbdda57c3f';
+String _$initHash() => r'0fcded1ed3c62f2658898dee845455e412b171b1';
 
 abstract class _$Init extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
     final element =
         ref.element
@@ -853,22 +893,22 @@ abstract class _$Init extends $Notifier<bool> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(CurrentPageLabel)
-const currentPageLabelProvider = CurrentPageLabelProvider._();
+final currentPageLabelProvider = CurrentPageLabelProvider._();
 
 final class CurrentPageLabelProvider
     extends $NotifierProvider<CurrentPageLabel, PageLabel> {
-  const CurrentPageLabelProvider._()
+  CurrentPageLabelProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'currentPageLabelProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -889,14 +929,13 @@ final class CurrentPageLabelProvider
   }
 }
 
-String _$currentPageLabelHash() => r'a4ed13348bcd406ec3be52138cf1083106d31215';
+String _$currentPageLabelHash() => r'ccdbe5d0e0d2c324f74b3e2086d3e581740dd9bf';
 
 abstract class _$CurrentPageLabel extends $Notifier<PageLabel> {
   PageLabel build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<PageLabel, PageLabel>;
     final element =
         ref.element
@@ -906,21 +945,21 @@ abstract class _$CurrentPageLabel extends $Notifier<PageLabel> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(SortNum)
-const sortNumProvider = SortNumProvider._();
+final sortNumProvider = SortNumProvider._();
 
 final class SortNumProvider extends $NotifierProvider<SortNum, int> {
-  const SortNumProvider._()
+  SortNumProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'sortNumProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -941,14 +980,13 @@ final class SortNumProvider extends $NotifierProvider<SortNum, int> {
   }
 }
 
-String _$sortNumHash() => r'b67bee9fdfbb74b484190fbc6e5c3da7d773bed0';
+String _$sortNumHash() => r'6682f00d1f87cb17f294ad181ac96bf4dc6edb52';
 
 abstract class _$SortNum extends $Notifier<int> {
   int build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
@@ -958,21 +996,21 @@ abstract class _$SortNum extends $Notifier<int> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(CheckIpNum)
-const checkIpNumProvider = CheckIpNumProvider._();
+final checkIpNumProvider = CheckIpNumProvider._();
 
 final class CheckIpNumProvider extends $NotifierProvider<CheckIpNum, int> {
-  const CheckIpNumProvider._()
+  CheckIpNumProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'checkIpNumProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -993,14 +1031,13 @@ final class CheckIpNumProvider extends $NotifierProvider<CheckIpNum, int> {
   }
 }
 
-String _$checkIpNumHash() => r'4d8b32ed9c0013c056f90c9d5483f11fa5fddec5';
+String _$checkIpNumHash() => r'e66b46fae31f3683698dc55533fbdd240aff44fe';
 
 abstract class _$CheckIpNum extends $Notifier<int> {
   int build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
@@ -1010,125 +1047,21 @@ abstract class _$CheckIpNum extends $Notifier<int> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
-  }
-}
-
-@ProviderFor(BackBlock)
-const backBlockProvider = BackBlockProvider._();
-
-final class BackBlockProvider extends $NotifierProvider<BackBlock, bool> {
-  const BackBlockProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'backBlockProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$backBlockHash();
-
-  @$internal
-  @override
-  BackBlock create() => BackBlock();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$backBlockHash() => r'c0223e0776b72d3a8c8842fc32fdb5287353999f';
-
-abstract class _$BackBlock extends $Notifier<bool> {
-  bool build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<bool, bool>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
-  }
-}
-
-@ProviderFor(Loading)
-const loadingProvider = LoadingProvider._();
-
-final class LoadingProvider extends $NotifierProvider<Loading, bool> {
-  const LoadingProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'loadingProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$loadingHash();
-
-  @$internal
-  @override
-  Loading create() => Loading();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
-    );
-  }
-}
-
-String _$loadingHash() => r'd3d9e6b203fecbef89d468b6ecf173a98a6a26a9';
-
-abstract class _$Loading extends $Notifier<bool> {
-  bool build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<bool, bool>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<bool, bool>,
-              bool,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Version)
-const versionProvider = VersionProvider._();
+final versionProvider = VersionProvider._();
 
 final class VersionProvider extends $NotifierProvider<Version, int> {
-  const VersionProvider._()
+  VersionProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'versionProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -1149,14 +1082,13 @@ final class VersionProvider extends $NotifierProvider<Version, int> {
   }
 }
 
-String _$versionHash() => r'8c0ee019d20df3f112c38ae4dc4abd61148d3809';
+String _$versionHash() => r'00b43faa4061121d30a0612ed275644a402ce3fa';
 
 abstract class _$Version extends $Notifier<int> {
   int build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<int, int>;
     final element =
         ref.element
@@ -1166,21 +1098,21 @@ abstract class _$Version extends $Notifier<int> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Groups)
-const groupsProvider = GroupsProvider._();
+final groupsProvider = GroupsProvider._();
 
 final class GroupsProvider extends $NotifierProvider<Groups, List<Group>> {
-  const GroupsProvider._()
+  GroupsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'groupsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -1201,14 +1133,13 @@ final class GroupsProvider extends $NotifierProvider<Groups, List<Group>> {
   }
 }
 
-String _$groupsHash() => r'fbff504e0bcdb5a2770a902f2867aabd921fbadc';
+String _$groupsHash() => r'180ede48880a239add201c111ae45b2a6d98f3a5';
 
 abstract class _$Groups extends $Notifier<List<Group>> {
   List<Group> build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<List<Group>, List<Group>>;
     final element =
         ref.element
@@ -1218,22 +1149,22 @@ abstract class _$Groups extends $Notifier<List<Group>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(DelayDataSource)
-const delayDataSourceProvider = DelayDataSourceProvider._();
+final delayDataSourceProvider = DelayDataSourceProvider._();
 
 final class DelayDataSourceProvider
     extends $NotifierProvider<DelayDataSource, DelayMap> {
-  const DelayDataSourceProvider._()
+  DelayDataSourceProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'delayDataSourceProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -1254,14 +1185,13 @@ final class DelayDataSourceProvider
   }
 }
 
-String _$delayDataSourceHash() => r'0cc7064c6e7e7a1823df1c5b339001ae49ee54f1';
+String _$delayDataSourceHash() => r'9737cf2d943cb9b5504a5ec8ace20b0a9380b197';
 
 abstract class _$DelayDataSource extends $Notifier<DelayMap> {
   DelayMap build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DelayMap, DelayMap>;
     final element =
         ref.element
@@ -1271,22 +1201,74 @@ abstract class _$DelayDataSource extends $Notifier<DelayMap> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(PendingDelayTests)
+final pendingDelayTestsProvider = PendingDelayTestsProvider._();
+
+final class PendingDelayTestsProvider
+    extends $NotifierProvider<PendingDelayTests, Set<String>> {
+  PendingDelayTestsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pendingDelayTestsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pendingDelayTestsHash();
+
+  @$internal
+  @override
+  PendingDelayTests create() => PendingDelayTests();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Set<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Set<String>>(value),
+    );
+  }
+}
+
+String _$pendingDelayTestsHash() => r'ceaac9e42e13d87a1885d2f227971e34665b18ca';
+
+abstract class _$PendingDelayTests extends $Notifier<Set<String>> {
+  Set<String> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<Set<String>, Set<String>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Set<String>, Set<String>>,
+              Set<String>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(SystemUiOverlayStyleState)
-const systemUiOverlayStyleStateProvider = SystemUiOverlayStyleStateProvider._();
+final systemUiOverlayStyleStateProvider = SystemUiOverlayStyleStateProvider._();
 
 final class SystemUiOverlayStyleStateProvider
     extends $NotifierProvider<SystemUiOverlayStyleState, SystemUiOverlayStyle> {
-  const SystemUiOverlayStyleStateProvider._()
+  SystemUiOverlayStyleStateProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'systemUiOverlayStyleStateProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -1308,15 +1290,14 @@ final class SystemUiOverlayStyleStateProvider
 }
 
 String _$systemUiOverlayStyleStateHash() =>
-    r'4420d92227ae617ce685c8943dda64f29f57d5d1';
+    r'e933e3b01fca397e084f75fab5f0be22f0a08257';
 
 abstract class _$SystemUiOverlayStyleState
     extends $Notifier<SystemUiOverlayStyle> {
   SystemUiOverlayStyle build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<SystemUiOverlayStyle, SystemUiOverlayStyle>;
     final element =
         ref.element
@@ -1326,76 +1307,22 @@ abstract class _$SystemUiOverlayStyleState
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
-  }
-}
-
-@ProviderFor(ProfileOverrideState)
-const profileOverrideStateProvider = ProfileOverrideStateProvider._();
-
-final class ProfileOverrideStateProvider
-    extends $NotifierProvider<ProfileOverrideState, ProfileOverrideModel?> {
-  const ProfileOverrideStateProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'profileOverrideStateProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$profileOverrideStateHash();
-
-  @$internal
-  @override
-  ProfileOverrideState create() => ProfileOverrideState();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ProfileOverrideModel? value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ProfileOverrideModel?>(value),
-    );
-  }
-}
-
-String _$profileOverrideStateHash() =>
-    r'6bcf739e034cc39623dc63bf304189d63fc19404';
-
-abstract class _$ProfileOverrideState extends $Notifier<ProfileOverrideModel?> {
-  ProfileOverrideModel? build();
-  @$mustCallSuper
-  @override
-  void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<ProfileOverrideModel?, ProfileOverrideModel?>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<ProfileOverrideModel?, ProfileOverrideModel?>,
-              ProfileOverrideModel?,
-              Object?,
-              Object?
-            >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(_CoreStatus)
-const coreStatusProvider = _CoreStatusProvider._();
+final coreStatusProvider = _CoreStatusProvider._();
 
 final class _CoreStatusProvider
     extends $NotifierProvider<_CoreStatus, CoreStatus> {
-  const _CoreStatusProvider._()
+  _CoreStatusProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'coreStatusProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -1416,14 +1343,13 @@ final class _CoreStatusProvider
   }
 }
 
-String _$_coreStatusHash() => r'795bee66f41f4fbafe14249263356ade03950aa5';
+String _$_coreStatusHash() => r'e2e7fe37f66b906877e678149d09c656993e1405';
 
 abstract class _$CoreStatus extends $Notifier<CoreStatus> {
   CoreStatus build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build();
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<CoreStatus, CoreStatus>;
     final element =
         ref.element
@@ -1433,15 +1359,15 @@ abstract class _$CoreStatus extends $Notifier<CoreStatus> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
 @ProviderFor(Query)
-const queryProvider = QueryFamily._();
+final queryProvider = QueryFamily._();
 
 final class QueryProvider extends $NotifierProvider<Query, String> {
-  const QueryProvider._({
+  QueryProvider._({
     required QueryFamily super.from,
     required QueryTag super.argument,
   }) : super(
@@ -1485,11 +1411,11 @@ final class QueryProvider extends $NotifierProvider<Query, String> {
   }
 }
 
-String _$queryHash() => r'da8d34ef86df1366e8607df2ef9155cc9473c959';
+String _$queryHash() => r'b6be53823f3351ee2bf1c0d147c0ccf5f31bb8b5';
 
 final class QueryFamily extends $Family
     with $ClassFamilyOverride<Query, String, String, String, QueryTag> {
-  const QueryFamily._()
+  QueryFamily._()
     : super(
         retry: null,
         name: r'queryProvider',
@@ -1512,8 +1438,7 @@ abstract class _$Query extends $Notifier<String> {
   String build(QueryTag tag);
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build(_$args);
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<String, String>;
     final element =
         ref.element
@@ -1523,51 +1448,50 @@ abstract class _$Query extends $Notifier<String> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, () => build(_$args));
   }
 }
 
-@ProviderFor(SelectedItems)
-const selectedItemsProvider = SelectedItemsFamily._();
+@ProviderFor(Loading)
+final loadingProvider = LoadingFamily._();
 
-final class SelectedItemsProvider
-    extends $NotifierProvider<SelectedItems, Set<String>> {
-  const SelectedItemsProvider._({
-    required SelectedItemsFamily super.from,
-    required String super.argument,
+final class LoadingProvider extends $NotifierProvider<Loading, bool> {
+  LoadingProvider._({
+    required LoadingFamily super.from,
+    required LoadingTag super.argument,
   }) : super(
          retry: null,
-         name: r'selectedItemsProvider',
-         isAutoDispose: true,
+         name: r'loadingProvider',
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$selectedItemsHash();
+  String debugGetCreateSourceHash() => _$loadingHash();
 
   @override
   String toString() {
-    return r'selectedItemsProvider'
+    return r'loadingProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  SelectedItems create() => SelectedItems();
+  Loading create() => Loading();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Set<String> value) {
+  Override overrideWithValue(bool value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<Set<String>>(value),
+      providerOverride: $SyncValueProvider<bool>(value),
     );
   }
 
   @override
   bool operator ==(Object other) {
-    return other is SelectedItemsProvider && other.argument == argument;
+    return other is LoadingProvider && other.argument == argument;
   }
 
   @override
@@ -1576,42 +1500,269 @@ final class SelectedItemsProvider
   }
 }
 
-String _$selectedItemsHash() => r'9a13ee78fdc100c8708af9de46e2861652d68e77';
+String _$loadingHash() => r'0e92aaf1ff26aeba3fb3dc196bbf2ab0a061b720';
 
-final class SelectedItemsFamily extends $Family
-    with
-        $ClassFamilyOverride<
-          SelectedItems,
-          Set<String>,
-          Set<String>,
-          Set<String>,
-          String
-        > {
-  const SelectedItemsFamily._()
+final class LoadingFamily extends $Family
+    with $ClassFamilyOverride<Loading, bool, bool, bool, LoadingTag> {
+  LoadingFamily._()
     : super(
         retry: null,
-        name: r'selectedItemsProvider',
+        name: r'loadingProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  LoadingProvider call(LoadingTag tag) =>
+      LoadingProvider._(argument: tag, from: this);
+
+  @override
+  String toString() => r'loadingProvider';
+}
+
+abstract class _$Loading extends $Notifier<bool> {
+  late final _$args = ref.$arg as LoadingTag;
+  LoadingTag get tag => _$args;
+
+  bool build(LoadingTag tag);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
+@ProviderFor(Items)
+final itemsProvider = ItemsFamily._();
+
+final class ItemsProvider extends $NotifierProvider<Items, Set<dynamic>> {
+  ItemsProvider._({
+    required ItemsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'itemsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$itemsHash();
+
+  @override
+  String toString() {
+    return r'itemsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  Items create() => Items();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Set<dynamic> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Set<dynamic>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ItemsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$itemsHash() => r'e4d68c86d62dfa3ba7153954208891e4df4c4355';
+
+final class ItemsFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          Items,
+          Set<dynamic>,
+          Set<dynamic>,
+          Set<dynamic>,
+          String
+        > {
+  ItemsFamily._()
+    : super(
+        retry: null,
+        name: r'itemsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  SelectedItemsProvider call(String key) =>
-      SelectedItemsProvider._(argument: key, from: this);
+  ItemsProvider call(String key) => ItemsProvider._(argument: key, from: this);
 
   @override
-  String toString() => r'selectedItemsProvider';
+  String toString() => r'itemsProvider';
 }
 
-abstract class _$SelectedItems extends $Notifier<Set<String>> {
+abstract class _$Items extends $Notifier<Set<dynamic>> {
   late final _$args = ref.$arg as String;
   String get key => _$args;
 
-  Set<String> build(String key);
+  Set<dynamic> build(String key);
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build(_$args);
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<Set<dynamic>, Set<dynamic>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Set<dynamic>, Set<dynamic>>,
+              Set<dynamic>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
+@ProviderFor(Item)
+final itemProvider = ItemFamily._();
+
+final class ItemProvider extends $NotifierProvider<Item, dynamic> {
+  ItemProvider._({
+    required ItemFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'itemProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$itemHash();
+
+  @override
+  String toString() {
+    return r'itemProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  Item create() => Item();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(dynamic value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<dynamic>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ItemProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$itemHash() => r'bd46bf2e285d7171173ed7c46455ff4c39e80a46';
+
+final class ItemFamily extends $Family
+    with $ClassFamilyOverride<Item, dynamic, dynamic, dynamic, String> {
+  ItemFamily._()
+    : super(
+        retry: null,
+        name: r'itemProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ItemProvider call(String key) => ItemProvider._(argument: key, from: this);
+
+  @override
+  String toString() => r'itemProvider';
+}
+
+abstract class _$Item extends $Notifier<dynamic> {
+  late final _$args = ref.$arg as String;
+  String get key => _$args;
+
+  dynamic build(String key);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<dynamic, dynamic>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<dynamic, dynamic>,
+              dynamic,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
+@ProviderFor(UpdatingKeys)
+final updatingKeysProvider = UpdatingKeysProvider._();
+
+final class UpdatingKeysProvider
+    extends $NotifierProvider<UpdatingKeys, Set<String>> {
+  UpdatingKeysProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updatingKeysProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updatingKeysHash();
+
+  @$internal
+  @override
+  UpdatingKeys create() => UpdatingKeys();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Set<String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Set<String>>(value),
+    );
+  }
+}
+
+String _$updatingKeysHash() => r'db5de1510c55c26685ac3055f199535e7eba42c3';
+
+abstract class _$UpdatingKeys extends $Notifier<Set<String>> {
+  Set<String> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<Set<String>, Set<String>>;
     final element =
         ref.element
@@ -1621,51 +1772,58 @@ abstract class _$SelectedItems extends $Notifier<Set<String>> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
   }
 }
 
-@ProviderFor(SelectedItem)
-const selectedItemProvider = SelectedItemFamily._();
+@ProviderFor(isUpdating)
+final isUpdatingProvider = IsUpdatingFamily._();
 
-final class SelectedItemProvider
-    extends $NotifierProvider<SelectedItem, String> {
-  const SelectedItemProvider._({
-    required SelectedItemFamily super.from,
+final class IsUpdatingProvider extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  IsUpdatingProvider._({
+    required IsUpdatingFamily super.from,
     required String super.argument,
   }) : super(
          retry: null,
-         name: r'selectedItemProvider',
+         name: r'isUpdatingProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$selectedItemHash();
+  String debugGetCreateSourceHash() => _$isUpdatingHash();
 
   @override
   String toString() {
-    return r'selectedItemProvider'
+    return r'isUpdatingProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  SelectedItem create() => SelectedItem();
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    final argument = this.argument as String;
+    return isUpdating(ref, argument);
+  }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String value) {
+  Override overrideWithValue(bool value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<String>(value),
+      providerOverride: $SyncValueProvider<bool>(value),
     );
   }
 
   @override
   bool operator ==(Object other) {
-    return other is SelectedItemProvider && other.argument == argument;
+    return other is IsUpdatingProvider && other.argument == argument;
   }
 
   @override
@@ -1674,44 +1832,233 @@ final class SelectedItemProvider
   }
 }
 
-String _$selectedItemHash() => r'374202f309d7a786190706fb0a2ac4945de94213';
+String _$isUpdatingHash() => r'5055409241b737f6d0b9e43d850a5beea9c2b4c8';
 
-final class SelectedItemFamily extends $Family
-    with $ClassFamilyOverride<SelectedItem, String, String, String, String> {
-  const SelectedItemFamily._()
+final class IsUpdatingFamily extends $Family
+    with $FunctionalFamilyOverride<bool, String> {
+  IsUpdatingFamily._()
     : super(
         retry: null,
-        name: r'selectedItemProvider',
+        name: r'isUpdatingProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  SelectedItemProvider call(String key) =>
-      SelectedItemProvider._(argument: key, from: this);
+  IsUpdatingProvider call(String name) =>
+      IsUpdatingProvider._(argument: name, from: this);
 
   @override
-  String toString() => r'selectedItemProvider';
+  String toString() => r'isUpdatingProvider';
 }
 
-abstract class _$SelectedItem extends $Notifier<String> {
-  late final _$args = ref.$arg as String;
-  String get key => _$args;
+@ProviderFor(NetworkDetection)
+final networkDetectionProvider = NetworkDetectionProvider._();
 
-  String build(String key);
+final class NetworkDetectionProvider
+    extends $NotifierProvider<NetworkDetection, NetworkDetectionState> {
+  NetworkDetectionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'networkDetectionProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$networkDetectionHash();
+
+  @$internal
+  @override
+  NetworkDetection create() => NetworkDetection();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NetworkDetectionState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NetworkDetectionState>(value),
+    );
+  }
+}
+
+String _$networkDetectionHash() => r'1cab20d67ec54321b4dbba9d971cd80e98542e23';
+
+abstract class _$NetworkDetection extends $Notifier<NetworkDetectionState> {
+  NetworkDetectionState build();
   @$mustCallSuper
   @override
-  void runBuild() {
-    final created = build(_$args);
-    final ref = this.ref as $Ref<String, String>;
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<NetworkDetectionState, NetworkDetectionState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<String, String>,
-              String,
+              AnyNotifier<NetworkDetectionState, NetworkDetectionState>,
+              NetworkDetectionState,
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(CurrentSSID)
+final currentSSIDProvider = CurrentSSIDProvider._();
+
+final class CurrentSSIDProvider
+    extends $NotifierProvider<CurrentSSID, String?> {
+  CurrentSSIDProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentSSIDProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentSSIDHash();
+
+  @$internal
+  @override
+  CurrentSSID create() => CurrentSSID();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$currentSSIDHash() => r'287929b3e4d6658775012eb47f0d4f956ae31d0d';
+
+abstract class _$CurrentSSID extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(BatteryOptimizationDisable)
+final batteryOptimizationDisableProvider =
+    BatteryOptimizationDisableProvider._();
+
+final class BatteryOptimizationDisableProvider
+    extends $NotifierProvider<BatteryOptimizationDisable, bool> {
+  BatteryOptimizationDisableProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'batteryOptimizationDisableProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$batteryOptimizationDisableHash();
+
+  @$internal
+  @override
+  BatteryOptimizationDisable create() => BatteryOptimizationDisable();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$batteryOptimizationDisableHash() =>
+    r'a95e3e5500f685d44f61804ea280a6a73d639ac1';
+
+abstract class _$BatteryOptimizationDisable extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(LocationPermissions)
+final locationPermissionsProvider = LocationPermissionsProvider._();
+
+final class LocationPermissionsProvider
+    extends $NotifierProvider<LocationPermissions, WifiSsidPermission> {
+  LocationPermissionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'locationPermissionsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$locationPermissionsHash();
+
+  @$internal
+  @override
+  LocationPermissions create() => LocationPermissions();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WifiSsidPermission value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WifiSsidPermission>(value),
+    );
+  }
+}
+
+String _$locationPermissionsHash() =>
+    r'0097088be7aab27f635eff31a7f88bc1067dfe34';
+
+abstract class _$LocationPermissions extends $Notifier<WifiSsidPermission> {
+  WifiSsidPermission build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<WifiSsidPermission, WifiSsidPermission>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<WifiSsidPermission, WifiSsidPermission>,
+              WifiSsidPermission,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }

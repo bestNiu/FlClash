@@ -31,6 +31,9 @@ abstract class UpdateParams with _$UpdateParams {
     @JsonKey(name: 'external-controller')
     required ExternalControllerStatus externalController,
     @JsonKey(name: 'unified-delay') required bool unifiedDelay,
+    @Default([]) List<String> authentication,
+    @Default(false) @JsonKey(name: 'geo-auto-update') bool geoAutoUpdate,
+    @Default(24) @JsonKey(name: 'geo-update-interval') int geoUpdateInterval,
   }) = _UpdateParams;
 
   factory UpdateParams.fromJson(Map<String, dynamic> json) =>
@@ -44,7 +47,7 @@ abstract class VpnOptions with _$VpnOptions {
     required int port,
     required bool ipv6,
     required bool dnsHijacking,
-    required AccessControl accessControl,
+    required AccessControlProps accessControlProps,
     required bool allowBypass,
     required bool systemProxy,
     required List<String> bypassDomain,
@@ -154,7 +157,6 @@ abstract class ExternalProvider with _$ExternalProvider {
     required int count,
     @JsonKey(name: 'subscription-info', fromJson: subscriptionInfoFormCore)
     SubscriptionInfo? subscriptionInfo,
-    @Default(false) bool isUpdating,
     @JsonKey(name: 'vehicle-type') required String vehicleType,
     @JsonKey(name: 'update-at') required DateTime updateAt,
   }) = _ExternalProvider;
@@ -163,36 +165,17 @@ abstract class ExternalProvider with _$ExternalProvider {
       _$ExternalProviderFromJson(json);
 }
 
-@freezed
-abstract class Action with _$Action {
-  const factory Action({
-    required ActionMethod method,
-    required dynamic data,
-    required String id,
-  }) = _Action;
-
-  factory Action.fromJson(Map<String, Object?> json) => _$ActionFromJson(json);
+extension ExternalProviderExt on ExternalProvider {
+  String get updatingKey => 'provider_$name';
 }
 
 @freezed
-abstract class ActionResult with _$ActionResult {
-  const factory ActionResult({
-    required ActionMethod method,
-    required dynamic data,
-    String? id,
-    @Default(ResultType.success) ResultType code,
-  }) = _ActionResult;
+abstract class ProxiesData with _$ProxiesData {
+  const factory ProxiesData({
+    required Map<String, dynamic> proxies,
+    required List<String> all,
+  }) = _ProxiesData;
 
-  factory ActionResult.fromJson(Map<String, Object?> json) =>
-      _$ActionResultFromJson(json);
-}
-
-extension ActionResultExt on ActionResult {
-  Result get toResult {
-    if (code == ResultType.success) {
-      return Result.success(data);
-    } else {
-      return Result.error('$data');
-    }
-  }
+  factory ProxiesData.fromJson(Map<String, Object?> json) =>
+      _$ProxiesDataFromJson(json);
 }

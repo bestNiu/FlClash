@@ -1,6 +1,6 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'models.dart';
@@ -30,11 +30,12 @@ const defaultBypassDomain = [
 
 const defaultAppSettingProps = AppSettingProps();
 const defaultVpnProps = VpnProps();
+const defaultAuthenticationProps = AuthenticationProps();
 const defaultNetworkProps = NetworkProps();
-const defaultProxiesStyle = ProxiesStyle();
+const defaultProxiesStyleProps = ProxiesStyleProps();
 const defaultWindowProps = WindowProps();
-const defaultAccessControl = AccessControl();
-final defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
+const defaultAccessControlProps = AccessControlProps();
+const defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
 
 const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.networkSpeed,
@@ -49,14 +50,15 @@ const List<DashboardWidget> defaultDashboardWidgets = [
 List<DashboardWidget> dashboardWidgetsSafeFormJson(
   List<dynamic>? dashboardWidgets,
 ) {
-  try {
-    return dashboardWidgets
+  return decodeOrRestoreDefault(
+    'dashboard widgets',
+    () =>
+        dashboardWidgets
             ?.map((e) => $enumDecode(_$DashboardWidgetEnumMap, e))
             .toList() ??
-        defaultDashboardWidgets;
-  } catch (_) {
-    return defaultDashboardWidgets;
-  }
+        defaultDashboardWidgets,
+    () => defaultDashboardWidgets,
+  );
 }
 
 @freezed
@@ -67,6 +69,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @JsonKey(fromJson: dashboardWidgetsSafeFormJson)
     List<DashboardWidget> dashboardWidgets,
     @Default(false) bool onlyStatisticsProxy,
+    @Default(true) bool showNotificationStopAction,
     @Default(false) bool autoLaunch,
     @Default(false) bool silentLaunch,
     @Default(false) bool autoRun,
@@ -82,23 +85,30 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(true) bool minimizeOnExit,
     @Default(false) bool hidden,
     @Default(false) bool developerMode,
-    @Default(RecoveryStrategy.compatible) RecoveryStrategy recoveryStrategy,
+    @Default(RestoreStrategy.compatible) RestoreStrategy restoreStrategy,
     @Default(true) bool showTrayTitle,
+    @Default(true) bool checkCertificate,
+    @Default('') String customUserAgent,
   }) = _AppSettingProps;
 
   factory AppSettingProps.fromJson(Map<String, Object?> json) =>
       _$AppSettingPropsFromJson(json);
 
   factory AppSettingProps.safeFromJson(Map<String, Object?>? json) {
-    return json == null
-        ? defaultAppSettingProps
-        : AppSettingProps.fromJson(json);
+    if (json == null) {
+      return defaultAppSettingProps;
+    }
+    return decodeOrRestoreDefault(
+      'app settings',
+      () => AppSettingProps.fromJson(json),
+      () => defaultAppSettingProps,
+    );
   }
 }
 
 @freezed
-abstract class AccessControl with _$AccessControl {
-  const factory AccessControl({
+abstract class AccessControlProps with _$AccessControlProps {
+  const factory AccessControlProps({
     @Default(false) bool enable,
     @Default(AccessControlMode.rejectSelected) AccessControlMode mode,
     @Default([]) List<String> acceptList,
@@ -106,19 +116,19 @@ abstract class AccessControl with _$AccessControl {
     @Default(AccessSortType.none) AccessSortType sort,
     @Default(true) bool isFilterSystemApp,
     @Default(true) bool isFilterNonInternetApp,
-  }) = _AccessControl;
+  }) = _AccessControlProps;
 
-  factory AccessControl.fromJson(Map<String, Object?> json) =>
-      _$AccessControlFromJson(json);
+  factory AccessControlProps.fromJson(Map<String, Object?> json) =>
+      _$AccessControlPropsFromJson(json);
 }
 
-extension AccessControlExt on AccessControl {
+extension AccessControlPropsExt on AccessControlProps {
   List<String> get currentList => switch (mode) {
     AccessControlMode.acceptSelected => acceptList,
     AccessControlMode.rejectSelected => rejectList,
   };
 
-  AccessControl copyWithNewList(List<String> value) => switch (mode) {
+  AccessControlProps copyWithNewList(List<String> value) => switch (mode) {
     AccessControlMode.acceptSelected => copyWith(acceptList: value),
     AccessControlMode.rejectSelected => copyWith(rejectList: value),
   };
@@ -140,7 +150,7 @@ abstract class WindowProps with _$WindowProps {
 extension WindowPropsExt on WindowProps {
   Size get _size => Size(width, height);
 
-  Size get size => _size.isEmpty ? Size(680, 580) : _size;
+  Size get size => _size.isEmpty ? const Size(680, 580) : _size;
 }
 
 @freezed
@@ -151,11 +161,30 @@ abstract class VpnProps with _$VpnProps {
     @Default(false) bool ipv6,
     @Default(true) bool allowBypass,
     @Default(false) bool dnsHijacking,
-    @Default(defaultAccessControl) AccessControl accessControl,
+    @Default(defaultAccessControlProps) AccessControlProps accessControlProps,
   }) = _VpnProps;
 
   factory VpnProps.fromJson(Map<String, Object?>? json) =>
       json == null ? defaultVpnProps : _$VpnPropsFromJson(json);
+}
+
+@freezed
+abstract class AuthenticationProps with _$AuthenticationProps {
+  const factory AuthenticationProps({
+    @Default(false) bool enable,
+    @Default('') String username,
+    @Default('') String password,
+  }) = _AuthenticationProps;
+
+  factory AuthenticationProps.fromJson(Map<String, Object?>? json) =>
+      json == null
+      ? defaultAuthenticationProps
+      : _$AuthenticationPropsFromJson(json);
+}
+
+extension AuthenticationPropsExt on AuthenticationProps {
+  List<String> get credentials =>
+      enable && username.isNotEmpty ? ['$username:$password'] : [];
 }
 
 @freezed
@@ -166,6 +195,7 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(RouteMode.config) RouteMode routeMode,
     @Default(true) bool autoSetSystemDns,
     @Default(false) bool appendSystemDns,
+    @Default(defaultAuthenticationProps) AuthenticationProps authentication,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
@@ -173,17 +203,18 @@ abstract class NetworkProps with _$NetworkProps {
 }
 
 @freezed
-abstract class ProxiesStyle with _$ProxiesStyle {
-  const factory ProxiesStyle({
+abstract class ProxiesStyleProps with _$ProxiesStyleProps {
+  const factory ProxiesStyleProps({
     @Default(ProxiesType.tab) ProxiesType type,
     @Default(ProxiesSortType.none) ProxiesSortType sortType,
     @Default(ProxiesLayout.standard) ProxiesLayout layout,
     @Default(ProxiesIconStyle.standard) ProxiesIconStyle iconStyle,
     @Default(ProxyCardType.expand) ProxyCardType cardType,
-  }) = _ProxiesStyle;
+  }) = _ProxiesStyleProps;
 
-  factory ProxiesStyle.fromJson(Map<String, Object?>? json) =>
-      json == null ? defaultProxiesStyle : _$ProxiesStyleFromJson(json);
+  factory ProxiesStyleProps.fromJson(Map<String, Object?>? json) => json == null
+      ? defaultProxiesStyleProps
+      : _$ProxiesStylePropsFromJson(json);
 }
 
 @freezed
@@ -215,71 +246,39 @@ abstract class ThemeProps with _$ThemeProps {
     if (json == null) {
       return defaultThemeProps;
     }
-    try {
-      return ThemeProps.fromJson(json);
-    } catch (_) {
-      return defaultThemeProps;
-    }
+    return decodeOrRestoreDefault(
+      'theme settings',
+      () => ThemeProps.fromJson(json),
+      () => defaultThemeProps,
+    );
   }
-}
-
-@freezed
-abstract class ScriptProps with _$ScriptProps {
-  const factory ScriptProps({
-    String? currentId,
-    @Default([]) List<Script> scripts,
-  }) = _ScriptProps;
-
-  factory ScriptProps.fromJson(Map<String, Object?> json) =>
-      _$ScriptPropsFromJson(json);
 }
 
 @freezed
 abstract class Config with _$Config {
   const factory Config({
+    int? currentProfileId,
+    @Default(false) bool overrideDns,
+    @Default([]) List<HotKeyAction> hotKeyActions,
     @JsonKey(fromJson: AppSettingProps.safeFromJson)
     @Default(defaultAppSettingProps)
-    AppSettingProps appSetting,
-    @Default([]) List<Profile> profiles,
-    @Default([]) List<HotKeyAction> hotKeyActions,
-    String? currentProfileId,
-    @Default(false) bool overrideDns,
-    DAV? dav,
+    AppSettingProps appSettingProps,
+    DAVProps? davProps,
     @Default(defaultNetworkProps) NetworkProps networkProps,
     @Default(defaultVpnProps) VpnProps vpnProps,
     @JsonKey(fromJson: ThemeProps.safeFromJson) required ThemeProps themeProps,
-    @Default(defaultProxiesStyle) ProxiesStyle proxiesStyle,
+    @Default(defaultProxiesStyleProps) ProxiesStyleProps proxiesStyleProps,
     @Default(defaultWindowProps) WindowProps windowProps,
-    @Default(defaultClashConfig) ClashConfig patchClashConfig,
-    @Default([]) List<Script> scripts,
-    @Default([]) List<Rule> rules,
+    @Default(defaultClashConfig) PatchClashConfig patchClashConfig,
+    @Default([]) List<String> excludeSSIDs,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);
 
-  factory Config.compatibleFromJson(Map<String, Object?> json) {
-    try {
-      final accessControlMap = json['accessControl'];
-      final isAccessControl = json['isAccessControl'];
-      if (accessControlMap != null) {
-        (accessControlMap as Map)['enable'] = isAccessControl;
-        if (json['vpnProps'] != null) {
-          (json['vpnProps'] as Map)['accessControl'] = accessControlMap;
-        }
-      }
-      if (json['scripts'] == null) {
-        final scriptPropsJson = json['scriptProps'] as Map<String, Object?>?;
-        if (scriptPropsJson != null) {
-          json['scripts'] = scriptPropsJson['scripts'];
-        }
-      }
-    } catch (_) {}
-    return Config.fromJson(json);
-  }
-}
-
-extension ConfigExt on Config {
-  Profile? get currentProfile {
-    return profiles.getProfile(currentProfileId);
+  factory Config.realFromJson(Map<String, Object?>? json) {
+    if (json == null) {
+      return const Config(themeProps: defaultThemeProps);
+    }
+    return _$ConfigFromJson(json);
   }
 }

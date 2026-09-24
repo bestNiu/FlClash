@@ -1,33 +1,56 @@
 package com.follow.clash
 
+import android.app.Application
+import android.content.Context.MODE_PRIVATE
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import com.follow.clash.common.GlobalState
+import com.follow.clash.models.SharedState
+import com.google.gson.Gson
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.resume
 
 private const val ICON_TTL_DAYS = 1L
+
+val Application.sharedState: SharedState
+    get() = try {
+        val preferences = getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE)
+        val json = preferences.getString("flutter.sharedState", null)
+        Gson().fromJson(json, SharedState::class.java) ?: SharedState()
+    } catch (_: Exception) {
+        SharedState()
+    }
+
+private var lastToast: Toast? = null
+
+fun Application.showToast(text: String?) {
+    if (text.isNullOrEmpty()) return
+    Handler(Looper.getMainLooper()).post {
+        lastToast?.cancel()
+        lastToast = Toast.makeText(this, text, Toast.LENGTH_LONG).apply {
+            show()
+        }
+    }
+}
 
 suspend fun PackageManager.getPackageIconPath(packageName: String): String =
     withContext(Dispatchers.IO) {
         val cacheDir = GlobalState.application.cacheDir
         val iconDir = File(cacheDir, "icons").apply { mkdirs() }
         return@withContext try {
-            val pkgInfo = getPackageInfo(packageName, 0)
-            val lastUpdateTime = pkgInfo.lastUpdateTime
+            val lastUpdateTime = getPackageInfo(packageName, 0).lastUpdateTime
             val iconFile = File(iconDir, "${packageName}_${lastUpdateTime}.webp")
             if (iconFile.exists() && !isExpired(iconFile)) {
                 return@withContext iconFile.absolutePath
@@ -51,14 +74,11 @@ private suspend fun saveDrawableToFile(drawable: Drawable, file: File) {
         drawable.toBitmap(width = 128, height = 128)
     }
     try {
-        val format = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                Bitmap.CompressFormat.WEBP_LOSSY
-            }
-
-            else -> {
-                Bitmap.CompressFormat.WEBP
-            }
+        @Suppress("DEPRECATION")
+        val format = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Bitmap.CompressFormat.WEBP_LOSSY
+        } else {
+            Bitmap.CompressFormat.WEBP
         }
         FileOutputStream(file).use { fos ->
             bitmap.compress(format, 90, fos)
@@ -74,48 +94,12 @@ private fun isExpired(file: File): Boolean {
     return age > TimeUnit.DAYS.toMillis(ICON_TTL_DAYS)
 }
 
-suspend fun <T> MethodChannel.awaitResult(
-    method: String, arguments: Any? = null
-): T? = withContext(Dispatchers.Main) {
-    suspendCancellableCoroutine { continuation ->
-        invokeMethod(method, arguments, object : MethodChannel.Result {
-            override fun success(result: Any?) {
-                @Suppress("UNCHECKED_CAST") continuation.resume(result as T?)
-            }
-
-            override fun error(code: String, message: String?, details: Any?) {
-                continuation.resume(null)
-            }
-
-            override fun notImplemented() {
-                continuation.resume(null)
-            }
-        })
-    }
-}
-
 inline fun <reified T : FlutterPlugin> FlutterEngine.plugin(): T? {
     return plugins.get(T::class.java) as T?
 }
 
-fun <T> MethodChannel.invokeMethodOnMainThread(
-    method: String, arguments: Any? = null, callback: ((Result<T>) -> Unit)? = null
-) {
+fun MethodChannel.invokeMethodOnMainThread(method: String, arguments: Any? = null) {
     Handler(Looper.getMainLooper()).post {
-        invokeMethod(method, arguments, object : MethodChannel.Result {
-            override fun success(result: Any?) {
-                @Suppress("UNCHECKED_CAST") callback?.invoke(Result.success(result as T))
-            }
-
-            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                val exception = Exception("MethodChannel error: $errorCode - $errorMessage")
-                callback?.invoke(Result.failure(exception))
-            }
-
-            override fun notImplemented() {
-                val exception = NotImplementedError("Method not implemented: $method")
-                callback?.invoke(Result.failure(exception))
-            }
-        })
+        invokeMethod(method, arguments)
     }
 }

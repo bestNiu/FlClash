@@ -1,9 +1,10 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/state.dart';
 import 'package:fl_clash/state.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VpnManager extends ConsumerStatefulWidget {
@@ -33,18 +34,20 @@ class _VpnContainerState extends ConsumerState<VpnManager> {
         if (!ref.read(isStartProvider) || state == globalState.lastVpnState) {
           return;
         }
-        globalState.showNotifier(
-          appLocalizations.vpnConfigChangeDetected,
+        dialogs.showNotifier(
+          currentAppLocalizations.vpnConfigChangeDetected,
+          level: MessageLevel.warning,
           actionState: MessageActionState(
-            actionText: appLocalizations.restart,
+            actionText: currentAppLocalizations.restart,
             action: () async {
-              await globalState.handleStop();
-              await globalState.appController.updateStatus(true);
+              final setupAction = ref.read(setupActionProvider.notifier);
+              await setupAction.setRunning(false);
+              await setupAction.setRunning(true);
             },
           ),
         );
       },
-      duration: const Duration(seconds: 6),
+      duration: const Duration(seconds: 10),
       fire: true,
     );
   }

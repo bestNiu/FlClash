@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
+import 'package:fl_clash/providers/core.dart';
 import 'package:fl_clash/providers/state.dart';
-import 'package:fl_clash/state.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CoreManager extends ConsumerStatefulWidget {
@@ -20,6 +23,8 @@ class CoreManager extends ConsumerStatefulWidget {
 
 class _CoreContainerState extends ConsumerState<CoreManager>
     with CoreEventListener {
+  CoreController get _core => ref.read(coreHandlerProvider);
+
   @override
   Widget build(BuildContext context) {
     return widget.child;
@@ -29,14 +34,18 @@ class _CoreContainerState extends ConsumerState<CoreManager>
   void initState() {
     super.initState();
     coreEventManager.addListener(this);
-    ref.listenManual(needSetupProvider, (prev, next) {
-      if (prev != next) {
-        globalState.appController.handleChangeProfile();
-      }
+    ref.read(updatingActionProvider.notifier);
+    // A rejected profile stays selected on purpose: silently reverting to
+    // the previous one hides the error and looks like the switch was lost.
+    ref.listenManual(currentProfileIdProvider, (prev, next) {
+      if (prev == next) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(ref.read(setupActionProvider.notifier).fullSetup());
+      });
     });
     ref.listenManual(updateParamsProvider, (prev, next) {
       if (prev != next) {
-        globalState.appController.updateClashConfigDebounce();
+        ref.read(setupActionProvider.notifier).updateConfigDebounce();
       }
     });
     ref.listenManual(appSettingProvider.select((state) => state.openLogs), (
@@ -44,15 +53,15 @@ class _CoreContainerState extends ConsumerState<CoreManager>
       next,
     ) {
       if (next) {
-        coreController.startLog();
+        _core.startLog();
       } else {
-        coreController.stopLog();
+        _core.stopLog();
       }
     }, fireImmediately: true);
   }
 
   @override
-  Future<void> dispose() async {
+  void dispose() {
     coreEventManager.removeListener(this);
     super.dispose();
   }
@@ -60,18 +69,23 @@ class _CoreContainerState extends ConsumerState<CoreManager>
   @override
   Future<void> onDelay(Delay delay) async {
     super.onDelay(delay);
-    final appController = globalState.appController;
-    appController.setDelay(delay);
+    final proxiesAction = ref.read(proxiesActionProvider.notifier);
+    proxiesAction.setDelay(delay);
     debouncer.call(FunctionTag.updateDelay, () async {
-      appController.updateGroupsDebounce();
+      proxiesAction.updateGroupsDebounce();
     }, duration: const Duration(milliseconds: 5000));
   }
 
   @override
   void onLog(Log log) {
-    ref.read(logsProvider.notifier).addLog(log);
+    ref.read(logsProvider.notifier).add(log);
     if (log.logLevel == LogLevel.error) {
-      globalState.showNotifier(log.payload);
+      throttler.call(
+        FunctionTag.coreErrorNotifier,
+        () => dialogs.showNotifier(log.payload, level: MessageLevel.error),
+        duration: const Duration(seconds: 3),
+        fire: true,
+      );
     }
     super.onLog(log);
   }
@@ -84,27 +98,37 @@ class _CoreContainerState extends ConsumerState<CoreManager>
 
   @override
   Future<void> onLoaded(String providerName) async {
-    ref
-        .read(providersProvider.notifier)
-        .setProvider(await coreController.getExternalProvider(providerName));
+    final provider = await _core.getExternalProvider(providerName);
+    if (!mounted) {
+      return;
+    }
+    ref.read(providersProvider.notifier).setProvider(provider);
     debouncer.call(FunctionTag.loadedProvider, () async {
-      globalState.appController.updateGroupsDebounce();
+      if (!mounted) {
+        return;
+      }
+      ref.read(proxiesActionProvider.notifier).updateGroupsDebounce();
     }, duration: const Duration(milliseconds: 5000));
     super.onLoaded(providerName);
   }
 
   @override
   Future<void> onCrash(String message) async {
-    if (!globalState.isUserDisconnected &&
-        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
-      context.showNotifier(message);
-    }
-    globalState.isUserDisconnected = false;
     if (ref.read(coreStatusProvider) != CoreStatus.connected) {
       return;
     }
     ref.read(coreStatusProvider.notifier).value = CoreStatus.disconnected;
-    await coreController.shutdown();
+    if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+      context.showNotifier(message, level: MessageLevel.error);
+    }
     super.onCrash(message);
+  }
+
+  @override
+  void onGeoUpdate(String geoType, bool updating, bool skipped, String? error) {
+    ref
+        .read(geoResourceActionProvider.notifier)
+        .handleCoreUpdate(geoType, updating, skipped, error);
+    super.onGeoUpdate(geoType, updating, skipped, error);
   }
 }

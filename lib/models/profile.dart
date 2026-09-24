@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,6 +9,8 @@ import 'clash_config.dart';
 
 part 'generated/profile.freezed.dart';
 part 'generated/profile.g.dart';
+
+typedef ValidateConfig = Future<String> Function(String path);
 
 @freezed
 abstract class SubscriptionInfo with _$SubscriptionInfo {
@@ -27,7 +27,7 @@ abstract class SubscriptionInfo with _$SubscriptionInfo {
   factory SubscriptionInfo.formHString(String? info) {
     if (info == null) return const SubscriptionInfo();
     final list = info.split(';');
-    Map<String, int?> map = {};
+    final Map<String, int?> map = {};
     for (final i in list) {
       final keyValue = i.trim().split('=');
       map[keyValue[0]] = int.tryParse(keyValue[1]);
@@ -44,8 +44,8 @@ abstract class SubscriptionInfo with _$SubscriptionInfo {
 @freezed
 abstract class Profile with _$Profile {
   const factory Profile({
-    required String id,
-    String? label,
+    required int id,
+    @Default('') String label,
     String? currentGroupName,
     @Default('') String url,
     DateTime? lastUpdateDate,
@@ -54,43 +54,52 @@ abstract class Profile with _$Profile {
     @Default(true) bool autoUpdate,
     @Default({}) Map<String, String> selectedMap,
     @Default({}) Set<String> unfoldSet,
-    @Default(OverrideData()) OverrideData overrideData,
-    @Default(Overwrite()) Overwrite overwrite,
-    @JsonKey(includeToJson: false, includeFromJson: false)
-    @Default(false)
-    bool isUpdating,
+    @Default(OverwriteType.standard) OverwriteType overwriteType,
+    int? scriptId,
+    String? matchTarget,
+    int? order,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>
       _$ProfileFromJson(json);
 
   factory Profile.normal({String? label, String url = ''}) {
+    final id = snowflake.id;
     return Profile(
-      label: label,
+      label: label ?? '',
       url: url,
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: id,
       autoUpdateDuration: defaultUpdateDuration,
     );
   }
 }
 
 @freezed
-abstract class Overwrite with _$Overwrite {
-  const factory Overwrite({
-    @Default(OverwriteType.standard) OverwriteType type,
-    @Default(StandardOverwrite()) StandardOverwrite standardOverwrite,
-    @Default(ScriptOverwrite()) ScriptOverwrite scriptOverwrite,
-  }) = _Overwrite;
+abstract class ProfileRuleLink with _$ProfileRuleLink {
+  const factory ProfileRuleLink({
+    int? profileId,
+    required int ruleId,
+    RuleScene? scene,
+    String? order,
+  }) = _ProfileRuleLink;
+}
 
-  factory Overwrite.fromJson(Map<String, Object?> json) =>
-      _$OverwriteFromJson(json);
+extension ProfileRuleLinkExt on ProfileRuleLink {
+  String get key {
+    final splits = <String?>[
+      profileId?.toString(),
+      ruleId.toString(),
+      scene?.name,
+    ];
+    return splits.where((item) => item != null).join('_');
+  }
 }
 
 @freezed
 abstract class StandardOverwrite with _$StandardOverwrite {
   const factory StandardOverwrite({
     @Default([]) List<Rule> addedRules,
-    @Default([]) List<String> disabledRuleIds,
+    @Default([]) List<int> disabledRuleIds,
   }) = _StandardOverwrite;
 
   factory StandardOverwrite.fromJson(Map<String, Object?> json) =>
@@ -99,62 +108,34 @@ abstract class StandardOverwrite with _$StandardOverwrite {
 
 @freezed
 abstract class ScriptOverwrite with _$ScriptOverwrite {
-  const factory ScriptOverwrite({String? scriptId}) = _ScriptOverwrite;
+  const factory ScriptOverwrite({int? scriptId}) = _ScriptOverwrite;
 
   factory ScriptOverwrite.fromJson(Map<String, Object?> json) =>
       _$ScriptOverwriteFromJson(json);
 }
 
-@freezed
-abstract class OverrideData with _$OverrideData {
-  const factory OverrideData({
-    @Default(false) bool enable,
-    @Default(OverrideRule()) OverrideRule rule,
-  }) = _OverrideData;
-
-  factory OverrideData.fromJson(Map<String, Object?> json) =>
-      _$OverrideDataFromJson(json);
-}
-
-@freezed
-abstract class OverrideRule with _$OverrideRule {
-  const factory OverrideRule({
-    @Default(OverrideRuleType.added) OverrideRuleType type,
-    @Default([]) List<Rule> overrideRules,
-    @Default([]) List<Rule> addedRules,
-  }) = _OverrideRule;
-
-  factory OverrideRule.fromJson(Map<String, Object?> json) =>
-      _$OverrideRuleFromJson(json);
-}
-
-extension OverrideDataExt on OverrideData {
-  List<String> get runningRule {
-    if (!enable) {
-      return [];
-    }
-    return rule.rules.map((item) => item.value).toList();
-  }
-}
-
-extension OverrideRuleExt on OverrideRule {
-  List<Rule> get rules => switch (type == OverrideRuleType.override) {
-    true => overrideRules,
-    false => addedRules,
-  };
-
-  OverrideRule updateRules(List<Rule> Function(List<Rule> rules) builder) {
-    if (type == OverrideRuleType.added) {
-      return copyWith(addedRules: builder(addedRules));
-    }
-    return copyWith(overrideRules: builder(overrideRules));
-  }
-}
-
 extension ProfilesExt on List<Profile> {
-  Profile? getProfile(String? profileId) {
+  Profile? getProfile(int? profileId) {
     final index = indexWhere((profile) => profile.id == profileId);
     return index == -1 ? null : this[index];
+  }
+
+  String _getLabel(String label, int id) {
+    final realLabel = label.takeFirstValid([id.toString()]);
+    final hasDup =
+        indexWhere(
+          (element) => element.label == realLabel && element.id != id,
+        ) !=
+        -1;
+    if (hasDup) {
+      return _getLabel(getOverwriteLabel(realLabel), id);
+    } else {
+      return realLabel;
+    }
+  }
+
+  Profile optimizeLabel(Profile profile) {
+    return profile.copyWith(label: _getLabel(profile.label, profile.id));
   }
 }
 
@@ -164,54 +145,64 @@ extension ProfileExtension on Profile {
 
   bool get realAutoUpdate => url.isEmpty == true ? false : autoUpdate;
 
-  Future<void> checkAndUpdate() async {
-    final isExists = await check();
-    if (!isExists) {
-      if (url.isNotEmpty) {
-        await update();
-      }
+  String get realLabel => label.takeFirstValid([id.toString()]);
+
+  String get fileName => '$id.yaml';
+
+  String get updatingKey => 'profile_$id';
+
+  Future<Profile?> checkAndUpdateAndCopy({
+    required ValidateConfig validate,
+  }) async {
+    final mFile = await _getFile(false);
+    final isExists = await mFile.exists();
+    if (isExists || url.isEmpty) {
+      return null;
     }
+    return update(validate: validate);
   }
 
-  Future<bool> check() async {
-    final profilePath = await appPath.getProfilePath(id);
-    return await File(profilePath).exists();
-  }
-
-  Future<File> getFile() async {
-    final path = await appPath.getProfilePath(id);
+  Future<File> _getFile([bool autoCreate = true]) async {
+    final path = await appPath.getProfilePath(id.toString());
     final file = File(path);
     final isExists = await file.exists();
-    if (!isExists) {
-      await file.create(recursive: true);
+    if (!isExists && autoCreate) {
+      return file.create(recursive: true);
     }
     return file;
   }
 
-  Future<int> get profileLastModified async {
-    final file = await getFile();
-    return (await file.lastModified()).microsecondsSinceEpoch;
+  Future<File> get file async {
+    return _getFile();
   }
 
-  Future<Profile> update() async {
+  Future<Profile> update({required ValidateConfig validate}) async {
     final response = await request.getFileResponseForUrl(url);
     final disposition = response.headers.value('content-disposition');
     final userinfo = response.headers.value('subscription-userinfo');
-    return await copyWith(
-      label: label ?? utils.getFileNameForDisposition(disposition) ?? id,
+    return copyWith(
+      label: label.takeFirstValid([
+        getFileNameForDisposition(disposition),
+        id.toString(),
+      ]),
       subscriptionInfo: SubscriptionInfo.formHString(userinfo),
-    ).saveFile(response.data ?? Uint8List.fromList([]));
+    ).saveFile(response.data ?? Uint8List.fromList([]), validate: validate);
   }
 
-  Future<Profile> saveFile(Uint8List bytes) async {
-    final message = await coreController.validateConfigFormBytes(bytes);
+  Future<Profile> saveFile(
+    Uint8List bytes, {
+    required ValidateConfig validate,
+  }) async {
+    final path = await appPath.tempFilePath;
+    final tempFile = File(path);
+    await tempFile.safeWriteAsBytes(bytes);
+    final message = await validate(path);
     if (message.isNotEmpty) {
-      throw message;
+      throw MessageException(message);
     }
-    final file = await getFile();
-    await Isolate.run(() async {
-      return await file.writeAsBytes(bytes);
-    });
+    final mFile = await file;
+    await tempFile.copy(mFile.path);
+    await tempFile.safeDelete();
     return copyWith(lastUpdateDate: DateTime.now());
   }
 }

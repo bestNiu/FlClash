@@ -35,6 +35,13 @@ _UpdateParams _$UpdateParamsFromJson(Map<String, dynamic> json) =>
         json['external-controller'],
       ),
       unifiedDelay: json['unified-delay'] as bool,
+      authentication:
+          (json['authentication'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      geoAutoUpdate: json['geo-auto-update'] as bool? ?? false,
+      geoUpdateInterval: (json['geo-update-interval'] as num?)?.toInt() ?? 24,
     );
 
 Map<String, dynamic> _$UpdateParamsToJson(_UpdateParams instance) =>
@@ -50,6 +57,9 @@ Map<String, dynamic> _$UpdateParamsToJson(_UpdateParams instance) =>
       'external-controller':
           _$ExternalControllerStatusEnumMap[instance.externalController]!,
       'unified-delay': instance.unifiedDelay,
+      'authentication': instance.authentication,
+      'geo-auto-update': instance.geoAutoUpdate,
+      'geo-update-interval': instance.geoUpdateInterval,
     };
 
 const _$FindProcessModeEnumMap = {
@@ -81,8 +91,8 @@ _VpnOptions _$VpnOptionsFromJson(Map<String, dynamic> json) => _VpnOptions(
   port: (json['port'] as num).toInt(),
   ipv6: json['ipv6'] as bool,
   dnsHijacking: json['dnsHijacking'] as bool,
-  accessControl: AccessControl.fromJson(
-    json['accessControl'] as Map<String, dynamic>,
+  accessControlProps: AccessControlProps.fromJson(
+    json['accessControlProps'] as Map<String, dynamic>,
   ),
   allowBypass: json['allowBypass'] as bool,
   systemProxy: json['systemProxy'] as bool,
@@ -103,7 +113,7 @@ Map<String, dynamic> _$VpnOptionsToJson(_VpnOptions instance) =>
       'port': instance.port,
       'ipv6': instance.ipv6,
       'dnsHijacking': instance.dnsHijacking,
-      'accessControl': instance.accessControl,
+      'accessControlProps': instance.accessControlProps,
       'allowBypass': instance.allowBypass,
       'systemProxy': instance.systemProxy,
       'bypassDomain': instance.bypassDomain,
@@ -164,6 +174,7 @@ const _$CoreEventTypeEnumMap = {
   CoreEventType.request: 'request',
   CoreEventType.loaded: 'loaded',
   CoreEventType.crash: 'crash',
+  CoreEventType.geoUpdate: 'geoUpdate',
 };
 
 _InvokeMessage _$InvokeMessageFromJson(Map<String, dynamic> json) =>
@@ -230,7 +241,6 @@ _ExternalProvider _$ExternalProviderFromJson(Map<String, dynamic> json) =>
       subscriptionInfo: subscriptionInfoFormCore(
         json['subscription-info'] as Map<String, Object?>?,
       ),
-      isUpdating: json['isUpdating'] as bool? ?? false,
       vehicleType: json['vehicle-type'] as String,
       updateAt: DateTime.parse(json['update-at'] as String),
     );
@@ -242,81 +252,14 @@ Map<String, dynamic> _$ExternalProviderToJson(_ExternalProvider instance) =>
       'path': instance.path,
       'count': instance.count,
       'subscription-info': instance.subscriptionInfo,
-      'isUpdating': instance.isUpdating,
       'vehicle-type': instance.vehicleType,
       'update-at': instance.updateAt.toIso8601String(),
     };
 
-_Action _$ActionFromJson(Map<String, dynamic> json) => _Action(
-  method: $enumDecode(_$ActionMethodEnumMap, json['method']),
-  data: json['data'],
-  id: json['id'] as String,
+_ProxiesData _$ProxiesDataFromJson(Map<String, dynamic> json) => _ProxiesData(
+  proxies: json['proxies'] as Map<String, dynamic>,
+  all: (json['all'] as List<dynamic>).map((e) => e as String).toList(),
 );
 
-Map<String, dynamic> _$ActionToJson(_Action instance) => <String, dynamic>{
-  'method': _$ActionMethodEnumMap[instance.method]!,
-  'data': instance.data,
-  'id': instance.id,
-};
-
-const _$ActionMethodEnumMap = {
-  ActionMethod.message: 'message',
-  ActionMethod.initClash: 'initClash',
-  ActionMethod.getIsInit: 'getIsInit',
-  ActionMethod.forceGc: 'forceGc',
-  ActionMethod.shutdown: 'shutdown',
-  ActionMethod.validateConfig: 'validateConfig',
-  ActionMethod.updateConfig: 'updateConfig',
-  ActionMethod.getConfig: 'getConfig',
-  ActionMethod.getProxies: 'getProxies',
-  ActionMethod.changeProxy: 'changeProxy',
-  ActionMethod.getTraffic: 'getTraffic',
-  ActionMethod.getTotalTraffic: 'getTotalTraffic',
-  ActionMethod.resetTraffic: 'resetTraffic',
-  ActionMethod.asyncTestDelay: 'asyncTestDelay',
-  ActionMethod.getConnections: 'getConnections',
-  ActionMethod.closeConnections: 'closeConnections',
-  ActionMethod.resetConnections: 'resetConnections',
-  ActionMethod.closeConnection: 'closeConnection',
-  ActionMethod.getExternalProviders: 'getExternalProviders',
-  ActionMethod.getExternalProvider: 'getExternalProvider',
-  ActionMethod.updateGeoData: 'updateGeoData',
-  ActionMethod.updateExternalProvider: 'updateExternalProvider',
-  ActionMethod.sideLoadExternalProvider: 'sideLoadExternalProvider',
-  ActionMethod.startLog: 'startLog',
-  ActionMethod.stopLog: 'stopLog',
-  ActionMethod.startListener: 'startListener',
-  ActionMethod.stopListener: 'stopListener',
-  ActionMethod.getCountryCode: 'getCountryCode',
-  ActionMethod.getMemory: 'getMemory',
-  ActionMethod.crash: 'crash',
-  ActionMethod.setupConfig: 'setupConfig',
-  ActionMethod.deleteFile: 'deleteFile',
-  ActionMethod.setState: 'setState',
-  ActionMethod.startTun: 'startTun',
-  ActionMethod.stopTun: 'stopTun',
-  ActionMethod.getRunTime: 'getRunTime',
-  ActionMethod.updateDns: 'updateDns',
-  ActionMethod.getAndroidVpnOptions: 'getAndroidVpnOptions',
-  ActionMethod.getCurrentProfileName: 'getCurrentProfileName',
-};
-
-_ActionResult _$ActionResultFromJson(Map<String, dynamic> json) =>
-    _ActionResult(
-      method: $enumDecode(_$ActionMethodEnumMap, json['method']),
-      data: json['data'],
-      id: json['id'] as String?,
-      code:
-          $enumDecodeNullable(_$ResultTypeEnumMap, json['code']) ??
-          ResultType.success,
-    );
-
-Map<String, dynamic> _$ActionResultToJson(_ActionResult instance) =>
-    <String, dynamic>{
-      'method': _$ActionMethodEnumMap[instance.method]!,
-      'data': instance.data,
-      'id': instance.id,
-      'code': _$ResultTypeEnumMap[instance.code]!,
-    };
-
-const _$ResultTypeEnumMap = {ResultType.success: 0, ResultType.error: -1};
+Map<String, dynamic> _$ProxiesDataToJson(_ProxiesData instance) =>
+    <String, dynamic>{'proxies': instance.proxies, 'all': instance.all};

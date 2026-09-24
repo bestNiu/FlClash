@@ -1,10 +1,12 @@
-android_arm64:
-	dart ./setup.dart android --arch arm64
-macos_arm64:
-	dart ./setup.dart macos --arch arm64
-android_app:
-	dart ./setup.dart android
-android_arm64_core:
-	dart ./setup.dart android --arch arm64 --out core
-macos_arm64_core:
-	dart ./setup.dart macos --arch arm64  --out core
+SHELL := /bin/bash
+
+.PHONY: help submodules
+
+help:
+	@echo 'make submodules  # update git submodules (Clash.Meta core sources)'
+	@echo ''
+	@echo 'The Go core and Rust helper build automatically through the setup build'
+	@echo 'hook during flutter build; see .agents/commands.md.'
+
+submodules:
+	git submodule update --init --recursive

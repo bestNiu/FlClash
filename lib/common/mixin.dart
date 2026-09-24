@@ -1,51 +1,33 @@
+import 'package:flutter/widgets.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'snowflake.dart';
+
 mixin AutoDisposeNotifierMixin<T> on AnyNotifier<T, T> {
+  T get value => state;
+
   set value(T value) {
-    if (ref.mounted) {
-      state = value;
-    } else {
-      onUpdate(value);
-    }
+    state = value;
   }
-
-  @override
-  bool updateShouldNotify(previous, next) {
-    final res = super.updateShouldNotify(previous, next);
-    if (res) {
-      onUpdate(next);
-    }
-    return res;
-  }
-
-  void onUpdate(T value) {}
 
   void update(T Function(T) builder) {
-    final value = builder(state);
-    this.value = value;
+    final res = builder(value);
+    if (res == value) {
+      return;
+    }
+    value = res;
   }
 }
 
-mixin AnyNotifierMixin<T> on AnyNotifier<T, T> {
+mixin AsyncNotifierMixin<T> on AnyNotifier<AsyncValue<T>, T> {
   T get value;
 
   set value(T value) {
-    if (ref.mounted) {
-      state = value;
-    } else {
-      onUpdate(value);
-    }
+    state = AsyncData(value);
   }
+}
 
-  @override
-  bool updateShouldNotify(previous, next) {
-    final res = super.updateShouldNotify(previous, next);
-    if (res) {
-      onUpdate(next);
-    }
-    return res;
-  }
-
-  void onUpdate(T value) {}
+mixin UniqueKeyStateMixin<T extends StatefulWidget> on State<T> {
+  final key = uniqueId;
 }

@@ -1,10 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'clash_config.dart';
+
 part 'generated/common.freezed.dart';
+
 part 'generated/common.g.dart';
 
 @freezed
@@ -12,7 +19,6 @@ abstract class NavigationItem with _$NavigationItem {
   const factory NavigationItem({
     required Icon icon,
     required PageLabel label,
-    final String? description,
     required WidgetBuilder builder,
     @Default(true) bool keep,
     String? path,
@@ -108,6 +114,14 @@ abstract class TrackerInfo with _$TrackerInfo {
 }
 
 extension TrackerInfoExt on TrackerInfo {
+  String get title {
+    final host = metadata.host;
+    if (host.isNotEmpty) {
+      return host;
+    }
+    return metadata.destinationIP;
+  }
+
   String get desc {
     var text = '${metadata.network}://';
     final ips = [
@@ -133,25 +147,16 @@ String _logDateTime(dynamic _) {
   return DateTime.now().showFull;
 }
 
-// String _logId(_) {
-//   return utils.id;
-// }
-
 @freezed
 abstract class Log with _$Log {
   const factory Log({
-    // @JsonKey(fromJson: _logId) required String id,
     @JsonKey(name: 'LogLevel') @Default(LogLevel.info) LogLevel logLevel,
     @JsonKey(name: 'Payload') @Default('') String payload,
     @JsonKey(fromJson: _logDateTime) required String dateTime,
   }) = _Log;
 
   factory Log.app(String payload) {
-    return Log(
-      payload: payload,
-      dateTime: _logDateTime(null),
-      // id: _logId(null),
-    );
+    return Log(payload: payload, dateTime: _logDateTime(null));
   }
 
   factory Log.fromJson(Map<String, Object?> json) => _$LogFromJson(json);
@@ -213,28 +218,138 @@ extension TrackerInfosStateExt on TrackerInfosState {
 }
 
 const defaultDavFileName = 'backup.zip';
+const _davPasswordFormatVersion = 'v1';
+const _davPasswordNonceLength = 16;
+const _davPasswordObfuscationMask = <int>[
+  0x9d,
+  0x42,
+  0xe7,
+  0x1b,
+  0x68,
+  0xb4,
+  0x35,
+  0xca,
+  0x7f,
+  0x20,
+  0xd1,
+  0x56,
+  0x83,
+  0xfa,
+  0x0c,
+  0xa9,
+];
 
-@freezed
-abstract class DAV with _$DAV {
-  const factory DAV({
+// This only prevents accidental plain-text disclosure. It is deliberately not
+// a security boundary against reverse engineering or same-user access.
+String _encodeDavPassword(String password) {
+  if (password.isEmpty) {
+    return '';
+  }
+  final random = Random.secure();
+  final nonce = List<int>.generate(
+    _davPasswordNonceLength,
+    (_) => random.nextInt(256),
+    growable: false,
+  );
+  final passwordBytes = utf8.encode(password);
+  final obfuscated = List<int>.generate(
+    passwordBytes.length,
+    (index) =>
+        passwordBytes[index] ^
+        nonce[index % nonce.length] ^
+        _davPasswordObfuscationMask[index % _davPasswordObfuscationMask.length],
+    growable: false,
+  );
+  return [
+    _davPasswordFormatVersion,
+    base64UrlEncode(nonce),
+    base64UrlEncode(obfuscated),
+  ].join('.');
+}
+
+String _decodeDavPassword(String? value) {
+  if (value == null || value.isEmpty) {
+    return '';
+  }
+  final parts = value.split('.');
+  if (parts.length != 3 || parts[0] != _davPasswordFormatVersion) {
+    return value;
+  }
+  try {
+    final nonce = base64Url.decode(parts[1]);
+    final obfuscated = base64Url.decode(parts[2]);
+    if (nonce.length != _davPasswordNonceLength) {
+      return '';
+    }
+    final passwordBytes = List<int>.generate(
+      obfuscated.length,
+      (index) =>
+          obfuscated[index] ^
+          nonce[index % nonce.length] ^
+          _davPasswordObfuscationMask[index %
+              _davPasswordObfuscationMask.length],
+      growable: false,
+    );
+    return utf8.decode(passwordBytes);
+  } on FormatException {
+    return '';
+  }
+}
+
+@Freezed(toStringOverride: false)
+abstract class DAVProps with _$DAVProps {
+  const DAVProps._();
+
+  const factory DAVProps({
     required String uri,
     required String user,
-    required String password,
+    @JsonKey(fromJson: _decodeDavPassword, toJson: _encodeDavPassword)
+    @Default('')
+    String password,
     @Default(defaultDavFileName) String fileName,
-  }) = _DAV;
+  }) = _DAVProps;
 
-  factory DAV.fromJson(Map<String, Object?> json) => _$DAVFromJson(json);
+  factory DAVProps.fromJson(Map<String, Object?> json) =>
+      _$DAVPropsFromJson(json);
+
+  @override
+  String toString() =>
+      'DAVProps(uri: $uri, user: $user, password: ***, fileName: $fileName)';
 }
 
 @freezed
 abstract class FileInfo with _$FileInfo {
-  const factory FileInfo({required int size, required DateTime lastModified}) =
+  const factory FileInfo({required int size, DateTime? lastModified}) =
       _FileInfo;
 }
 
+extension FileInfoFileExt on File {
+  Future<FileInfo?> getFileInfo() async {
+    if (!await exists()) {
+      return null;
+    }
+    final size = await length();
+    final lastModified = await _getValidLastModified();
+    return FileInfo(size: size, lastModified: lastModified);
+  }
+
+  Future<DateTime?> _getValidLastModified() async {
+    try {
+      final value = await lastModified();
+      return value.year > 1970 ? value : null;
+    } on FileSystemException {
+      return null;
+    }
+  }
+}
+
 extension FileInfoExt on FileInfo {
-  String get desc =>
-      '${size.traffic.show}  ·  ${lastModified.lastUpdateTimeDesc}';
+  String getDesc(BuildContext context) {
+    final lastModifiedDesc =
+        lastModified?.getLastUpdateTimeDesc(context) ??
+        context.appLocalizations.unknown;
+    return '${size.traffic.show}  ·  $lastModifiedDesc';
+  }
 }
 
 @freezed
@@ -266,7 +381,7 @@ extension TrafficExt on Traffic {
   }
 
   String get trayTitle {
-    return '${up.shortTraffic.show}/s \n ${down.shortTraffic.show}/s';
+    return '${up.shortTraffic.show}/s\n${down.shortTraffic.show}/s';
   }
 
   num get speed => up + down;
@@ -283,20 +398,9 @@ extension TrafficShowExt on TrafficShow {
 }
 
 @freezed
-abstract class Proxy with _$Proxy {
-  const factory Proxy({
-    required String name,
-    required String type,
-    String? now,
-  }) = _Proxy;
-
-  factory Proxy.fromJson(Map<String, Object?> json) => _$ProxyFromJson(json);
-}
-
-@freezed
 abstract class Group with _$Group {
   const factory Group({
-    required GroupType type,
+    @JsonKey(fromJson: GroupType.parse) required GroupType type,
     @Default([]) List<Proxy> all,
     String? now,
     bool? hidden,
@@ -347,7 +451,7 @@ extension ColorSchemesExt on ColorSchemes {
               dynamicSchemeVariant: schemeVariant,
             )
           : ColorScheme.fromSeed(
-              seedColor: Color(defaultPrimaryColor),
+              seedColor: const Color(defaultPrimaryColor),
               brightness: Brightness.dark,
               dynamicSchemeVariant: schemeVariant,
             );
@@ -358,7 +462,7 @@ extension ColorSchemesExt on ColorSchemes {
             dynamicSchemeVariant: schemeVariant,
           )
         : ColorScheme.fromSeed(
-            seedColor: Color(defaultPrimaryColor),
+            seedColor: const Color(defaultPrimaryColor),
             dynamicSchemeVariant: schemeVariant,
           );
   }
@@ -455,37 +559,12 @@ abstract class Field with _$Field {
   }) = _Field;
 }
 
-class PopupMenuItemData {
-  const PopupMenuItemData({
-    this.icon,
-    required this.label,
-    this.onPressed,
-    this.danger = false,
-    this.subItems = const [],
-  });
-
-  final String label;
-  final VoidCallback? onPressed;
-  final IconData? icon;
-  final bool danger;
-  final List<PopupMenuItemData> subItems;
-}
-
-@freezed
-abstract class AndroidState with _$AndroidState {
-  const factory AndroidState({
-    required String currentProfileName,
-    required String stopText,
-    required bool onlyStatisticsProxy,
-    required bool crashlytics,
-  }) = _AndroidState;
-
-  factory AndroidState.fromJson(Map<String, Object?> json) =>
-      _$AndroidStateFromJson(json);
-}
-
 class CloseWindowIntent extends Intent {
   const CloseWindowIntent();
+}
+
+class EscapeBackIntent extends Intent {
+  const EscapeBackIntent();
 }
 
 @freezed
@@ -512,20 +591,24 @@ extension ResultExt on Result {
 @freezed
 abstract class Script with _$Script {
   const factory Script({
-    required String id,
+    required int id,
     required String label,
-    required String content,
+    required DateTime lastUpdateTime,
   }) = _Script;
 
-  factory Script.create({required String label, required String content}) {
-    return Script(id: utils.uuidV4, label: label, content: content);
-  }
-
   factory Script.fromJson(Map<String, Object?> json) => _$ScriptFromJson(json);
+
+  factory Script.create({required String label}) {
+    return Script(
+      id: snowflake.id,
+      label: label,
+      lastUpdateTime: DateTime.now(),
+    );
+  }
 }
 
 extension ScriptsExt on List<Script> {
-  Script? get(String? id) {
+  Script? get(int? id) {
     if (id == null) {
       return null;
     }
@@ -534,6 +617,38 @@ extension ScriptsExt on List<Script> {
       return this[index];
     }
     return null;
+  }
+}
+
+extension ScriptExt on Script {
+  String get fileName => '$id.js';
+
+  Future<String> get path async => appPath.getScriptPath(id.toString());
+
+  Future<String?> get content async {
+    final file = File(await path);
+    if (await file.exists()) {
+      return file.readAsString();
+    }
+    return null;
+  }
+
+  Future<Script> save(String content) async {
+    final file = File(await path);
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+    }
+    await file.writeAsString(content);
+    return copyWith(lastUpdateTime: DateTime.now());
+  }
+
+  Future<Script> saveWithPath(String copyPath) async {
+    final file = File(await path);
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+    }
+    await File(copyPath).copy(copyPath);
+    return copyWith(lastUpdateTime: DateTime.now());
   }
 }
 
@@ -557,8 +672,25 @@ extension DelayStateExt on DelayState {
     if (delay != other.delay) {
       return delay.compareTo(other.delay);
     }
-    if (group && !group) return -1;
-    if (!group && group) return 1;
+    if (group && !other.group) return -1;
+    if (!group && other.group) return 1;
     return 0;
   }
+}
+
+@freezed
+abstract class UpdatingMessage with _$UpdatingMessage {
+  const factory UpdatingMessage({
+    required String label,
+    required String message,
+  }) = _UpdatingMessage;
+}
+
+@freezed
+abstract class IconButtonData with _$IconButtonData {
+  const factory IconButtonData({
+    required IconData icon,
+    required VoidCallback onPressed,
+    String? tooltip,
+  }) = _IconButtonData;
 }
