@@ -5114,6 +5114,71 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Sign in and synchronize your subscription`
+  String get accountDesc {
+    return Intl.message(
+      'Sign in and synchronize your subscription',
+      name: 'accountDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Panel address`
+  String get panelAddress {
+    return Intl.message(
+      'Panel address',
+      name: 'panelAddress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This field is required`
+  String get requiredField {
+    return Intl.message(
+      'This field is required',
+      name: 'requiredField',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get email {
+    return Intl.message('Email', name: 'email', desc: '', args: []);
+  }
+
+  /// `Sign in`
+  String get login {
+    return Intl.message('Sign in', name: 'login', desc: '', args: []);
+  }
+
+  /// `Sign out`
+  String get logout {
+    return Intl.message('Sign out', name: 'logout', desc: '', args: []);
+  }
+
+  /// `No expiration`
+  String get noExpiration {
+    return Intl.message(
+      'No expiration',
+      name: 'noExpiration',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No active subscription`
+  String get noSubscription {
+    return Intl.message(
+      'No active subscription',
+      name: 'noSubscription',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

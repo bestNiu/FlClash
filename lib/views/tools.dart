@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/features/account/account_view.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -67,6 +68,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     return generateSection(
       title: context.appLocalizations.settings,
       items: [
+        const _AccountItem(),
         const _LocaleItem(),
         const _ThemeItem(),
         const _BackupItem(),
@@ -113,6 +115,20 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         itemBuilder: (_, index) => items[index],
         padding: const EdgeInsets.only(bottom: 20),
       ),
+    );
+  }
+}
+
+class _AccountItem extends StatelessWidget {
+  const _AccountItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.open(
+      leading: const Icon(Icons.account_circle_outlined),
+      title: Text(context.appLocalizations.account),
+      subtitle: Text(context.appLocalizations.accountDesc),
+      widget: const AccountView(),
     );
   }
 }

@@ -117,6 +117,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Настройки контроля доступа",
     ),
     "account": MessageLookupByLibrary.simpleMessage("Аккаунт"),
+    "accountDesc": MessageLookupByLibrary.simpleMessage(
+      "Вход и синхронизация подписки",
+    ),
     "action": MessageLookupByLibrary.simpleMessage("Действие"),
     "actionMode": MessageLookupByLibrary.simpleMessage("Переключить режим"),
     "actionProxy": MessageLookupByLibrary.simpleMessage("Системный прокси"),
@@ -424,6 +427,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "editRule": MessageLookupByLibrary.simpleMessage("Редактировать правило"),
     "editSsid": MessageLookupByLibrary.simpleMessage("Изменить SSID"),
+    "email": MessageLookupByLibrary.simpleMessage("Электронная почта"),
     "emptyTip": m7,
     "en": MessageLookupByLibrary.simpleMessage("Английский"),
     "entries": MessageLookupByLibrary.simpleMessage(" записей"),
@@ -565,9 +569,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -645,6 +650,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "logcatDesc": MessageLookupByLibrary.simpleMessage(
       "При отключении раздел логов будет скрыт",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Войти"),
+    "logout": MessageLookupByLibrary.simpleMessage("Выйти"),
     "logs": MessageLookupByLibrary.simpleMessage("Логи"),
     "logsDesc": MessageLookupByLibrary.simpleMessage(
       "Записи захваченных логов",
@@ -714,6 +721,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "neutralScheme": MessageLookupByLibrary.simpleMessage("Нейтральная"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Следующее совпадение"),
     "noData": MessageLookupByLibrary.simpleMessage("Нет данных"),
+    "noExpiration": MessageLookupByLibrary.simpleMessage("Без срока действия"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("Горячих клавиш пока нет"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Нет информации"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
@@ -725,6 +733,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "noResolve": MessageLookupByLibrary.simpleMessage("Не разрешать IP"),
     "noResolveHostname": MessageLookupByLibrary.simpleMessage(
       "Не разрешать имя хоста",
+    ),
+    "noSubscription": MessageLookupByLibrary.simpleMessage(
+      "Нет активной подписки",
     ),
     "none": MessageLookupByLibrary.simpleMessage("Нет"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage(
@@ -773,6 +784,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Пользовательский режим: полная настройка групп прокси и правил",
     ),
     "palette": MessageLookupByLibrary.simpleMessage("Палитра"),
+    "panelAddress": MessageLookupByLibrary.simpleMessage("Адрес панели"),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
     "paste": MessageLookupByLibrary.simpleMessage("Вставить"),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Выбрать из галереи"),
@@ -887,6 +899,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "requestsDesc": MessageLookupByLibrary.simpleMessage(
       "Просмотр последних запросов",
     ),
+    "requiredField": MessageLookupByLibrary.simpleMessage("Обязательное поле"),
     "reset": MessageLookupByLibrary.simpleMessage("Сброс"),
     "resetPageChangesTip": MessageLookupByLibrary.simpleMessage(
       "На этой странице есть изменения. Вы уверены, что хотите выполнить сброс?",

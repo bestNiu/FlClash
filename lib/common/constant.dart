@@ -13,6 +13,7 @@ const appName = String.fromEnvironment(
   'FLY001_APP_NAME',
   defaultValue: 'fly001',
 );
+const defaultPanelUrl = String.fromEnvironment('FLY001_PANEL_URL');
 const appHelperService = 'FlClashHelperService';
 const coreManifestName = 'manifest.json';
 const coreName = 'clash.meta';

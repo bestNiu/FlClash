@@ -117,6 +117,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Access control settings",
     ),
     "account": MessageLookupByLibrary.simpleMessage("Account"),
+    "accountDesc": MessageLookupByLibrary.simpleMessage(
+      "Sign in and synchronize your subscription",
+    ),
     "action": MessageLookupByLibrary.simpleMessage("Action"),
     "actionMode": MessageLookupByLibrary.simpleMessage("Switch mode"),
     "actionProxy": MessageLookupByLibrary.simpleMessage("System proxy"),
@@ -412,6 +415,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "editProxyGroup": MessageLookupByLibrary.simpleMessage("Edit proxy group"),
     "editRule": MessageLookupByLibrary.simpleMessage("Edit rule"),
     "editSsid": MessageLookupByLibrary.simpleMessage("Edit SSID"),
+    "email": MessageLookupByLibrary.simpleMessage("Email"),
     "emptyTip": m7,
     "en": MessageLookupByLibrary.simpleMessage("English"),
     "entries": MessageLookupByLibrary.simpleMessage(" entries"),
@@ -551,9 +555,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
-      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-    ),
+    "installedAppsPermissionDeniedMessage":
+        MessageLookupByLibrary.simpleMessage(
+          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+        ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -633,6 +638,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "logcatDesc": MessageLookupByLibrary.simpleMessage(
       "Disabling hides the log entry point",
     ),
+    "login": MessageLookupByLibrary.simpleMessage("Sign in"),
+    "logout": MessageLookupByLibrary.simpleMessage("Sign out"),
     "logs": MessageLookupByLibrary.simpleMessage("Logs"),
     "logsDesc": MessageLookupByLibrary.simpleMessage("Captured log records"),
     "logsTest": MessageLookupByLibrary.simpleMessage("Logs test"),
@@ -696,6 +703,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "neutralScheme": MessageLookupByLibrary.simpleMessage("Neutral"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Next match"),
     "noData": MessageLookupByLibrary.simpleMessage("No data"),
+    "noExpiration": MessageLookupByLibrary.simpleMessage("No expiration"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("No hotkeys yet"),
     "noInfo": MessageLookupByLibrary.simpleMessage("No info"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
@@ -707,6 +715,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "noResolve": MessageLookupByLibrary.simpleMessage("Don\'t resolve IP"),
     "noResolveHostname": MessageLookupByLibrary.simpleMessage(
       "Don\'t resolve hostname",
+    ),
+    "noSubscription": MessageLookupByLibrary.simpleMessage(
+      "No active subscription",
     ),
     "none": MessageLookupByLibrary.simpleMessage("None"),
     "notSelectedTip": MessageLookupByLibrary.simpleMessage(
@@ -747,6 +758,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Custom mode: fully customize proxy groups and rules",
     ),
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
+    "panelAddress": MessageLookupByLibrary.simpleMessage("Panel address"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
     "pickFromAlbum": MessageLookupByLibrary.simpleMessage("Choose from album"),
@@ -854,6 +866,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "requests": MessageLookupByLibrary.simpleMessage("Requests"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage(
       "View recent request records",
+    ),
+    "requiredField": MessageLookupByLibrary.simpleMessage(
+      "This field is required",
     ),
     "reset": MessageLookupByLibrary.simpleMessage("Reset"),
     "resetPageChangesTip": MessageLookupByLibrary.simpleMessage(

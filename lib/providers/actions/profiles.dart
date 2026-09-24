@@ -116,6 +116,22 @@ class ProfilesAction extends _$ProfilesAction {
     }
   }
 
+  Future<int> syncManagedProfile({
+    required String url,
+    required String label,
+    int? profileId,
+  }) async {
+    final profiles = ref.read(profilesProvider);
+    final existing = profiles.getProfile(profileId);
+    final profile =
+        existing?.copyWith(url: url) ?? Profile.normal(label: label, url: url);
+    final updated = await profile.update(
+      validate: (path) => _core.validateConfig(path),
+    );
+    putProfile(updated);
+    return updated.id;
+  }
+
   Future<void> addProfileFormURL(String url) async {
     if (globalState.navigatorKey.currentState?.canPop() ?? false) {
       globalState.navigatorKey.currentState?.popUntil((route) => route.isFirst);
