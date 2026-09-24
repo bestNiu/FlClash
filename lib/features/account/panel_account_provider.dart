@@ -31,7 +31,7 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
     final session = await _store.read();
     if (session == null) return null;
     try {
-      return await _loadAndSync(session);
+      return await _loadSession(session);
     } on PanelApiException catch (error) {
       if (error.isUnauthorized) {
         await _store.clear();
@@ -58,7 +58,7 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
         managedProfileId: previous?.managedProfileId,
       );
       await _store.write(session);
-      return _loadAndSync(session);
+      return _loadSession(session);
     });
   }
 
@@ -69,7 +69,7 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
       return;
     }
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _loadAndSync(session));
+    state = await AsyncValue.guard(() => _loadSession(session));
   }
 
   Future<void> logout() async {
@@ -83,34 +83,61 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
       if (profileId != null) {
         await ref
             .read(profilesActionProvider.notifier)
-            .deleteProfile(profileId);
+            .deleteManagedProfile(profileId);
       }
     }
     await _store.clear();
     state = const AsyncData(null);
   }
 
+  Future<PanelAccount> _loadSession(PanelSession session) async {
+    try {
+      return await _loadAndSync(session);
+    } on PanelApiException catch (error) {
+      if (error.isUnauthorized) await _store.clear();
+      rethrow;
+    }
+  }
+
   Future<PanelAccount> _loadAndSync(PanelSession session) async {
     final account = await _api(
       session.baseUrl,
     ).getAccount(session.authorization);
-    if (account.subscriptionUrl.isEmpty) return account;
-    final subscriptionUrl = validateSubscriptionUrl(
-      account.subscriptionUrl,
-      session.baseUrl,
-    );
+    if (!account.canSync || account.accountId.isEmpty) {
+      final profileId = session.managedProfileId;
+      if (profileId != null) {
+        await ref.read(profilesStreamProvider.future);
+        await ref
+            .read(profilesActionProvider.notifier)
+            .deleteManagedProfile(profileId);
+        await _store.write(session.withoutManagedProfile());
+      }
+      return account;
+    }
+    final PanelSubscription subscription;
+    try {
+      subscription = await _api(
+        session.baseUrl,
+      ).getSubscription(session.authorization);
+    } on PanelApiException {
+      rethrow;
+    } catch (_) {
+      throw const PanelApiException('Subscription download failed');
+    }
     await ref.read(profilesStreamProvider.future);
     final int profileId;
     try {
       profileId = await ref
           .read(profilesActionProvider.notifier)
           .syncManagedProfile(
-            url: subscriptionUrl,
+            bytes: subscription.bytes,
             label: appName,
             profileId: session.managedProfileId,
+            remoteAccountId: account.accountId,
+            disposition: subscription.disposition,
+            userinfo: subscription.userinfo,
           );
     } catch (_) {
-      // Profile download errors can contain the credential-bearing URL.
       throw const PanelApiException('Subscription sync failed');
     }
     if (profileId != session.managedProfileId) {

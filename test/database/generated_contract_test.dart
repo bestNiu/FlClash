@@ -27,10 +27,13 @@ void main() {
       selectedMap: const {'Select': 'DIRECT'},
       unfoldSet: const {'Select'},
       order: 3,
+      source: ProfileSource.fly001,
+      managed: true,
+      remoteAccountId: 'account-1',
     );
 
-    expect(profile.toColumns(true), hasLength(14));
-    expect(profile.toCompanion(true).toColumns(true), hasLength(14));
+    expect(profile.toColumns(true), hasLength(17));
+    expect(profile.toCompanion(true).toColumns(true), hasLength(17));
     expect(RawProfile.fromJson(profile.toJson()).toJson(), profile.toJson());
     expect(profile.copyWith(label: 'Next').label, 'Next');
     expect(
@@ -58,10 +61,12 @@ void main() {
       autoUpdate: false,
       selectedMap: {},
       unfoldSet: {},
+      source: ProfileSource.user,
+      managed: false,
     );
-    expect(emptyProfile.toColumns(true), hasLength(8));
-    expect(emptyProfile.toColumns(false), hasLength(14));
-    expect(emptyProfile.toCompanion(true).toColumns(true), hasLength(8));
+    expect(emptyProfile.toColumns(true), hasLength(10));
+    expect(emptyProfile.toColumns(false), hasLength(17));
+    expect(emptyProfile.toCompanion(true).toColumns(true), hasLength(10));
 
     final insertedProfile = ProfilesCompanion.insert(
       label: 'Inserted',
@@ -90,8 +95,11 @@ void main() {
         selectedMap: const Variable('{}'),
         unfoldSet: const Variable('[]'),
         order: const Variable(1),
+        source: const Variable('fly001'),
+        managed: const Variable(true),
+        remoteAccountId: const Variable('account-1'),
       ).toColumns(false),
-      hasLength(14),
+      hasLength(17),
     );
 
     final script = RawScript(id: 2, label: 'Script', lastUpdateTime: date);

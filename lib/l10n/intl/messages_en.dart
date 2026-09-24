@@ -555,10 +555,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
-    "installedAppsPermissionDeniedMessage":
-        MessageLookupByLibrary.simpleMessage(
-          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-        ),
+    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
+      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+    ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -1115,8 +1114,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sub-rule cannot be empty",
     ),
     "submit": MessageLookupByLibrary.simpleMessage("Submit"),
+    "subscriptionActive": MessageLookupByLibrary.simpleMessage(
+      "Subscription active",
+    ),
+    "subscriptionExpired": MessageLookupByLibrary.simpleMessage(
+      "Subscription expired",
+    ),
+    "subscriptionExpiring": MessageLookupByLibrary.simpleMessage(
+      "Subscription expires soon",
+    ),
     "subscriptionInfo": MessageLookupByLibrary.simpleMessage(
       "Subscription info",
+    ),
+    "subscriptionUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Subscription unavailable",
     ),
     "suspended": MessageLookupByLibrary.simpleMessage("Suspended..."),
     "sync": MessageLookupByLibrary.simpleMessage("Sync"),

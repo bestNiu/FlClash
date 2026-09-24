@@ -1,8 +1,8 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'panel_account_provider.dart';
 import 'panel_models.dart';
@@ -67,6 +67,12 @@ class _AccountViewState extends ConsumerState<AccountView> {
               loading: state.isLoading,
               error: state.error?.toString(),
               onLogin: _login,
+              onRetry: () {
+                ref.read(panelAccountProvider.notifier).refresh();
+              },
+              onLogout: () {
+                ref.read(panelAccountProvider.notifier).logout();
+              },
             )
           else
             _AccountSummary(account: account),
@@ -84,6 +90,8 @@ class _LoginForm extends StatelessWidget {
   final bool loading;
   final String? error;
   final VoidCallback onLogin;
+  final VoidCallback onRetry;
+  final VoidCallback onLogout;
 
   const _LoginForm({
     required this.formKey,
@@ -93,6 +101,8 @@ class _LoginForm extends StatelessWidget {
     required this.loading,
     required this.error,
     required this.onLogin,
+    required this.onRetry,
+    required this.onLogout,
   });
 
   @override
@@ -135,6 +145,21 @@ class _LoginForm extends StatelessWidget {
           if (error != null) ...[
             const SizedBox(height: 12),
             Text(error!, style: TextStyle(color: context.colorScheme.error)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: loading ? null : onRetry,
+                  icon: const Icon(Icons.refresh),
+                  label: Text(l10n.sync),
+                ),
+                TextButton.icon(
+                  onPressed: loading ? null : onLogout,
+                  icon: const Icon(Icons.logout),
+                  label: Text(l10n.logout),
+                ),
+              ],
+            ),
           ],
           const SizedBox(height: 20),
           FilledButton(
@@ -166,12 +191,23 @@ class _AccountSummary extends ConsumerWidget {
         : DateFormat.yMd(
             Localizations.localeOf(context).toLanguageTag(),
           ).format(expiration.toLocal());
+    final status = switch (account.statusAt(DateTime.now())) {
+      PanelAccountStatus.noPlan => l10n.noSubscription,
+      PanelAccountStatus.active => l10n.subscriptionActive,
+      PanelAccountStatus.expiring => l10n.subscriptionExpiring,
+      PanelAccountStatus.expired => l10n.subscriptionExpired,
+      PanelAccountStatus.unavailable => l10n.subscriptionUnavailable,
+    };
     return Column(
       children: [
         ListTile(
           leading: const Icon(Icons.account_circle_outlined),
           title: Text(account.email),
           subtitle: Text(account.planName ?? l10n.noSubscription),
+        ),
+        ListTile(
+          leading: const Icon(Icons.verified_outlined),
+          title: Text(status),
         ),
         ListTile(
           leading: const Icon(Icons.data_usage),

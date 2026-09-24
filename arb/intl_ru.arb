@@ -625,5 +625,9 @@
   "login": "Войти",
   "logout": "Выйти",
   "noExpiration": "Без срока действия",
-  "noSubscription": "Нет активной подписки"
+  "noSubscription": "Нет активной подписки",
+  "subscriptionActive": "Подписка активна",
+  "subscriptionExpiring": "Срок подписки скоро истечёт",
+  "subscriptionExpired": "Срок подписки истёк",
+  "subscriptionUnavailable": "Подписка недоступна"
 }

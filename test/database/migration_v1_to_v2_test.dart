@@ -32,6 +32,13 @@ void _downgradeToV2(Database raw) {
   raw.execute('PRAGMA user_version = 2');
 }
 
+void _downgradeToV3(Database raw) {
+  raw.execute('ALTER TABLE profiles DROP COLUMN source');
+  raw.execute('ALTER TABLE profiles DROP COLUMN managed');
+  raw.execute('ALTER TABLE profiles DROP COLUMN remote_account_id');
+  raw.execute('PRAGMA user_version = 3');
+}
+
 Set<String> _columnsOf(Database raw, String table) => {
   for (final row in raw.select('PRAGMA table_info($table)'))
     row['name'] as String,
@@ -76,7 +83,7 @@ void main() {
 
     await openAndMigrate();
 
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
   });
 
   test('the v3 upgrade adds match_target to profiles', () async {
@@ -86,7 +93,7 @@ void main() {
     await openAndMigrate();
 
     expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
   });
 
   test(
@@ -98,9 +105,27 @@ void main() {
       await openAndMigrate();
 
       expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-      expect(_userVersion(raw), 3);
+      expect(_userVersion(raw), 4);
     },
   );
+
+  test('the v4 upgrade adds managed profile identity', () async {
+    _downgradeToV3(raw);
+    expect(_columnsOf(raw, 'profiles'), isNot(contains('remote_account_id')));
+
+    await openAndMigrate();
+
+    expect(
+      _columnsOf(raw, 'profiles'),
+      containsAll(['source', 'managed', 'remote_account_id']),
+    );
+    final defaults = raw.select('PRAGMA table_info(profiles)');
+    expect(
+      defaults.singleWhere((row) => row['name'] == 'source')['dflt_value'],
+      "'user'",
+    );
+    expect(_userVersion(raw), 4);
+  });
 
   test('the upgrade creates the tables v2 added', () async {
     _downgradeToV1(raw);
@@ -168,22 +193,22 @@ void main() {
     );
   });
 
-  test('an empty v1 rules table still reaches v2', () async {
+  test('an empty v1 rules table still reaches the current schema', () async {
     _downgradeToV1(raw);
 
     final database = await openAndMigrate();
 
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
     expect(await database.customSelect('SELECT * FROM rules').get(), isEmpty);
   });
 
-  test('opening a database already at v2 changes nothing', () async {
+  test('opening a database already current changes nothing', () async {
     final before = _columnsOf(raw, 'rules');
 
     await openAndMigrate();
 
     expect(_columnsOf(raw, 'rules'), before);
-    expect(_userVersion(raw), 3);
+    expect(_userVersion(raw), 4);
     expect(_hasTable(raw, 'proxy_groups'), isTrue);
   });
 }

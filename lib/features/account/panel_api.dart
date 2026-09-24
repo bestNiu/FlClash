@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import 'panel_models.dart';
@@ -55,6 +57,32 @@ class PanelApi {
     return PanelAccount.fromJson(data);
   }
 
+  Future<PanelSubscription> getSubscription(String authorization) async {
+    try {
+      final response = await _dio.get<Uint8List>(
+        '/api/v2/client/subscription',
+        queryParameters: const {'flag': 'clash-meta'},
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: {'Authorization': authorization},
+        ),
+      );
+      final bytes = response.data;
+      if (bytes == null || bytes.isEmpty) {
+        throw const PanelApiException('Empty subscription response');
+      }
+      return PanelSubscription(
+        bytes: bytes,
+        disposition: response.headers.value('content-disposition'),
+        userinfo: response.headers.value('subscription-userinfo'),
+      );
+    } on PanelApiException {
+      rethrow;
+    } on DioException catch (error) {
+      throw _fromDioException(error);
+    }
+  }
+
   Future<void> logout(String authorization) async {
     await _request(
       'POST',
@@ -93,12 +121,16 @@ class PanelApi {
     } on PanelApiException {
       rethrow;
     } on DioException catch (error) {
-      final envelope = _asMap(error.response?.data);
-      throw PanelApiException(
-        envelope['message']?.toString() ?? error.message ?? 'Network error',
-        statusCode: error.response?.statusCode,
-      );
+      throw _fromDioException(error);
     }
+  }
+
+  PanelApiException _fromDioException(DioException error) {
+    final envelope = _asMap(error.response?.data);
+    return PanelApiException(
+      envelope['message']?.toString() ?? 'Network error',
+      statusCode: error.response?.statusCode,
+    );
   }
 }
 
@@ -119,20 +151,6 @@ String normalizePanelUrl(String value) {
     throw const PanelApiException('The panel must use HTTPS');
   }
   return normalized;
-}
-
-String validateSubscriptionUrl(String value, String panelBaseUrl) {
-  final subscription = Uri.tryParse(value);
-  final panel = Uri.parse(normalizePanelUrl(panelBaseUrl));
-  if (subscription == null ||
-      subscription.userInfo.isNotEmpty ||
-      subscription.hasFragment ||
-      subscription.scheme != panel.scheme ||
-      subscription.host != panel.host ||
-      subscription.port != panel.port) {
-    throw const PanelApiException('Invalid subscription URL');
-  }
-  return value;
 }
 
 bool _isLoopback(String host) {

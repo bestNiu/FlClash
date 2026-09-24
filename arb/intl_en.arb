@@ -625,5 +625,9 @@
   "login": "Sign in",
   "logout": "Sign out",
   "noExpiration": "No expiration",
-  "noSubscription": "No active subscription"
+  "noSubscription": "No active subscription",
+  "subscriptionActive": "Subscription active",
+  "subscriptionExpiring": "Subscription expires soon",
+  "subscriptionExpired": "Subscription expired",
+  "subscriptionUnavailable": "Subscription unavailable"
 }

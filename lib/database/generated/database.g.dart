@@ -152,6 +152,42 @@ class $ProfilesTable extends Profiles
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<ProfileSource, String> source =
+      GeneratedColumn<String>(
+        'source',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('user'),
+      ).withConverter<ProfileSource>($ProfilesTable.$convertersource);
+  static const VerificationMeta _managedMeta = const VerificationMeta(
+    'managed',
+  );
+  @override
+  late final GeneratedColumn<bool> managed = GeneratedColumn<bool>(
+    'managed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("managed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _remoteAccountIdMeta = const VerificationMeta(
+    'remoteAccountId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteAccountId = GeneratedColumn<String>(
+    'remote_account_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     label,
@@ -167,6 +203,9 @@ class $ProfilesTable extends Profiles
     selectedMap,
     unfoldSet,
     order,
+    source,
+    managed,
+    remoteAccountId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -257,6 +296,21 @@ class $ProfilesTable extends Profiles
         order.isAcceptableOrUnknown(data['order']!, _orderMeta),
       );
     }
+    if (data.containsKey('managed')) {
+      context.handle(
+        _managedMeta,
+        managed.isAcceptableOrUnknown(data['managed']!, _managedMeta),
+      );
+    }
+    if (data.containsKey('remote_account_id')) {
+      context.handle(
+        _remoteAccountIdMeta,
+        remoteAccountId.isAcceptableOrUnknown(
+          data['remote_account_id']!,
+          _remoteAccountIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -330,6 +384,20 @@ class $ProfilesTable extends Profiles
         DriftSqlType.int,
         data['${effectivePrefix}order'],
       ),
+      source: $ProfilesTable.$convertersource.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}source'],
+        )!,
+      ),
+      managed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}managed'],
+      )!,
+      remoteAccountId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_account_id'],
+      ),
     );
   }
 
@@ -348,6 +416,8 @@ class $ProfilesTable extends Profiles
       const StringMapConverter();
   static TypeConverter<Set<String>, String> $converterunfoldSet =
       const StringSetConverter();
+  static JsonTypeConverter2<ProfileSource, String, String> $convertersource =
+      const EnumNameConverter<ProfileSource>(ProfileSource.values);
 }
 
 class RawProfile extends DataClass implements Insertable<RawProfile> {
@@ -365,6 +435,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
   final Map<String, String> selectedMap;
   final Set<String> unfoldSet;
   final int? order;
+  final ProfileSource source;
+  final bool managed;
+  final String? remoteAccountId;
   const RawProfile({
     required this.id,
     required this.label,
@@ -380,6 +453,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     required this.selectedMap,
     required this.unfoldSet,
     this.order,
+    required this.source,
+    required this.managed,
+    this.remoteAccountId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -426,6 +502,15 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     if (!nullToAbsent || order != null) {
       map['order'] = Variable<int>(order);
     }
+    {
+      map['source'] = Variable<String>(
+        $ProfilesTable.$convertersource.toSql(source),
+      );
+    }
+    map['managed'] = Variable<bool>(managed);
+    if (!nullToAbsent || remoteAccountId != null) {
+      map['remote_account_id'] = Variable<String>(remoteAccountId);
+    }
     return map;
   }
 
@@ -457,6 +542,11 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       order: order == null && nullToAbsent
           ? const Value.absent()
           : Value(order),
+      source: Value(source),
+      managed: Value(managed),
+      remoteAccountId: remoteAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteAccountId),
     );
   }
 
@@ -488,6 +578,11 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       ),
       unfoldSet: serializer.fromJson<Set<String>>(json['unfoldSet']),
       order: serializer.fromJson<int?>(json['order']),
+      source: $ProfilesTable.$convertersource.fromJson(
+        serializer.fromJson<String>(json['source']),
+      ),
+      managed: serializer.fromJson<bool>(json['managed']),
+      remoteAccountId: serializer.fromJson<String?>(json['remoteAccountId']),
     );
   }
   @override
@@ -514,6 +609,11 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       'selectedMap': serializer.toJson<Map<String, String>>(selectedMap),
       'unfoldSet': serializer.toJson<Set<String>>(unfoldSet),
       'order': serializer.toJson<int?>(order),
+      'source': serializer.toJson<String>(
+        $ProfilesTable.$convertersource.toJson(source),
+      ),
+      'managed': serializer.toJson<bool>(managed),
+      'remoteAccountId': serializer.toJson<String?>(remoteAccountId),
     };
   }
 
@@ -532,6 +632,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     Map<String, String>? selectedMap,
     Set<String>? unfoldSet,
     Value<int?> order = const Value.absent(),
+    ProfileSource? source,
+    bool? managed,
+    Value<String?> remoteAccountId = const Value.absent(),
   }) => RawProfile(
     id: id ?? this.id,
     label: label ?? this.label,
@@ -554,6 +657,11 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     selectedMap: selectedMap ?? this.selectedMap,
     unfoldSet: unfoldSet ?? this.unfoldSet,
     order: order.present ? order.value : this.order,
+    source: source ?? this.source,
+    managed: managed ?? this.managed,
+    remoteAccountId: remoteAccountId.present
+        ? remoteAccountId.value
+        : this.remoteAccountId,
   );
   RawProfile copyWithCompanion(ProfilesCompanion data) {
     return RawProfile(
@@ -587,6 +695,11 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           : this.selectedMap,
       unfoldSet: data.unfoldSet.present ? data.unfoldSet.value : this.unfoldSet,
       order: data.order.present ? data.order.value : this.order,
+      source: data.source.present ? data.source.value : this.source,
+      managed: data.managed.present ? data.managed.value : this.managed,
+      remoteAccountId: data.remoteAccountId.present
+          ? data.remoteAccountId.value
+          : this.remoteAccountId,
     );
   }
 
@@ -606,7 +719,10 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           ..write('autoUpdate: $autoUpdate, ')
           ..write('selectedMap: $selectedMap, ')
           ..write('unfoldSet: $unfoldSet, ')
-          ..write('order: $order')
+          ..write('order: $order, ')
+          ..write('source: $source, ')
+          ..write('managed: $managed, ')
+          ..write('remoteAccountId: $remoteAccountId')
           ..write(')'))
         .toString();
   }
@@ -627,6 +743,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     selectedMap,
     unfoldSet,
     order,
+    source,
+    managed,
+    remoteAccountId,
   );
   @override
   bool operator ==(Object other) =>
@@ -645,7 +764,10 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           other.autoUpdate == this.autoUpdate &&
           other.selectedMap == this.selectedMap &&
           other.unfoldSet == this.unfoldSet &&
-          other.order == this.order);
+          other.order == this.order &&
+          other.source == this.source &&
+          other.managed == this.managed &&
+          other.remoteAccountId == this.remoteAccountId);
 }
 
 class ProfilesCompanion extends UpdateCompanion<RawProfile> {
@@ -663,6 +785,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
   final Value<Map<String, String>> selectedMap;
   final Value<Set<String>> unfoldSet;
   final Value<int?> order;
+  final Value<ProfileSource> source;
+  final Value<bool> managed;
+  final Value<String?> remoteAccountId;
   const ProfilesCompanion({
     this.id = const Value.absent(),
     this.label = const Value.absent(),
@@ -678,6 +803,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     this.selectedMap = const Value.absent(),
     this.unfoldSet = const Value.absent(),
     this.order = const Value.absent(),
+    this.source = const Value.absent(),
+    this.managed = const Value.absent(),
+    this.remoteAccountId = const Value.absent(),
   });
   ProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -694,6 +822,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     required Map<String, String> selectedMap,
     required Set<String> unfoldSet,
     this.order = const Value.absent(),
+    this.source = const Value.absent(),
+    this.managed = const Value.absent(),
+    this.remoteAccountId = const Value.absent(),
   }) : label = Value(label),
        url = Value(url),
        overwriteType = Value(overwriteType),
@@ -716,6 +847,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     Expression<String>? selectedMap,
     Expression<String>? unfoldSet,
     Expression<int>? order,
+    Expression<String>? source,
+    Expression<bool>? managed,
+    Expression<String>? remoteAccountId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -733,6 +867,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
       if (selectedMap != null) 'selected_map': selectedMap,
       if (unfoldSet != null) 'unfold_set': unfoldSet,
       if (order != null) 'order': order,
+      if (source != null) 'source': source,
+      if (managed != null) 'managed': managed,
+      if (remoteAccountId != null) 'remote_account_id': remoteAccountId,
     });
   }
 
@@ -751,6 +888,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     Value<Map<String, String>>? selectedMap,
     Value<Set<String>>? unfoldSet,
     Value<int?>? order,
+    Value<ProfileSource>? source,
+    Value<bool>? managed,
+    Value<String?>? remoteAccountId,
   }) {
     return ProfilesCompanion(
       id: id ?? this.id,
@@ -768,6 +908,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
       selectedMap: selectedMap ?? this.selectedMap,
       unfoldSet: unfoldSet ?? this.unfoldSet,
       order: order ?? this.order,
+      source: source ?? this.source,
+      managed: managed ?? this.managed,
+      remoteAccountId: remoteAccountId ?? this.remoteAccountId,
     );
   }
 
@@ -826,6 +969,17 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     if (order.present) {
       map['order'] = Variable<int>(order.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(
+        $ProfilesTable.$convertersource.toSql(source.value),
+      );
+    }
+    if (managed.present) {
+      map['managed'] = Variable<bool>(managed.value);
+    }
+    if (remoteAccountId.present) {
+      map['remote_account_id'] = Variable<String>(remoteAccountId.value);
+    }
     return map;
   }
 
@@ -845,7 +999,10 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
           ..write('autoUpdate: $autoUpdate, ')
           ..write('selectedMap: $selectedMap, ')
           ..write('unfoldSet: $unfoldSet, ')
-          ..write('order: $order')
+          ..write('order: $order, ')
+          ..write('source: $source, ')
+          ..write('managed: $managed, ')
+          ..write('remoteAccountId: $remoteAccountId')
           ..write(')'))
         .toString();
   }
@@ -3535,6 +3692,9 @@ typedef $$ProfilesTableCreateCompanionBuilder =
       required Map<String, String> selectedMap,
       required Set<String> unfoldSet,
       Value<int?> order,
+      Value<ProfileSource> source,
+      Value<bool> managed,
+      Value<String?> remoteAccountId,
     });
 typedef $$ProfilesTableUpdateCompanionBuilder =
     ProfilesCompanion Function({
@@ -3552,6 +3712,9 @@ typedef $$ProfilesTableUpdateCompanionBuilder =
       Value<Map<String, String>> selectedMap,
       Value<Set<String>> unfoldSet,
       Value<int?> order,
+      Value<ProfileSource> source,
+      Value<bool> managed,
+      Value<String?> remoteAccountId,
     });
 
 final class $$ProfilesTableReferences
@@ -3684,6 +3847,22 @@ class $$ProfilesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<ProfileSource, ProfileSource, String>
+  get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<bool> get managed => $composableBuilder(
+    column: $table.managed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteAccountId => $composableBuilder(
+    column: $table.remoteAccountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> profileRuleLinksRefs(
     Expression<bool> Function($$ProfileRuleLinksTableFilterComposer f) f,
   ) {
@@ -3813,6 +3992,21 @@ class $$ProfilesTableOrderingComposer
     column: $table.order,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get managed => $composableBuilder(
+    column: $table.managed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remoteAccountId => $composableBuilder(
+    column: $table.remoteAccountId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProfilesTableAnnotationComposer
@@ -3884,6 +4078,17 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<int> get order =>
       $composableBuilder(column: $table.order, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ProfileSource, String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get managed =>
+      $composableBuilder(column: $table.managed, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteAccountId => $composableBuilder(
+    column: $table.remoteAccountId,
+    builder: (column) => column,
+  );
 
   Expression<T> profileRuleLinksRefs<T extends Object>(
     Expression<T> Function($$ProfileRuleLinksTableAnnotationComposer a) f,
@@ -3982,6 +4187,9 @@ class $$ProfilesTableTableManager
                 Value<Map<String, String>> selectedMap = const Value.absent(),
                 Value<Set<String>> unfoldSet = const Value.absent(),
                 Value<int?> order = const Value.absent(),
+                Value<ProfileSource> source = const Value.absent(),
+                Value<bool> managed = const Value.absent(),
+                Value<String?> remoteAccountId = const Value.absent(),
               }) => ProfilesCompanion(
                 id: id,
                 label: label,
@@ -3997,6 +4205,9 @@ class $$ProfilesTableTableManager
                 selectedMap: selectedMap,
                 unfoldSet: unfoldSet,
                 order: order,
+                source: source,
+                managed: managed,
+                remoteAccountId: remoteAccountId,
               ),
           createCompanionCallback:
               ({
@@ -4015,6 +4226,9 @@ class $$ProfilesTableTableManager
                 required Map<String, String> selectedMap,
                 required Set<String> unfoldSet,
                 Value<int?> order = const Value.absent(),
+                Value<ProfileSource> source = const Value.absent(),
+                Value<bool> managed = const Value.absent(),
+                Value<String?> remoteAccountId = const Value.absent(),
               }) => ProfilesCompanion.insert(
                 id: id,
                 label: label,
@@ -4030,6 +4244,9 @@ class $$ProfilesTableTableManager
                 selectedMap: selectedMap,
                 unfoldSet: unfoldSet,
                 order: order,
+                source: source,
+                managed: managed,
+                remoteAccountId: remoteAccountId,
               ),
           withReferenceMapper: (p0) => p0
               .map(

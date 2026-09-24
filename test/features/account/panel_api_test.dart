@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:fl_clash/features/account/panel_api.dart';
+import 'package:fl_clash/features/account/panel_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -34,20 +35,41 @@ void main() {
     });
   });
 
-  test('subscription URL must use the panel origin', () {
+  test('account status covers plan and expiry states', () {
+    PanelAccount account({int? planId = 1, int expiresAt = 0}) => PanelAccount(
+      accountId: 'account-1',
+      email: 'client@example.com',
+      subscriptionAvailable: true,
+      expiresAt: expiresAt,
+      upload: 100,
+      download: 200,
+      total: 1024,
+      planId: planId,
+    );
+    final now = DateTime.utc(2030, 1, 1);
+
+    expect(account(planId: null).statusAt(now), PanelAccountStatus.noPlan);
     expect(
-      validateSubscriptionUrl(
-        'https://panel.example.com/s/token',
-        'https://panel.example.com',
-      ),
-      'https://panel.example.com/s/token',
+      account(
+        expiresAt:
+            now.subtract(const Duration(seconds: 1)).millisecondsSinceEpoch ~/
+            1000,
+      ).statusAt(now),
+      PanelAccountStatus.expired,
     );
     expect(
-      () => validateSubscriptionUrl(
-        'https://other.example.com/s/token',
-        'https://panel.example.com',
-      ),
-      throwsA(isA<PanelApiException>()),
+      account(
+        expiresAt:
+            now.add(const Duration(days: 3)).millisecondsSinceEpoch ~/ 1000,
+      ).statusAt(now),
+      PanelAccountStatus.expiring,
+    );
+    expect(
+      account(
+        expiresAt:
+            now.add(const Duration(days: 30)).millisecondsSinceEpoch ~/ 1000,
+      ).statusAt(now),
+      PanelAccountStatus.active,
     );
   });
 
@@ -60,9 +82,10 @@ void main() {
       _jsonResponse({
         'status': 'success',
         'data': {
+          'account_id': 'account-1',
           'email': 'client@example.com',
           'subscription': {
-            'url': 'https://panel.example.com/s/subscription',
+            'available': true,
             'plan_id': 1,
             'plan_name': 'Monthly',
             'expires_at': 1893456000,
@@ -72,6 +95,14 @@ void main() {
           },
         },
       }),
+      ResponseBody.fromBytes(
+        utf8.encode('proxies: []'),
+        200,
+        headers: {
+          Headers.contentTypeHeader: ['text/yaml'],
+          'subscription-userinfo': ['upload=100; download=200; total=1024'],
+        },
+      ),
     ]);
     final dio = Dio(BaseOptions(baseUrl: 'https://panel.example.com'))
       ..httpClientAdapter = adapter;
@@ -82,11 +113,17 @@ void main() {
       password: 'password',
     );
     final account = await api.getAccount(authorization);
+    final subscription = await api.getSubscription(authorization);
 
     expect(authorization, 'Bearer secret-token');
+    expect(account.accountId, 'account-1');
     expect(account.email, 'client@example.com');
     expect(account.used, 300);
     expect(account.planName, 'Monthly');
+    expect(utf8.decode(subscription.bytes), 'proxies: []');
+    expect(subscription.userinfo, contains('total=1024'));
+    expect(adapter.requests.last.path, '/api/v2/client/subscription');
+    expect(adapter.requests.last.queryParameters['flag'], 'clash-meta');
     expect(
       adapter.requests.last.headers['Authorization'],
       'Bearer secret-token',

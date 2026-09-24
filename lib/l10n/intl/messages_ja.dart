@@ -929,7 +929,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleEmpty": MessageLookupByLibrary.simpleMessage("サブルールが空です"),
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage("サブルールは空にできません"),
     "submit": MessageLookupByLibrary.simpleMessage("送信"),
+    "subscriptionActive": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションは有効です",
+    ),
+    "subscriptionExpired": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションの期限が切れています",
+    ),
+    "subscriptionExpiring": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションの期限が近づいています",
+    ),
     "subscriptionInfo": MessageLookupByLibrary.simpleMessage("サブスクリプション情報"),
+    "subscriptionUnavailable": MessageLookupByLibrary.simpleMessage(
+      "サブスクリプションを利用できません",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("一時停止中..."),
     "sync": MessageLookupByLibrary.simpleMessage("同期"),
     "system": MessageLookupByLibrary.simpleMessage("システム"),

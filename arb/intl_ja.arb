@@ -625,5 +625,9 @@
   "login": "ログイン",
   "logout": "ログアウト",
   "noExpiration": "有効期限なし",
-  "noSubscription": "有効なサブスクリプションがありません"
+  "noSubscription": "有効なサブスクリプションがありません",
+  "subscriptionActive": "サブスクリプションは有効です",
+  "subscriptionExpiring": "サブスクリプションの期限が近づいています",
+  "subscriptionExpired": "サブスクリプションの期限が切れています",
+  "subscriptionUnavailable": "サブスクリプションを利用できません"
 }

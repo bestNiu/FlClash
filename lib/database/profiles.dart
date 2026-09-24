@@ -34,6 +34,13 @@ class Profiles extends Table {
 
   IntColumn get order => integer().nullable()();
 
+  TextColumn get source =>
+      textEnum<ProfileSource>().withDefault(const Constant('user'))();
+
+  BoolColumn get managed => boolean().withDefault(const Constant(false))();
+
+  TextColumn get remoteAccountId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -123,6 +130,9 @@ extension RawProfilExt on RawProfile {
       scriptId: scriptId,
       matchTarget: matchTarget,
       order: order,
+      source: source,
+      managed: managed,
+      remoteAccountId: remoteAccountId,
     );
   }
 }
@@ -144,6 +154,9 @@ extension ProfilesCompanionExt on Profile {
       scriptId: Value(scriptId),
       matchTarget: Value(matchTarget),
       order: Value(order ?? this.order),
+      source: Value(source),
+      managed: Value(managed),
+      remoteAccountId: Value(remoteAccountId),
     );
   }
 }

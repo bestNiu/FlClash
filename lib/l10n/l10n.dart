@@ -5179,6 +5179,46 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Subscription active`
+  String get subscriptionActive {
+    return Intl.message(
+      'Subscription active',
+      name: 'subscriptionActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription expires soon`
+  String get subscriptionExpiring {
+    return Intl.message(
+      'Subscription expires soon',
+      name: 'subscriptionExpiring',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription expired`
+  String get subscriptionExpired {
+    return Intl.message(
+      'Subscription expired',
+      name: 'subscriptionExpired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Subscription unavailable`
+  String get subscriptionUnavailable {
+    return Intl.message(
+      'Subscription unavailable',
+      name: 'subscriptionUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

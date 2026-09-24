@@ -117,19 +117,77 @@ class ProfilesAction extends _$ProfilesAction {
   }
 
   Future<int> syncManagedProfile({
-    required String url,
+    required Uint8List bytes,
     required String label,
+    required String remoteAccountId,
     int? profileId,
+    String? disposition,
+    String? userinfo,
   }) async {
     final profiles = ref.read(profilesProvider);
-    final existing = profiles.getProfile(profileId);
-    final profile =
-        existing?.copyWith(url: url) ?? Profile.normal(label: label, url: url);
-    final updated = await profile.update(
+    final profileById = profiles.getProfile(profileId);
+    final isManagedForAccount =
+        profileById?.managed == true &&
+        profileById?.source == ProfileSource.fly001 &&
+        profileById?.remoteAccountId == remoteAccountId;
+    final isLegacyManaged =
+        profileId != null &&
+        profileById != null &&
+        !profileById.managed &&
+        profileById.label == label &&
+        profileById.url.isNotEmpty;
+    final existing = isManagedForAccount || isLegacyManaged
+        ? profileById
+        : profiles
+              .where(
+                (profile) =>
+                    profile.managed &&
+                    profile.source == ProfileSource.fly001 &&
+                    profile.remoteAccountId == remoteAccountId,
+              )
+              .firstOrNull;
+    final profile = (existing ?? Profile.normal(label: label)).copyWith(
+      label: (existing?.label ?? label).takeFirstValid([
+        getFileNameForDisposition(disposition),
+        label,
+      ]),
+      url: '',
+      autoUpdate: false,
+      subscriptionInfo: SubscriptionInfo.formHString(userinfo),
+      source: ProfileSource.fly001,
+      managed: true,
+      remoteAccountId: remoteAccountId,
+    );
+    final updated = await profile.saveFile(
+      bytes,
       validate: (path) => _core.validateConfig(path),
     );
+    final currentProfileId = ref.read(currentProfileIdProvider);
+    final shouldSelect =
+        currentProfileId == null || currentProfileId == profileById?.id;
     putProfile(updated);
+    if (profileById?.managed == true &&
+        profileById?.source == ProfileSource.fly001 &&
+        profileById?.id != updated.id) {
+      await deleteProfile(profileById!.id);
+    }
+    if (shouldSelect) {
+      ref.read(currentProfileIdProvider.notifier).value = updated.id;
+      ref
+          .read(setupActionProvider.notifier)
+          .applyProfileDebounce(silence: true);
+    }
     return updated.id;
+  }
+
+  Future<void> deleteManagedProfile(int id) async {
+    final profile = ref.read(profilesProvider).getProfile(id);
+    if (profile == null) return;
+    final isManaged = profile.managed && profile.source == ProfileSource.fly001;
+    final isLegacyManaged =
+        !profile.managed && profile.label == appName && profile.url.isNotEmpty;
+    if (!isManaged && !isLegacyManaged) return;
+    await deleteProfile(id);
   }
 
   Future<void> addProfileFormURL(String url) async {

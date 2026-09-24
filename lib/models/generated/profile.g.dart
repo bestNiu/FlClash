@@ -53,6 +53,11 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
   scriptId: (json['scriptId'] as num?)?.toInt(),
   matchTarget: json['matchTarget'] as String?,
   order: (json['order'] as num?)?.toInt(),
+  source:
+      $enumDecodeNullable(_$ProfileSourceEnumMap, json['source']) ??
+      ProfileSource.user,
+  managed: json['managed'] as bool? ?? false,
+  remoteAccountId: json['remoteAccountId'] as String?,
 );
 
 Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
@@ -70,12 +75,20 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'scriptId': instance.scriptId,
   'matchTarget': instance.matchTarget,
   'order': instance.order,
+  'source': _$ProfileSourceEnumMap[instance.source]!,
+  'managed': instance.managed,
+  'remoteAccountId': instance.remoteAccountId,
 };
 
 const _$OverwriteTypeEnumMap = {
   OverwriteType.standard: 'standard',
   OverwriteType.script: 'script',
   OverwriteType.custom: 'custom',
+};
+
+const _$ProfileSourceEnumMap = {
+  ProfileSource.user: 'user',
+  ProfileSource.fly001: 'fly001',
 };
 
 _StandardOverwrite _$StandardOverwriteFromJson(Map<String, dynamic> json) =>

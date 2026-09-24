@@ -625,5 +625,9 @@
   "login": "登录",
   "logout": "退出登录",
   "noExpiration": "永不过期",
-  "noSubscription": "暂无有效订阅"
+  "noSubscription": "暂无有效订阅",
+  "subscriptionActive": "订阅生效中",
+  "subscriptionExpiring": "订阅即将到期",
+  "subscriptionExpired": "订阅已到期",
+  "subscriptionUnavailable": "订阅暂不可用"
 }

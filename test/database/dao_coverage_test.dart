@@ -38,6 +38,9 @@ void main() {
         overwriteType: OverwriteType.custom,
         scriptId: 7,
         order: 1,
+        source: ProfileSource.fly001,
+        managed: true,
+        remoteAccountId: 'account-1',
       );
       const second = Profile(
         id: 2,

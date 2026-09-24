@@ -58,6 +58,9 @@ abstract class Profile with _$Profile {
     int? scriptId,
     String? matchTarget,
     int? order,
+    @Default(ProfileSource.user) ProfileSource source,
+    @Default(false) bool managed,
+    String? remoteAccountId,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, Object?> json) =>
