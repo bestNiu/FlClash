@@ -20,7 +20,10 @@ or CMake glue.
 - Android: `rquickjs` runs bindgen, so the hook exports `LIBCLANG_PATH` from the NDK toolchain Flutter provides. It also
   exports `BINDGEN_EXTRA_CLANG_ARGS_<triple>` (dashed and underscored, both spellings bindgen looks up) naming the NDK
   sysroot, the per-ABI include directory and clang's builtin headers: a `dlopen`'d libclang does not always resolve its
-  own resource directory, which otherwise fails on `stdbool.h`. The target scoped variable is required because
+  own resource directory, which otherwise fails on `stdbool.h`. The per-ABI directory is discovered by prefix under
+  `<sysroot>/usr/include` because the NDK names it after the clang triple, which differs from the Rust one on 32-bit arm
+  (`arm-linux-androideabi` versus `armv7-linux-androideabi`); deriving it from the Rust triple silently drops the
+  architecture headers and bindgen then fails with `unknown type name 'uint32_t'`. The target scoped variable is required because
   `native_toolchain_rust` always sets it, and bindgen ignores the generic `BINDGEN_EXTRA_CLANG_ARGS` when a target scoped
   one exists. The triple comes from `input.config.code.targetArchitecture`; keep `_androidTriples` in sync with the ABIs
   the app ships.

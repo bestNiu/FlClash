@@ -59,12 +59,14 @@ const _androidTriples = {
 // bindgen reads the generic BINDGEN_EXTRA_CLANG_ARGS only when no target scoped
 // one exists, and native_toolchain_rust always sets the target scoped one.
 Map<String, String> _targetClangArgs(BuildInput input, Directory llvmRoot) {
-  final triple = _androidTriples[input.config.code.targetArchitecture];
+  final architecture = input.config.code.targetArchitecture;
+  final triple = _androidTriples[architecture];
   final sep = Platform.pathSeparator;
   final sysroot = '${llvmRoot.path}${sep}sysroot';
   if (triple == null || !Directory(sysroot).existsSync()) return const {};
+  final abiInclude = _abiIncludeDirectory(sysroot, architecture);
   final includes = <String>[
-    '$sysroot${sep}usr${sep}include${sep}$triple',
+    ?abiInclude,
     for (final name in const ['lib', 'lib64'])
       for (final version in _subDirectories(
         '${llvmRoot.path}$sep$name${sep}clang',
@@ -80,6 +82,23 @@ Map<String, String> _targetClangArgs(BuildInput input, Directory llvmRoot) {
     'BINDGEN_EXTRA_CLANG_ARGS_$triple': args,
     'BINDGEN_EXTRA_CLANG_ARGS_${triple.replaceAll('-', '_')}': args,
   };
+}
+
+/// The NDK names per-ABI headers after the clang triple, not the Rust one.
+String? _abiIncludeDirectory(String sysroot, Architecture architecture) {
+  final prefix = switch (architecture) {
+    Architecture.arm64 => 'aarch64',
+    Architecture.arm => 'arm-',
+    Architecture.x64 => 'x86_64',
+    Architecture.ia32 => 'i686',
+    _ => null,
+  };
+  if (prefix == null) return null;
+  final sep = Platform.pathSeparator;
+  for (final entry in _subDirectories('$sysroot${sep}usr${sep}include')) {
+    if (entry.path.split(sep).last.startsWith(prefix)) return entry.path;
+  }
+  return null;
 }
 
 List<Directory> _subDirectories(String path) {
