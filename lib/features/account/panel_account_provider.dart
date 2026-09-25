@@ -20,6 +20,10 @@ final panelAccountProvider =
     );
 
 class PanelAccountController extends AsyncNotifier<PanelAccount?> {
+  PanelAccount? _lastKnown;
+
+  PanelAccount? get lastKnown => _lastKnown;
+
   PanelSessionStore get _store => ref.read(panelSessionStoreProvider);
 
   PanelApi _api(String baseUrl) {
@@ -35,6 +39,7 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
     } on PanelApiException catch (error) {
       if (error.isUnauthorized) {
         await _store.clear();
+        _lastKnown = null;
         return null;
       }
       rethrow;
@@ -51,25 +56,15 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
       final normalizedUrl = normalizePanelUrl(baseUrl);
       final api = _api(normalizedUrl);
       final authorization = await api.login(email: email, password: password);
-      final previous = await _store.read();
+      final stored = await _store.read();
       final session = PanelSession(
         baseUrl: normalizedUrl,
         authorization: authorization,
-        managedProfileId: previous?.managedProfileId,
+        managedProfileId: stored?.managedProfileId,
       );
       await _store.write(session);
       return _loadSession(session);
     });
-  }
-
-  Future<void> refresh() async {
-    final session = await _store.read();
-    if (session == null) {
-      state = const AsyncData(null);
-      return;
-    }
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _loadSession(session));
   }
 
   Future<void> logout() async {
@@ -87,14 +82,30 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
       }
     }
     await _store.clear();
+    _lastKnown = null;
     state = const AsyncData(null);
+  }
+
+  Future<void> refresh() async {
+    final session = await _store.read();
+    if (session == null) {
+      state = const AsyncData(null);
+      return;
+    }
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _loadSession(session));
   }
 
   Future<PanelAccount> _loadSession(PanelSession session) async {
     try {
-      return await _loadAndSync(session);
+      final account = await _loadAndSync(session);
+      _lastKnown = account;
+      return account;
     } on PanelApiException catch (error) {
-      if (error.isUnauthorized) await _store.clear();
+      if (error.isUnauthorized) {
+        await _store.clear();
+        _lastKnown = null;
+      }
       rethrow;
     }
   }

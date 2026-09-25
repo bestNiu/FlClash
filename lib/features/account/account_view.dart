@@ -49,10 +49,10 @@ class _AccountViewState extends ConsumerState<AccountView> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(panelAccountProvider);
-    final account = switch (state) {
-      AsyncData(:final value) => value,
-      _ => null,
-    };
+    // A failed refresh still shows the last account, not the sign-in form.
+    final account =
+        state.value ?? ref.read(panelAccountProvider.notifier).lastKnown;
+    final error = state.error?.toString();
     return BaseScaffold(
       title: context.appLocalizations.account,
       body: ListView(
@@ -65,7 +65,7 @@ class _AccountViewState extends ConsumerState<AccountView> {
               emailController: _emailController,
               passwordController: _passwordController,
               loading: state.isLoading,
-              error: state.error?.toString(),
+              error: error,
               onLogin: _login,
               onRetry: () {
                 ref.read(panelAccountProvider.notifier).refresh();
@@ -75,7 +75,11 @@ class _AccountViewState extends ConsumerState<AccountView> {
               },
             )
           else
-            _AccountSummary(account: account),
+            _AccountSummary(
+              account: account,
+              error: error,
+              loading: state.isLoading,
+            ),
         ],
       ),
     );
@@ -179,8 +183,14 @@ class _LoginForm extends StatelessWidget {
 
 class _AccountSummary extends ConsumerWidget {
   final PanelAccount account;
+  final String? error;
+  final bool loading;
 
-  const _AccountSummary({required this.account});
+  const _AccountSummary({
+    required this.account,
+    this.error,
+    this.loading = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -200,6 +210,27 @@ class _AccountSummary extends ConsumerWidget {
     };
     return Column(
       children: [
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline, color: context.colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    error!,
+                    style: TextStyle(color: context.colorScheme.error),
+                  ),
+                ),
+                if (loading)
+                  const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
+            ),
+          ),
         ListTile(
           leading: const Icon(Icons.account_circle_outlined),
           title: Text(account.email),
