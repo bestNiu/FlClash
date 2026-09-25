@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only.
+
+  Local HTTPS testing uses a self-signed CA that the tester installs through
+  Android settings, which stores it as a user certificate. Apps that target
+  API 24+ ignore user certificates unless the network security config opts in,
+  so debug builds trust both system and user roots.
+
+  This file lives under src/debug and is never packaged into a release build.
+-->
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

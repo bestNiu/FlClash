@@ -3,6 +3,7 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="fly001 Debug"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:replace="android:label">
         <service
             android:name=".TileService"
