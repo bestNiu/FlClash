@@ -291,13 +291,24 @@ jobs:
 
       - name: Setup Android Signing
         if: startsWith(matrix.platform,'android')
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          SERVICE_JSON: ${{ secrets.SERVICE_JSON }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "${{ secrets.KEYSTORE }}" | base64 --decode > android/app/keystore.jks
-          echo "${{ secrets.SERVICE_JSON }}" | base64 --decode > android/app/google-services.json
+          # Absent secrets must not truncate the tracked keystore/config files.
+          if [ -n "$KEYSTORE" ]; then
+            printf '%s' "$KEYSTORE" | base64 --decode > android/app/keystore.jks
+          fi
+          if [ -n "$SERVICE_JSON" ]; then
+            printf '%s' "$SERVICE_JSON" | base64 --decode > android/app/google-services.json
+          fi
           {
-            echo "keyAlias=${{ secrets.KEY_ALIAS }}"
-            echo "storePassword=${{ secrets.STORE_PASSWORD }}"
-            echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "storePassword=$STORE_PASSWORD"
+            echo "keyPassword=$KEY_PASSWORD"
           } >> android/local.properties
 
       - name: Setup Go
