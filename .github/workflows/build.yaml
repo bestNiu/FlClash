@@ -260,7 +260,12 @@ jobs:
               {"platform": "linux", "os": "ubuntu-24.04-arm", "arch": "arm64"},
           ]
           if sys.argv[1] == "true":
-              matrix.append({"platform": "android", "os": "ubuntu-latest"})
+              # arm64 only; see plugins/rust_api/CLAUDE.md for the armv7 caveat.
+            matrix.append({
+                "platform": "android",
+                "os": "ubuntu-latest",
+                "arch": "arm64",
+            })
           print(json.dumps(matrix))
           PY
           )
@@ -324,7 +329,7 @@ jobs:
         with:
           key: ${{ matrix.platform }}-${{ matrix.arch || 'all' }}
           workspaces: services/helper
-          cache-directories: .dart_tool/hooks_runner
+          cache-directories: .dart_tool/hooks_runner/shared
 
       - name: Setup Gradle
         if: startsWith(matrix.platform,'android')
@@ -366,7 +371,7 @@ jobs:
       - name: Setup
         env:
           ANDROID_NDK_HOME: ${{ steps.build-ndk.outputs.ndk-path }}
-        run: dart setup.dart ${{ matrix.platform }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} -v
+        run: dart setup.dart ${{ matrix.platform }} ${{ matrix.platform == 'android' && format('--arch {0}', matrix.arch) || '' }} ${{ env.IS_STABLE == 'true' && '--env stable' || '' }} -v
 
       - name: Upload
         uses: actions/upload-artifact@v4
