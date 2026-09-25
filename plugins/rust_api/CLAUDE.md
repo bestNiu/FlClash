@@ -17,7 +17,13 @@ or CMake glue.
 
 - `rust/rust-toolchain.toml` pins the exact Rust channel and lists every supported target. `native_toolchain_rust`
   rejects `stable`/`beta`/`nightly` and any target missing from the list; `rustup` installs what is listed on first use.
-- Android: `rquickjs` runs bindgen, so the hook exports `LIBCLANG_PATH` from the NDK toolchain Flutter provides.
+- Android: `rquickjs` runs bindgen, so the hook exports `LIBCLANG_PATH` from the NDK toolchain Flutter provides. It also
+  exports `BINDGEN_EXTRA_CLANG_ARGS_<triple>` (dashed and underscored, both spellings bindgen looks up) naming the NDK
+  sysroot, the per-ABI include directory and clang's builtin headers: a `dlopen`'d libclang does not always resolve its
+  own resource directory, which otherwise fails on `stdbool.h`. The target scoped variable is required because
+  `native_toolchain_rust` always sets it, and bindgen ignores the generic `BINDGEN_EXTRA_CLANG_ARGS` when a target scoped
+  one exists. The triple comes from `input.config.code.targetArchitecture`; keep `_androidTriples` in sync with the ABIs
+  the app ships.
 
 Rust compilation happens automatically as part of the host Flutter app's build — there's no standalone build step for
 this package.
