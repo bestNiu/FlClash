@@ -11,9 +11,9 @@ abstract interface class PanelSessionStore {
 }
 
 class SecurePanelSessionStore implements PanelSessionStore {
-  static const _baseUrlKey = 'fly001.panel.base_url';
-  static const _authorizationKey = 'fly001.panel.authorization';
-  static const _managedProfileIdKey = 'fly001.panel.managed_profile_id';
+  static const _baseUrlKey = 'panel.base_url';
+  static const _authorizationKey = 'panel.authorization';
+  static const _managedProfileIdKey = 'panel.managed_profile_id';
 
   final FlutterSecureStorage storage;
 

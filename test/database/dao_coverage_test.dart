@@ -38,7 +38,7 @@ void main() {
         overwriteType: OverwriteType.custom,
         scriptId: 7,
         order: 1,
-        source: ProfileSource.fly001,
+        source: ProfileSource.managed,
         managed: true,
         remoteAccountId: 'account-1',
       );

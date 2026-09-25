@@ -37,11 +37,7 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
     try {
       return await _loadSession(session);
     } on PanelApiException catch (error) {
-      if (error.isUnauthorized) {
-        await _store.clear();
-        _lastKnown = null;
-        return null;
-      }
+      if (error.isUnauthorized) return null;
       rethrow;
     }
   }
@@ -117,7 +113,6 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
     if (!account.canSync || account.accountId.isEmpty) {
       final profileId = session.managedProfileId;
       if (profileId != null) {
-        await ref.read(profilesStreamProvider.future);
         await ref
             .read(profilesActionProvider.notifier)
             .deleteManagedProfile(profileId);
@@ -135,7 +130,6 @@ class PanelAccountController extends AsyncNotifier<PanelAccount?> {
     } catch (_) {
       throw const PanelApiException('Subscription download failed');
     }
-    await ref.read(profilesStreamProvider.future);
     final int profileId;
     try {
       profileId = await ref

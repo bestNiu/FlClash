@@ -39,6 +39,11 @@ void _downgradeToV3(Database raw) {
   raw.execute('PRAGMA user_version = 3');
 }
 
+/// Version 4 already carried every column; only the stored `source` differs.
+void _downgradeToV4(Database raw) {
+  raw.execute('PRAGMA user_version = 4');
+}
+
 Set<String> _columnsOf(Database raw, String table) => {
   for (final row in raw.select('PRAGMA table_info($table)'))
     row['name'] as String,
@@ -83,7 +88,7 @@ void main() {
 
     await openAndMigrate();
 
-    expect(_userVersion(raw), 4);
+    expect(_userVersion(raw), 5);
   });
 
   test('the v3 upgrade adds match_target to profiles', () async {
@@ -93,7 +98,7 @@ void main() {
     await openAndMigrate();
 
     expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-    expect(_userVersion(raw), 4);
+    expect(_userVersion(raw), 5);
   });
 
   test(
@@ -105,7 +110,7 @@ void main() {
       await openAndMigrate();
 
       expect(_columnsOf(raw, 'profiles'), contains('match_target'));
-      expect(_userVersion(raw), 4);
+      expect(_userVersion(raw), 5);
     },
   );
 
@@ -124,7 +129,24 @@ void main() {
       defaults.singleWhere((row) => row['name'] == 'source')['dflt_value'],
       "'user'",
     );
-    expect(_userVersion(raw), 4);
+    expect(_userVersion(raw), 5);
+  });
+
+  test('the v5 upgrade rewrites the branded profile source', () async {
+    _downgradeToV4(raw);
+    raw.execute(
+      'INSERT INTO profiles (id, label, url, overwrite_type, '
+      'auto_update_duration_millis, auto_update, selected_map, unfold_set, '
+      "source, managed) VALUES (1, 'legacy', '', 'standard', 0, 0, '{}', '[]', "
+      "'fly001', 1)",
+    );
+
+    final database = await openAndMigrate();
+
+    final profile = (await database.profilesDao.query().get()).single;
+    expect(profile.source, ProfileSource.managed);
+    expect(profile.managed, isTrue);
+    expect(_userVersion(raw), 5);
   });
 
   test('the upgrade creates the tables v2 added', () async {
@@ -198,7 +220,7 @@ void main() {
 
     final database = await openAndMigrate();
 
-    expect(_userVersion(raw), 4);
+    expect(_userVersion(raw), 5);
     expect(await database.customSelect('SELECT * FROM rules').get(), isEmpty);
   });
 
@@ -208,7 +230,7 @@ void main() {
     await openAndMigrate();
 
     expect(_columnsOf(raw, 'rules'), before);
-    expect(_userVersion(raw), 4);
+    expect(_userVersion(raw), 5);
     expect(_hasTable(raw, 'proxy_groups'), isTrue);
   });
 }

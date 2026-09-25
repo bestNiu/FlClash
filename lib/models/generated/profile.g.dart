@@ -88,7 +88,7 @@ const _$OverwriteTypeEnumMap = {
 
 const _$ProfileSourceEnumMap = {
   ProfileSource.user: 'user',
-  ProfileSource.fly001: 'fly001',
+  ProfileSource.managed: 'managed',
 };
 
 _StandardOverwrite _$StandardOverwriteFromJson(Map<String, dynamic> json) =>

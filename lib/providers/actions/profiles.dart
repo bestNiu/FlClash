@@ -128,7 +128,7 @@ class ProfilesAction extends _$ProfilesAction {
     final profileById = profiles.getProfile(profileId);
     final isManagedForAccount =
         profileById?.managed == true &&
-        profileById?.source == ProfileSource.fly001 &&
+        profileById?.source == ProfileSource.managed &&
         profileById?.remoteAccountId == remoteAccountId;
     final isLegacyManaged =
         profileId != null &&
@@ -142,7 +142,7 @@ class ProfilesAction extends _$ProfilesAction {
               .where(
                 (profile) =>
                     profile.managed &&
-                    profile.source == ProfileSource.fly001 &&
+                    profile.source == ProfileSource.managed &&
                     profile.remoteAccountId == remoteAccountId,
               )
               .firstOrNull;
@@ -154,7 +154,7 @@ class ProfilesAction extends _$ProfilesAction {
       url: '',
       autoUpdate: false,
       subscriptionInfo: SubscriptionInfo.formHString(userinfo),
-      source: ProfileSource.fly001,
+      source: ProfileSource.managed,
       managed: true,
       remoteAccountId: remoteAccountId,
     );
@@ -167,7 +167,7 @@ class ProfilesAction extends _$ProfilesAction {
         currentProfileId == null || currentProfileId == profileById?.id;
     putProfile(updated);
     if (profileById?.managed == true &&
-        profileById?.source == ProfileSource.fly001 &&
+        profileById?.source == ProfileSource.managed &&
         profileById?.id != updated.id) {
       await deleteProfile(profileById!.id);
     }
@@ -183,7 +183,8 @@ class ProfilesAction extends _$ProfilesAction {
   Future<void> deleteManagedProfile(int id) async {
     final profile = ref.read(profilesProvider).getProfile(id);
     if (profile == null) return;
-    final isManaged = profile.managed && profile.source == ProfileSource.fly001;
+    final isManaged =
+        profile.managed && profile.source == ProfileSource.managed;
     final isLegacyManaged =
         !profile.managed && profile.label == appName && profile.url.isNotEmpty;
     if (!isManaged && !isLegacyManaged) return;

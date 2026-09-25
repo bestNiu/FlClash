@@ -170,7 +170,7 @@ enum AccessSortType { none, name, time }
 
 enum ProfileType { file, url }
 
-enum ProfileSource { user, fly001 }
+enum ProfileSource { user, managed }
 
 enum ResultType {
   @JsonValue(0)

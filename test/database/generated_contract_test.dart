@@ -27,7 +27,7 @@ void main() {
       selectedMap: const {'Select': 'DIRECT'},
       unfoldSet: const {'Select'},
       order: 3,
-      source: ProfileSource.fly001,
+      source: ProfileSource.managed,
       managed: true,
       remoteAccountId: 'account-1',
     );
@@ -95,7 +95,7 @@ void main() {
         selectedMap: const Variable('{}'),
         unfoldSet: const Variable('[]'),
         order: const Variable(1),
-        source: const Variable('fly001'),
+        source: const Variable('managed'),
         managed: const Variable(true),
         remoteAccountId: const Variable('account-1'),
       ).toColumns(false),

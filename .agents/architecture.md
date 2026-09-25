@@ -707,3 +707,30 @@ request-token authentication. Lifecycle safety comes from the fixed executable/h
 contract, Dart-side peer-PID verification on Windows and, on Unix, the Core socket that `plugins/rust_api` sets to
 mode `0600` so only the owning user (and the root-effective Core) can connect. When the Helper service itself shuts
 down, it unconditionally stops the Core process it owns; under systemd the unit's control group does the same.
+
+## Panel account and branding
+
+`lib/features/account/` owns the panel session: `panel_api.dart` (HTTP contract), `panel_session_store.dart`
+(OS secure storage), `panel_account_provider.dart` (session lifecycle) and `account_view.dart`. It is deliberately
+separate from the Clash Core and from user-imported profiles.
+
+Ordering and state rules that are easy to break:
+
+- `restorePanelAccount` runs after `bootstrap.attach()`, which already loaded the profile table into the keep-alive
+  `profilesProvider`. Nothing in the account layer may await `profilesStreamProvider` inside a notifier `build`: the
+  stream provider is auto-dispose, and awaiting it there leaves the notifier stuck in loading.
+- A managed profile is identified by `source == ProfileSource.managed`, `managed == true` and `remote_account_id`.
+  `remote_account_id` is an HMAC of the panel user id, so no panel-side identifier or UUID is stored on the device.
+  The enum value used to be the brand name; schema version 5 rewrites stored `fly001` rows to `managed` so the value
+  can never couple the database to a brand again.
+- Secure storage keys are brand-neutral (`panel.base_url`, `panel.authorization`, `panel.managed_profile_id`) for the
+  same reason.
+- Panel failures are surfaced without their message whenever the message could come from a request URL: subscription
+  downloads and startup restore both log or throw a fixed string, because a redirect or handshake error can carry the
+  credential-bearing URL.
+- A failed refresh keeps `PanelAccountController.lastKnown` so the summary stays on screen with an error banner instead
+  of dropping the user back to the sign-in form.
+
+User-visible naming comes from `brands/<key>.yaml` through `tool/brand.dart` (`apply`, `check`, `show`, `defines`);
+`check` runs in CI and also fails when a frozen identifier (application id, bundle id, executable, Core, Helper, socket,
+lock file, installer GUID, protocol schemes) moves. See `BRANDING.md` for what is rewritten and what is frozen.

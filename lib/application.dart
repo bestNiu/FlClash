@@ -6,8 +6,8 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/window.dart';
 import 'package:fl_clash/bootstrap.dart';
 import 'package:fl_clash/common/system_dns.dart';
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/account/panel_account_provider.dart';
+import 'package:fl_clash/features/account/startup.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/hotkey_manager.dart';
 import 'package:fl_clash/manager/manager.dart';
@@ -85,15 +85,7 @@ class ApplicationState extends ConsumerState<Application> {
       } else {
         exit(0);
       }
-      try {
-        await ref.read(panelAccountProvider.future);
-      } catch (_) {
-        // Account errors may originate from a credential-bearing URL.
-        commonPrint.log(
-          'Panel account restore failed',
-          logLevel: LogLevel.warning,
-        );
-      }
+      await restorePanelAccount(() => ref.read(panelAccountProvider.future));
       _autoUpdateProfilesTask();
       _initLink();
       unawaited(app?.initShortcuts());
