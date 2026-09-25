@@ -1,0 +1,33 @@
+# Copy to brands/<key>.yaml for another white-label build; see BRANDING.md.
+key: fly001
+display_name: fly001
+artifact_prefix: fly001
+publisher: fly001
+
+maintainer:
+  name: fly001
+  email: devnull@example.invalid
+
+copyright:
+  macos: 'Copyright © 2023 com.follow. All rights reserved.'
+  windows: 'Copyright (C) 2025 com.follow. All rights reserved.'
+
+links:
+  repository: bestNiu/FlClash
+  publisher_url: https://github.com/bestNiu/FlClash
+  support_url: https://github.com/bestNiu/FlClash/issues
+
+frozen:
+  android_application_id: com.follow.clash
+  macos_bundle_identifier: com.follow.clash
+  windows_executable: FlClash.exe
+  linux_binary: FlClash
+  core_name: FlClashCore
+  helper_service: FlClashHelperService
+  helper_socket: /run/flclash/helper.sock
+  single_instance_lock: FlClash.lock
+  windows_installer_app_id: 728B3532-C74B-4870-9068-BE70FE12A3E6
+  protocol_schemes:
+    - clash
+    - clashmeta
+    - flclash
