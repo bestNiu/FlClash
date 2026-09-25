@@ -49,24 +49,53 @@ bool _isLibclang(FileSystemEntity entity) {
   return entity.path.split(Platform.pathSeparator).last.startsWith('libclang.');
 }
 
-const _androidTriples = {
-  Architecture.arm64: 'aarch64-linux-android',
-  Architecture.arm: 'armv7-linux-androideabi',
-  Architecture.x64: 'x86_64-linux-android',
-  Architecture.ia32: 'i686-linux-android',
+/// Rust and clang spell the 32-bit arm Android triple differently, and clang
+/// needs an API level before the NDK headers expose the fixed-width integers.
+const _androidTargets = {
+  Architecture.arm64: _AndroidTarget(
+    rust: 'aarch64-linux-android',
+    clang: 'aarch64-linux-android',
+    includePrefix: 'aarch64',
+  ),
+  Architecture.arm: _AndroidTarget(
+    rust: 'armv7-linux-androideabi',
+    clang: 'armv7a-linux-androideabi',
+    includePrefix: 'arm-',
+  ),
+  Architecture.x64: _AndroidTarget(
+    rust: 'x86_64-linux-android',
+    clang: 'x86_64-linux-android',
+    includePrefix: 'x86_64',
+  ),
+  Architecture.ia32: _AndroidTarget(
+    rust: 'i686-linux-android',
+    clang: 'i686-linux-android',
+    includePrefix: 'i686',
+  ),
 };
+
+class _AndroidTarget {
+  final String rust;
+  final String clang;
+  final String includePrefix;
+
+  const _AndroidTarget({
+    required this.rust,
+    required this.clang,
+    required this.includePrefix,
+  });
+}
 
 // bindgen reads the generic BINDGEN_EXTRA_CLANG_ARGS only when no target scoped
 // one exists, and native_toolchain_rust always sets the target scoped one.
 Map<String, String> _targetClangArgs(BuildInput input, Directory llvmRoot) {
-  final architecture = input.config.code.targetArchitecture;
-  final triple = _androidTriples[architecture];
+  final target = _androidTargets[input.config.code.targetArchitecture];
   final sep = Platform.pathSeparator;
   final sysroot = '${llvmRoot.path}${sep}sysroot';
-  if (triple == null || !Directory(sysroot).existsSync()) return const {};
-  final abiInclude = _abiIncludeDirectory(sysroot, architecture);
+  if (target == null || !Directory(sysroot).existsSync()) return const {};
+  final api = input.config.code.android.targetNdkApi;
   final includes = <String>[
-    ?abiInclude,
+    ?_abiIncludeDirectory(sysroot, target.includePrefix),
     for (final name in const ['lib', 'lib64'])
       for (final version in _subDirectories(
         '${llvmRoot.path}$sep$name${sep}clang',
@@ -75,25 +104,17 @@ Map<String, String> _targetClangArgs(BuildInput input, Directory llvmRoot) {
   ].where((path) => Directory(path).existsSync()).toList();
   if (includes.isEmpty) return const {};
   final args = [
+    '--target=${target.clang}$api',
     '--sysroot=$sysroot',
     for (final include in includes) '-I$include',
   ].join(' ');
   return {
-    'BINDGEN_EXTRA_CLANG_ARGS_$triple': args,
-    'BINDGEN_EXTRA_CLANG_ARGS_${triple.replaceAll('-', '_')}': args,
+    'BINDGEN_EXTRA_CLANG_ARGS_${target.rust}': args,
+    'BINDGEN_EXTRA_CLANG_ARGS_${target.rust.replaceAll('-', '_')}': args,
   };
 }
 
-/// The NDK names per-ABI headers after the clang triple, not the Rust one.
-String? _abiIncludeDirectory(String sysroot, Architecture architecture) {
-  final prefix = switch (architecture) {
-    Architecture.arm64 => 'aarch64',
-    Architecture.arm => 'arm-',
-    Architecture.x64 => 'x86_64',
-    Architecture.ia32 => 'i686',
-    _ => null,
-  };
-  if (prefix == null) return null;
+String? _abiIncludeDirectory(String sysroot, String prefix) {
   final sep = Platform.pathSeparator;
   for (final entry in _subDirectories('$sysroot${sep}usr${sep}include')) {
     if (entry.path.split(sep).last.startsWith(prefix)) return entry.path;

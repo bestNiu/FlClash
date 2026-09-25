@@ -23,7 +23,9 @@ or CMake glue.
   own resource directory, which otherwise fails on `stdbool.h`. The per-ABI directory is discovered by prefix under
   `<sysroot>/usr/include` because the NDK names it after the clang triple, which differs from the Rust one on 32-bit arm
   (`arm-linux-androideabi` versus `armv7-linux-androideabi`); deriving it from the Rust triple silently drops the
-  architecture headers and bindgen then fails with `unknown type name 'uint32_t'`. The target scoped variable is required because
+  architecture headers. The arguments also pin `--target=<clang triple><targetNdkApi>`: bindgen otherwise guesses
+  `armv7-unknown-linux-android` for 32-bit arm, which drops the `eabi` suffix and the API level, and the NDK headers then
+  fail with `unknown type name 'uint32_t'`. The target scoped variable is required because
   `native_toolchain_rust` always sets it, and bindgen ignores the generic `BINDGEN_EXTRA_CLANG_ARGS` when a target scoped
   one exists. The triple comes from `input.config.code.targetArchitecture`; keep `_androidTriples` in sync with the ABIs
   the app ships.
