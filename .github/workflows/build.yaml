@@ -43,9 +43,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Check brand consistency
-        run: dart run tool/brand.dart check
-
       - name: Check format
         run: dart format --output=none --set-exit-if-changed lib test tool plugins setup.dart
 
@@ -55,6 +52,9 @@ jobs:
       - name: Skip native build hooks
         run: |
           yq -i '.hooks.user_defines.setup.build_assets = false | .hooks.user_defines.rust_api.build_assets = false' pubspec.yaml
+
+      - name: Check brand consistency
+        run: dart run tool/brand.dart check
 
       - name: Verify changelog
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
