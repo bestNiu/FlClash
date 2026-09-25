@@ -35,6 +35,7 @@ Map<String, String> _bindgenEnvironment(BuildInput input) {
     if (directory.existsSync() && directory.listSync().any(_isLibclang)) {
       return {
         'LIBCLANG_PATH': directory.path,
+        'CLANG_PATH': File.fromUri(compiler).path,
         ..._targetClangArgs(input, llvmRoot),
       };
     }
