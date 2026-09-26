@@ -15,6 +15,10 @@ final class Brand {
   final String repository;
   final String publisherUrl;
   final String supportUrl;
+  final String bundleId;
+  final String debugSuffix;
+  final bool published;
+  final String publishedBundleId;
   final Map<String, Object?> frozen;
 
   const Brand({
@@ -29,6 +33,10 @@ final class Brand {
     required this.repository,
     required this.publisherUrl,
     required this.supportUrl,
+    required this.bundleId,
+    required this.debugSuffix,
+    required this.published,
+    required this.publishedBundleId,
     required this.frozen,
   });
 
@@ -44,6 +52,15 @@ final class Brand {
       );
     }
     final links = _map(yaml['links']);
+    final identity = _map(yaml['identity']);
+    final bundleId = _require(identity, 'bundle_id', brandKey);
+    if (!RegExp(
+      r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z0-9_-]+)+$',
+    ).hasMatch(bundleId)) {
+      throw FormatException(
+        'identity.bundle_id "$bundleId" is not a reverse-DNS identifier',
+      );
+    }
     return Brand(
       key: brandKey,
       displayName: displayName,
@@ -56,6 +73,10 @@ final class Brand {
       repository: _require(links, 'repository', brandKey),
       publisherUrl: _require(links, 'publisher_url', brandKey),
       supportUrl: _require(links, 'support_url', brandKey),
+      bundleId: bundleId,
+      debugSuffix: (identity['debug_suffix'] ?? '.dev').toString(),
+      published: identity['published'] == true,
+      publishedBundleId: (identity['published_bundle_id'] ?? '').toString(),
       frozen: Map<String, Object?>.from(yaml['frozen'] as Map? ?? const {}),
     );
   }
@@ -129,6 +150,8 @@ final class Brand {
   }
 
   String get appBundleName => '$displayName.app';
+
+  String get debugBundleId => '$bundleId$debugSuffix';
 
   String get windowsExecutable =>
       frozen['windows_executable']?.toString() ?? '';
@@ -222,6 +245,38 @@ final List<BrandEdit> brandEdits = [
     'android/tests/app/SharedStateTest.kt',
     r'(assertEquals\("Starting VPN\.\.\.", state\.startTip\)\n        assertEquals\(")[^"]*(", state\.currentProfileName\))',
     (m, b) => '${m[1]}${b.displayName}${m[2]}',
+  ),
+  BrandEdit(
+    'android/app/build.gradle.kts',
+    r'(applicationId = ")[^"]*(")',
+    (m, b) => '${m[1]}${b.bundleId}${m[2]}',
+  ),
+  BrandEdit(
+    'android/app/build.gradle.kts',
+    r'(applicationIdSuffix = ")[^"]*(")',
+    (m, b) => '${m[1]}${b.debugSuffix}${m[2]}',
+    all: true,
+  ),
+  BrandEdit(
+    'linux/CMakeLists.txt',
+    r'(set\(APPLICATION_ID ")[^"]*("\))',
+    (m, b) => '${m[1]}${b.bundleId}${m[2]}',
+  ),
+  BrandEdit(
+    'macos/Runner/Configs/AppInfo.xcconfig',
+    r'^(PRODUCT_BUNDLE_IDENTIFIER = ).*$',
+    (m, b) => '${m[1]}${b.bundleId}',
+  ),
+  BrandEdit(
+    'macos/Runner.xcodeproj/project.pbxproj',
+    r'(PRODUCT_BUNDLE_IDENTIFIER = )(?!.*RunnerTests)[\w.-]+;',
+    (m, b) => '${m[1]}${b.debugBundleId};',
+  ),
+  BrandEdit(
+    'macos/Runner.xcodeproj/project.pbxproj',
+    r'(INFOPLIST_KEY_CFBundleDisplayName = ).*;',
+    (m, b) => '${m[1]}${b.displayName};',
+    all: true,
   ),
   BrandEdit(
     'macos/Runner/Configs/AppInfo.xcconfig',
@@ -410,14 +465,14 @@ final class FrozenCheck {
 
 List<FrozenCheck> frozenChecks(Brand brand) => [
   FrozenCheck(
-    'android/app/build.gradle.kts',
-    'android_application_id',
-    'applicationId = "${brand.frozen['android_application_id']}"',
+    'android/app/google-services.json',
+    'firebase_client_for_bundle_id',
+    '"package_name": "${brand.bundleId}"',
   ),
   FrozenCheck(
-    'macos/Runner/Configs/AppInfo.xcconfig',
-    'macos_bundle_identifier',
-    'PRODUCT_BUNDLE_IDENTIFIER = ${brand.frozen['macos_bundle_identifier']}',
+    'android/app/google-services.json',
+    'firebase_client_for_debug_bundle_id',
+    '"package_name": "${brand.debugBundleId}"',
   ),
   FrozenCheck(
     'windows/CMakeLists.txt',
@@ -524,6 +579,15 @@ BrandReport inspectBrand(Directory root, Brand brand) {
   }
 
   final broken = <BrandDrift>[];
+  if (brand.published && brand.bundleId != brand.publishedBundleId) {
+    broken.add(
+      BrandDrift(
+        'brands/${brand.key}.yaml',
+        'bundle_id ${brand.bundleId} differs from the published '
+            '${brand.publishedBundleId}; a shipped application id cannot change',
+      ),
+    );
+  }
   for (final check in frozenChecks(brand)) {
     final file = File(p.join(root.path, check.path));
     if (!file.existsSync()) {

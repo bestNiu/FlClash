@@ -4,6 +4,12 @@ display_name: fly001
 artifact_prefix: fly001
 publisher: fly001
 
+identity:
+  bundle_id: com.fly001.app
+  debug_suffix: .dev
+  published: false
+  published_bundle_id: ''
+
 maintainer:
   name: fly001
   email: devnull@example.invalid
@@ -18,8 +24,6 @@ links:
   support_url: https://github.com/bestNiu/FlClash/issues
 
 frozen:
-  android_application_id: com.follow.clash
-  macos_bundle_identifier: com.follow.clash
   windows_executable: FlClash.exe
   linux_binary: FlClash
   core_name: FlClashCore

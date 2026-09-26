@@ -35,6 +35,10 @@ void main() {
     repository: 'acme/panel-app',
     publisherUrl: 'https://acme.example',
     supportUrl: 'https://acme.example/support',
+    bundleId: 'com.acme01.app',
+    debugSuffix: '.dev',
+    published: false,
+    publishedBundleId: '',
     frozen: active.frozen,
   );
 
@@ -120,6 +124,7 @@ void main() {
       () => Brand.fromYaml({
         'key': 'bad',
         'display_name': 'Bad Name',
+        'identity': {'bundle_id': 'com.bad.app'},
         'maintainer': {'name': 'x', 'email': 'x@example'},
         'copyright': {'macos': 'a', 'windows': 'b'},
         'links': {
@@ -137,6 +142,7 @@ void main() {
       () => Brand.fromYaml({
         'key': 'bad',
         'display_name': 'ok01',
+        'identity': {'bundle_id': 'com.ok01.app'},
         'maintainer': {'name': 'x', 'email': 'x@example'},
         'copyright': {'macos': 'a', 'windows': 'b'},
         'links': {'repository': 'a/b'},
@@ -164,6 +170,75 @@ void main() {
         reason: relative,
       );
     }
+  });
+
+  test('a white-label brand moves every application identity', () {
+    final brand = whiteLabel();
+    expect(
+      rewrite('android/app/build.gradle.kts', brand),
+      contains('applicationId = "com.acme01.app"'),
+    );
+    expect(
+      rewrite('macos/Runner/Configs/AppInfo.xcconfig', brand),
+      contains('PRODUCT_BUNDLE_IDENTIFIER = com.acme01.app'),
+    );
+    expect(
+      rewrite('linux/CMakeLists.txt', brand),
+      contains('set(APPLICATION_ID "com.acme01.app")'),
+    );
+    final project = rewrite('macos/Runner.xcodeproj/project.pbxproj', brand);
+    expect(
+      project,
+      contains('PRODUCT_BUNDLE_IDENTIFIER = com.acme01.app.dev;'),
+    );
+    expect(project, contains('com.follow.flClash.RunnerTests'));
+    expect(project, isNot(contains('RunnerTests = com.acme01')));
+  });
+
+  test('an application identity that is not reverse DNS is rejected', () {
+    expect(
+      () => Brand.fromYaml({
+        'key': 'bad',
+        'display_name': 'ok01',
+        'identity': {'bundle_id': 'fly001'},
+        'maintainer': {'name': 'x', 'email': 'x@example'},
+        'copyright': {'macos': 'a', 'windows': 'b'},
+        'links': {
+          'repository': 'a/b',
+          'publisher_url': 'https://a',
+          'support_url': 'https://a',
+        },
+      }),
+      throwsFormatException,
+    );
+  });
+
+  test('a published brand refuses to move its application identity', () {
+    final shipped = Brand(
+      key: active.key,
+      displayName: active.displayName,
+      artifactPrefix: active.artifactPrefix,
+      publisher: active.publisher,
+      maintainerName: active.maintainerName,
+      maintainerEmail: active.maintainerEmail,
+      macosCopyright: active.macosCopyright,
+      windowsCopyright: active.windowsCopyright,
+      repository: active.repository,
+      publisherUrl: active.publisherUrl,
+      supportUrl: active.supportUrl,
+      bundleId: 'com.moved.app',
+      debugSuffix: active.debugSuffix,
+      published: true,
+      publishedBundleId: active.bundleId,
+      frozen: active.frozen,
+    );
+
+    final report = inspectBrand(root, shipped);
+    expect(report.brokenFreezes, isNotEmpty);
+    expect(
+      report.brokenFreezes.map((item) => item.detail),
+      anyElement(contains('a shipped application id cannot change')),
+    );
   });
 
   test('an unknown brand key is refused', () {

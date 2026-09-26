@@ -731,6 +731,9 @@ Ordering and state rules that are easy to break:
 - A failed refresh keeps `PanelAccountController.lastKnown` so the summary stays on screen with an error banner instead
   of dropping the user back to the sign-in form.
 
-User-visible naming comes from `brands/<key>.yaml` through `tool/brand.dart` (`apply`, `check`, `show`, `defines`);
-`check` runs in CI and also fails when a frozen identifier (application id, bundle id, executable, Core, Helper, socket,
-lock file, installer GUID, protocol schemes) moves. See `BRANDING.md` for what is rewritten and what is frozen.
+User-visible naming and the application identity come from `brands/<key>.yaml` through `tool/brand.dart` (`apply`,
+`check`, `show`, `defines`); `check` runs in CI and also fails when a frozen identifier (executable, Core, Helper, socket,
+lock file, installer GUID, protocol schemes) moves, when `google-services.json` lacks a client for the branded
+application id, or when a brand marked `published` changes its `bundle_id`. Because the data directory follows the
+application id on every platform, a rebrand starts from empty state by design; there is deliberately no migration from
+an upstream FlClash install. See `BRANDING.md` for what is rewritten and what is frozen.

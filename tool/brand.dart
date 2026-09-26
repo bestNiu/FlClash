@@ -51,6 +51,9 @@ void main(List<String> arguments) {
         ..writeln('repository:       ${brand.repository}')
         ..writeln('publisher_url:    ${brand.publisherUrl}')
         ..writeln('support_url:      ${brand.supportUrl}')
+        ..writeln('bundle id:        ${brand.bundleId}')
+        ..writeln('debug bundle id:  ${brand.debugBundleId}')
+        ..writeln('published:        ${brand.published}')
         ..writeln('app bundle:       ${brand.appBundleName}')
         ..writeln('windows exe:      ${brand.windowsExecutable}')
         ..writeln('schemes:          ${brand.protocolSchemes.join(', ')}');

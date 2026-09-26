@@ -21,6 +21,7 @@ metacharacters because it becomes a product and file name.
 | Area | Files |
 | --- | --- |
 | Dart defaults | `lib/common/constant.dart` (app name, repository, support URL) |
+| Application identity | Android `applicationId` and `applicationIdSuffix`, macOS `PRODUCT_BUNDLE_IDENTIFIER` (release through `AppInfo.xcconfig`, Debug through `project.pbxproj`) and `INFOPLIST_KEY_CFBundleDisplayName`, Linux `APPLICATION_ID` in `linux/CMakeLists.txt` |
 | Android | `strings.xml`, notification title and channel, shared-state default, debug manifest labels, the Kotlin tests that assert those defaults |
 | macOS | `AppInfo.xcconfig` product name and copyright, `project.pbxproj` product reference, dmg title and `.app` path |
 | Windows | `Runner.rc` company/description/product/copyright, window title in `main.cpp`, installer metadata |
@@ -30,14 +31,46 @@ metacharacters because it becomes a product and file name.
 
 Artifacts come out as `<artifact_prefix>-<version>-<platform>-<arch>.<ext>`.
 
+### Application identity
+
+`identity.bundle_id` is the reverse-DNS application id used on all three
+platforms that have one, and `identity.debug_suffix` is appended for debug
+builds. Changing it moves every per-app location the operating system derives
+from the id:
+
+| Platform | Data directory follows | Value for `fly001` |
+| --- | --- | --- |
+| Android | `applicationId` | `/data/data/com.fly001.app` |
+| macOS | `PRODUCT_BUNDLE_IDENTIFIER` | `~/Library/Application Support/com.fly001.app` |
+| Linux | the GTK `APPLICATION_ID` | `~/.local/share/com.fly001.app` |
+| Windows | VERSIONINFO `CompanyName`/`ProductName` | `%APPDATA%\fly001\fly001` |
+
+Two consequences are deliberate and must not be "fixed" by accident:
+
+- A new brand is a new application. Nothing is inherited from an upstream
+  FlClash install, and no import step is offered; that was an explicit product
+  decision, so do not add migration code without revisiting it.
+- The single-instance lock lives inside the data directory, so separate bundle
+  ids also mean two builds can run at the same time. The lock file name itself
+  stays frozen.
+
+`android/app/google-services.json` must carry a client entry for both
+`<bundle_id>` and `<bundle_id><debug_suffix>`, otherwise the Google services
+plugin fails the Android build with "No matching client found for package
+name". `check` asserts both entries. When you replace the placeholder file with
+a real Firebase project, re-upload the `SERVICE_JSON` repository secret too:
+CI overwrites the tracked file with that secret.
+
+Once a build ships, set `identity.published: true` and record
+`identity.published_bundle_id`. `check` then fails on any further change,
+because the stores treat the application id as the permanent app key.
+
 ## What stays frozen, and why
 
 `brands/*.yaml` lists these under `frozen:`; `check` fails if any of them moves.
 
 | Identifier | Value | Reason |
 | --- | --- | --- |
-| Android applicationId | `com.follow.clash` | renaming ships a different app: no upgrade path, and Play never allows changing it later |
-| macOS bundle identifier | `com.follow.clash` | same, plus Keychain and TCC grants are keyed on it |
 | Windows executable | `FlClash.exe` | shortcuts, firewall rules, autostart entries and the roaming data directory all follow it |
 | Linux binary | `FlClash` | desktop entry `Exec`, package file lists, Helper path checks |
 | Core name | `FlClashCore` | built by `build_config.yaml`, copied by CMake and Xcode, and hash-pinned by the Helper |
@@ -50,7 +83,9 @@ Artifacts come out as `<artifact_prefix>-<version>-<platform>-<arch>.<ext>`.
 Renaming any of these is a coordinated migration, not a string replace: it needs
 upgrade handling for installed services, data directories and lock files, plus a
 full four-platform regression. Linux launcher names come from the desktop
-metadata, so the visible name changes without touching the binary.
+metadata, so the visible name changes without touching the binary. The macOS
+`RunnerTests` bundle identifier stays upstream on purpose; only the app target
+follows the brand.
 
 ## Release automation
 
