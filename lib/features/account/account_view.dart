@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'panel_account_provider.dart';
+import 'panel_api.dart';
 import 'panel_models.dart';
 
 class AccountView extends ConsumerStatefulWidget {
@@ -124,6 +125,36 @@ class _LoginForm extends StatelessWidget {
             decoration: InputDecoration(labelText: l10n.panelAddress),
             validator: (value) =>
                 value?.trim().isEmpty == false ? null : l10n.requiredField,
+          ),
+          ValueListenableBuilder(
+            valueListenable: panelController,
+            builder: (context, value, _) {
+              if (!isInsecurePanelUrl(value.text)) {
+                return const SizedBox.shrink();
+              }
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 16,
+                      color: context.colorScheme.error,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        l10n.insecurePanelWarning,
+                        style: TextStyle(
+                          color: context.colorScheme.error,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           const SizedBox(height: 12),
           TextFormField(

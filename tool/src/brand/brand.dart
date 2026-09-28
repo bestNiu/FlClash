@@ -15,6 +15,8 @@ final class Brand {
   final String repository;
   final String publisherUrl;
   final String supportUrl;
+  final String panelUrl;
+  final bool allowInsecurePanel;
   final String bundleId;
   final String debugSuffix;
   final bool published;
@@ -33,6 +35,8 @@ final class Brand {
     required this.repository,
     required this.publisherUrl,
     required this.supportUrl,
+    required this.panelUrl,
+    required this.allowInsecurePanel,
     required this.bundleId,
     required this.debugSuffix,
     required this.published,
@@ -73,6 +77,8 @@ final class Brand {
       repository: _require(links, 'repository', brandKey),
       publisherUrl: _require(links, 'publisher_url', brandKey),
       supportUrl: _require(links, 'support_url', brandKey),
+      panelUrl: (links['panel_url'] ?? '').toString(),
+      allowInsecurePanel: links['allow_insecure_panel'] == true,
       bundleId: bundleId,
       debugSuffix: (identity['debug_suffix'] ?? '.dev').toString(),
       published: identity['published'] == true,
@@ -197,6 +203,21 @@ final List<BrandEdit> brandEdits = [
     'lib/common/constant.dart',
     r"(const supportUrl = String\.fromEnvironment\(\s*'FLY001_SUPPORT_URL',\s*defaultValue: ')[^']*(')",
     (m, b) => '${m[1]}${b.supportUrl}${m[2]}',
+  ),
+  BrandEdit(
+    'lib/common/constant.dart',
+    r"(const defaultPanelUrl = String\.fromEnvironment\(\s*'FLY001_PANEL_URL',\s*defaultValue: ')[^']*(')",
+    (m, b) => '${m[1]}${b.panelUrl}${m[2]}',
+  ),
+  BrandEdit(
+    'lib/common/constant.dart',
+    r"(const allowInsecurePanel = bool\.fromEnvironment\(\s*'FLY001_ALLOW_INSECURE_PANEL',\s*defaultValue: )(?:true|false)",
+    (m, b) => '${m[1]}${b.allowInsecurePanel}',
+  ),
+  BrandEdit(
+    'android/app/src/main/AndroidManifest.xml',
+    r'(android:usesCleartextTraffic=")(?:true|false)(")',
+    (m, b) => '${m[1]}${b.allowInsecurePanel}${m[2]}',
   ),
   BrandEdit(
     'android/common/src/main/res/values/strings.xml',
@@ -495,6 +516,16 @@ List<FrozenCheck> frozenChecks(Brand brand) => [
     'app_id: ${brand.frozen['windows_installer_app_id']}',
   ),
   FrozenCheck(
+    'lib/common/constant.dart',
+    'ipc_namespace',
+    "const packageName = '${brand.frozen['ipc_namespace']}';",
+  ),
+  FrozenCheck(
+    'android/common/src/main/java/com/follow/clash/common/Components.kt',
+    'ipc_namespace',
+    'const val PACKAGE_NAME = "${brand.frozen['ipc_namespace']}"',
+  ),
+  FrozenCheck(
     'build_config.yaml',
     'core_name',
     'core_name: ${brand.frozen['core_name']}',
@@ -636,4 +667,6 @@ List<String> buildDefines(Brand brand) => [
   '--dart-define=FLY001_APP_NAME=${brand.displayName}',
   '--dart-define=FLY001_REPOSITORY=${brand.repository}',
   '--dart-define=FLY001_SUPPORT_URL=${brand.supportUrl}',
+  '--dart-define=FLY001_PANEL_URL=${brand.panelUrl}',
+  '--dart-define=FLY001_ALLOW_INSECURE_PANEL=${brand.allowInsecurePanel}',
 ];

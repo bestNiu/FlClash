@@ -624,6 +624,7 @@
   "email": "メールアドレス",
   "login": "ログイン",
   "logout": "ログアウト",
+  "insecurePanelWarning": "平文 HTTP：認証情報が暗号化されません。内部テスト専用",
   "noExpiration": "有効期限なし",
   "noSubscription": "有効なサブスクリプションがありません",
   "subscriptionActive": "サブスクリプションは有効です",

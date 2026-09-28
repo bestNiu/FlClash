@@ -138,7 +138,7 @@ void main() {
   test('an invalid panel address never reaches the network', () async {
     await container
         .read(panelAccountProvider.notifier)
-        .login(baseUrl: 'http://panel.example', email: 'a@b.c', password: 'pw');
+        .login(baseUrl: 'ftp://panel.example', email: 'a@b.c', password: 'pw');
 
     expect(api.calls, isEmpty);
     expect(store.session, isNull);

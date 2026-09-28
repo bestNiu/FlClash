@@ -19,11 +19,14 @@ copyright:
   windows: 'Copyright (C) 2025 com.follow. All rights reserved.'
 
 links:
+  panel_url: 'http://121.40.215.149:20001'
+  allow_insecure_panel: true
   repository: bestNiu/FlClash
   publisher_url: https://github.com/bestNiu/FlClash
   support_url: https://github.com/bestNiu/FlClash/issues
 
 frozen:
+  ipc_namespace: com.follow.clash
   windows_executable: FlClash.exe
   linux_binary: FlClash
   core_name: FlClashCore

@@ -1,3 +1,4 @@
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/features/account/account_view.dart';
 import 'package:fl_clash/features/account/panel_account_provider.dart';
 import 'package:fl_clash/features/account/panel_api.dart';
@@ -52,13 +53,22 @@ void main() {
     expect(find.text('Subscription active'), findsNothing);
   });
 
-  testWidgets('an empty form reports every required field', (tester) async {
+  testWidgets('the sign-in form is prefilled and warns about plain HTTP', (
+    tester,
+  ) async {
     await pumpAccount(tester);
+
+    expect(find.text(defaultPanelUrl), findsOneWidget);
+    expect(
+      find.text('Plain HTTP: credentials travel unencrypted. Testing only.'),
+      isInsecurePanelUrl(defaultPanelUrl) ? findsOneWidget : findsNothing,
+    );
 
     await tester.tap(find.text('Sign in'));
     await tester.pumpAndSettle();
 
-    expect(find.text('This field is required'), findsNWidgets(3));
+    // The panel address is prefilled, so only the credentials are required.
+    expect(find.text('This field is required'), findsNWidgets(2));
     expect(api.calls, isEmpty);
   });
 

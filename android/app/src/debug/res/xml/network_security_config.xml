@@ -7,10 +7,14 @@
   API 24+ ignore user certificates unless the network security config opts in,
   so debug builds trust both system and user roots.
 
+  Cleartext is allowed here so a debug build can reach a panel that is still
+  served over plain HTTP during integration testing; a network security config
+  overrides the manifest attribute, so it has to be repeated in this file.
+
   This file lives under src/debug and is never packaged into a release build.
 -->
 <network-security-config>
-    <base-config>
+    <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
             <certificates src="user" />

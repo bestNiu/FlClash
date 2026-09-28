@@ -35,6 +35,8 @@ void main() {
     repository: 'acme/panel-app',
     publisherUrl: 'https://acme.example',
     supportUrl: 'https://acme.example/support',
+    panelUrl: 'https://panel.acme.example',
+    allowInsecurePanel: false,
     bundleId: 'com.acme01.app',
     debugSuffix: '.dev',
     published: false,
@@ -73,6 +75,10 @@ void main() {
       contains("app_name: 'acme01'"),
     );
     expect(
+      rewrite('android/app/src/main/AndroidManifest.xml', brand),
+      contains('android:usesCleartextTraffic="false"'),
+    );
+    expect(
       rewrite('windows/runner/main.cpp', brand),
       contains('window.Create(L"acme01"'),
     );
@@ -89,6 +95,8 @@ void main() {
         contains("defaultValue: 'acme01',"),
         contains("defaultValue: 'acme/panel-app',"),
         contains("defaultValue: 'https://acme.example/support',"),
+        contains("defaultValue: 'https://panel.acme.example',"),
+        contains("'FLY001_ALLOW_INSECURE_PANEL',\n  defaultValue: false,"),
       ),
     );
     expect(
@@ -137,6 +145,15 @@ void main() {
     );
   });
 
+  test('an insecure panel allowance is opt-in per brand', () {
+    expect(active.panelUrl, isNotEmpty);
+    expect(whiteLabel().allowInsecurePanel, isFalse);
+    expect(
+      buildDefines(whiteLabel()),
+      contains('--dart-define=FLY001_ALLOW_INSECURE_PANEL=false'),
+    );
+  });
+
   test('a profile missing a required link is rejected', () {
     expect(
       () => Brand.fromYaml({
@@ -156,6 +173,8 @@ void main() {
       '--dart-define=FLY001_APP_NAME=acme01',
       '--dart-define=FLY001_REPOSITORY=acme/panel-app',
       '--dart-define=FLY001_SUPPORT_URL=https://acme.example/support',
+      '--dart-define=FLY001_PANEL_URL=https://panel.acme.example',
+      '--dart-define=FLY001_ALLOW_INSECURE_PANEL=false',
     ]);
   });
 
@@ -226,6 +245,8 @@ void main() {
       repository: active.repository,
       publisherUrl: active.publisherUrl,
       supportUrl: active.supportUrl,
+      panelUrl: active.panelUrl,
+      allowInsecurePanel: active.allowInsecurePanel,
       bundleId: 'com.moved.app',
       debugSuffix: active.debugSuffix,
       published: true,

@@ -18,9 +18,26 @@ void main() {
     test('allows HTTP only for a loopback development panel', () {
       expect(normalizePanelUrl('http://127.0.0.1:7001'), contains('7001'));
       expect(
-        () => normalizePanelUrl('http://panel.example.com'),
+        () =>
+            normalizePanelUrl('http://panel.example.com', allowInsecure: false),
         throwsA(isA<PanelApiException>()),
       );
+    });
+
+    test('a public HTTP panel needs the explicit insecure allowance', () {
+      expect(
+        normalizePanelUrl('http://203.0.113.7:20001', allowInsecure: true),
+        'http://203.0.113.7:20001',
+      );
+      expect(
+        () =>
+            normalizePanelUrl('http://203.0.113.7:20001', allowInsecure: false),
+        throwsA(isA<PanelApiException>()),
+      );
+      expect(isInsecurePanelUrl('http://203.0.113.7:20001'), isTrue);
+      expect(isInsecurePanelUrl('http://127.0.0.1:7001'), isFalse);
+      expect(isInsecurePanelUrl('https://panel.example.com'), isFalse);
+      expect(isInsecurePanelUrl('not a url'), isFalse);
     });
 
     test('rejects credentials and non-root panel URLs', () {

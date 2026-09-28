@@ -51,6 +51,8 @@ void main(List<String> arguments) {
         ..writeln('repository:       ${brand.repository}')
         ..writeln('publisher_url:    ${brand.publisherUrl}')
         ..writeln('support_url:      ${brand.supportUrl}')
+        ..writeln('panel_url:        ${brand.panelUrl}')
+        ..writeln('insecure panel:   ${brand.allowInsecurePanel}')
         ..writeln('bundle id:        ${brand.bundleId}')
         ..writeln('debug bundle id:  ${brand.debugBundleId}')
         ..writeln('published:        ${brand.published}')

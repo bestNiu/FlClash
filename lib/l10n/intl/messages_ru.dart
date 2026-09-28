@@ -569,6 +569,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Введите содержимое правила",
     ),
+    "insecurePanelWarning": MessageLookupByLibrary.simpleMessage(
+      "Обычный HTTP: учётные данные передаются без шифрования. Только для тестов",
+    ),
     "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
       "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
     ),

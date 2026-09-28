@@ -555,6 +555,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "inputRuleContent": MessageLookupByLibrary.simpleMessage(
       "Enter the rule content",
     ),
+    "insecurePanelWarning": MessageLookupByLibrary.simpleMessage(
+      "Plain HTTP: credentials travel unencrypted. Testing only.",
+    ),
     "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
       "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
     ),

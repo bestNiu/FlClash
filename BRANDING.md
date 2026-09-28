@@ -71,6 +71,7 @@ because the stores treat the application id as the permanent app key.
 
 | Identifier | Value | Reason |
 | --- | --- | --- |
+| IPC namespace | `com.follow.clash` | Dart builds its `MethodChannel` names from `packageName` and Kotlin from `Components.PACKAGE_NAME`; if the two drift the Core service channel never connects and every Core call times out |
 | Windows executable | `FlClash.exe` | shortcuts, firewall rules, autostart entries and the roaming data directory all follow it |
 | Linux binary | `FlClash` | desktop entry `Exec`, package file lists, Helper path checks |
 | Core name | `FlClashCore` | built by `build_config.yaml`, copied by CMake and Xcode, and hash-pinned by the Helper |

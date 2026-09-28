@@ -5160,6 +5160,16 @@ class AppLocalizations {
     return Intl.message('Sign out', name: 'logout', desc: '', args: []);
   }
 
+  /// `Plain HTTP: credentials travel unencrypted. Testing only.`
+  String get insecurePanelWarning {
+    return Intl.message(
+      'Plain HTTP: credentials travel unencrypted. Testing only.',
+      name: 'insecurePanelWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `No expiration`
   String get noExpiration {
     return Intl.message(

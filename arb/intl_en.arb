@@ -624,6 +624,7 @@
   "email": "Email",
   "login": "Sign in",
   "logout": "Sign out",
+  "insecurePanelWarning": "Plain HTTP: credentials travel unencrypted. Testing only.",
   "noExpiration": "No expiration",
   "noSubscription": "No active subscription",
   "subscriptionActive": "Subscription active",

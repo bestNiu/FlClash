@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:fl_clash/common/common.dart';
 
 import 'panel_models.dart';
 
@@ -134,7 +135,7 @@ class PanelApi {
   }
 }
 
-String normalizePanelUrl(String value) {
+String normalizePanelUrl(String value, {bool? allowInsecure}) {
   final normalized = value.trim().replaceFirst(RegExp(r'/+$'), '');
   final uri = Uri.tryParse(normalized);
   if (uri == null ||
@@ -146,14 +147,21 @@ String normalizePanelUrl(String value) {
       (uri.path.isNotEmpty && uri.path != '/')) {
     throw const PanelApiException('Invalid panel URL');
   }
-  final isLocal = _isLoopback(uri.host);
-  if (uri.scheme != 'https' && !(uri.scheme == 'http' && isLocal)) {
-    throw const PanelApiException('The panel must use HTTPS');
+  if (uri.scheme == 'https') return normalized;
+  final insecure = allowInsecure ?? allowInsecurePanel;
+  if (uri.scheme == 'http' && (insecure || isLoopbackHost(uri.host))) {
+    return normalized;
   }
-  return normalized;
+  throw const PanelApiException('The panel must use HTTPS');
 }
 
-bool _isLoopback(String host) {
+bool isInsecurePanelUrl(String value) {
+  final uri = Uri.tryParse(value.trim());
+  if (uri == null) return false;
+  return uri.scheme == 'http' && !isLoopbackHost(uri.host);
+}
+
+bool isLoopbackHost(String host) {
   return host == 'localhost' || host == '127.0.0.1' || host == '::1';
 }
 

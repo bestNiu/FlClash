@@ -13,7 +13,14 @@ const appName = String.fromEnvironment(
   'FLY001_APP_NAME',
   defaultValue: 'fly001',
 );
-const defaultPanelUrl = String.fromEnvironment('FLY001_PANEL_URL');
+const defaultPanelUrl = String.fromEnvironment(
+  'FLY001_PANEL_URL',
+  defaultValue: 'http://121.40.215.149:20001',
+);
+const allowInsecurePanel = bool.fromEnvironment(
+  'FLY001_ALLOW_INSECURE_PANEL',
+  defaultValue: true,
+);
 const appHelperService = 'FlClashHelperService';
 const coreManifestName = 'manifest.json';
 const coreName = 'clash.meta';

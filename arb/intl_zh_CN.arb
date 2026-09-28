@@ -624,6 +624,7 @@
   "email": "邮箱",
   "login": "登录",
   "logout": "退出登录",
+  "insecurePanelWarning": "明文 HTTP：账号与令牌不加密传输，仅用于内部测试",
   "noExpiration": "永不过期",
   "noSubscription": "暂无有效订阅",
   "subscriptionActive": "订阅生效中",
